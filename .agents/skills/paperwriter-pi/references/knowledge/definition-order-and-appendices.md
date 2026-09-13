@@ -17,9 +17,13 @@ statistics, and theorem labels.
 3. Expand every acronym at first use. Define every nonstandard symbol before
    or at its first use. Define every coined term in one plain sentence before
    using it as an argumentative noun.
-4. A theorem, proposition, lemma, or corollary must state its hypotheses and
-   domain before its conclusion. A proof sketch does not excuse an undefined
-   object or an omitted quantifier.
+4. If a paper uses a theorem, proposition, lemma, or corollary, it must state
+   the result's hypotheses and domain before its conclusion. A proof sketch does
+   not excuse an undefined object or an omitted quantifier. This requirement
+   does not mean that a physics paper should use these labels: reserve them for
+   genuinely formal mathematical results with theorem-level evidence. Ordinary
+   physical results should be presented as prose, equations, derivations, or
+   explicitly scoped bounds.
 5. Do not introduce unexplained labels, metaphors, named mechanisms, or
    technical words merely because they appeared in a source file. If a source
    uses an unfamiliar name, either define it in the paper or omit it from the

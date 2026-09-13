@@ -85,7 +85,12 @@ copy unsupported conclusions or overwrite the source.
    `references/knowledge/publication-mode.md` and
    `references/knowledge/definition-order-and-appendices.md` before drafting.
 4. Plan a real paper with substantive technical sections, evidence/methods,
-   results or theorem statements, comparisons, limitations and conclusion. The
+   results and, only when justified by the domain and source evidence, formal
+   theorem statements, comparisons, limitations and conclusion. Physics papers
+   should normally use prose results, equations, derivations, and scoped bounds
+   rather than `Theorem`, `Proposition`, or `Lemma` environments; reserve those
+   labels for genuine theorem-level mathematics with explicit hypotheses and a
+   proof or proof-level derivation. The
    title must be derived from the scientific content after the object, question,
    mechanism, and bounded result are understood; never derive it from a folder,
    status, or evidence label. Build a terminology/notation ledger before prose

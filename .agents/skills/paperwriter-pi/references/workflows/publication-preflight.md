@@ -67,7 +67,9 @@ field.
 
 - Build the notation/terminology ledger before drafting prose.
 - Define every symbol, acronym, named object, domain term, coined construct,
-  and theorem hypothesis before its first argumentative use.
+  and, when a formal mathematical statement is used, its hypotheses before its
+  first argumentative use. Do not introduce theorem labels merely to give a
+  physics result mathematical formatting.
 - For each technical detail, record `body`, `appendix`, `supplement`, or
   `research-only` disposition before writing it.
 - Keep the main text focused on the shortest complete scientific argument.
@@ -138,7 +140,8 @@ interior, figure/table, and final pages:
 
 - no clipped titles, labels, equations, or captions;
 - no section number/title collisions or mid-word heading hyphenation;
-- no float between an unfinished sentence, theorem, proof, or list item;
+- no float between an unfinished sentence, a formal theorem/proposition and
+  its proof when such an environment is used, or a list item;
 - no heading stranded at the bottom of a page;
 - no page beginning with a lowercase continuation or one-word fragment;
 - no figure/table after the bibliography;

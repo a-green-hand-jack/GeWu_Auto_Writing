@@ -79,8 +79,10 @@ venue or scientific acceptance evidence. The runtime receives these abstractions
 only; source papers and extraction evidence remain development artifacts.
 
 - Open with a reader-facing problem, the specific gap, and the contribution. A
-  theorem, algorithm or apparatus should appear only after the reader knows why
-  it resolves the gap.
+  formal mathematical theorem should appear only when the source establishes a
+  theorem-level result; otherwise introduce the result through physical
+  motivation, derivation, and interpretation. An algorithm or apparatus should
+  appear only after the reader knows why it resolves the gap.
 - For theory and computation, give intuition before the full formal machinery,
   then separate the formal result from the examples or numerical calibration.
   Numerical checks establish the stated finite claim or tightness; they do not
@@ -97,8 +99,14 @@ only; source papers and extraction evidence remain development artifacts.
 
 Apply the smallest pattern set that matches the assessed paper type:
 
-- **Theory**: definitions, assumptions, proposition/theorem or derivation,
-  limits, and proof scope.
+- **Theory**: model definitions, assumptions, derivation, limits, and proof
+  scope. Use a numbered `Theorem`, `Proposition`, `Lemma`, or `Corollary` only
+  when the source contains a genuinely formal statement with explicit
+  hypotheses and a proof or proof-level derivation. This is not the default
+  style for physics. For ordinary physical results, use prose headings such as
+  `Exact result`, `Main result`, `Derivation`, `Bound`, or `Physical
+  interpretation`; do not wrap equations, finite computations, or physical
+  observations in mathematical theorem environments.
 - **Computation**: model, algorithm, reproducible protocol, finite coverage,
   convergence/accuracy and comparison baseline.
 - **Experiment**: physical question, apparatus and measurement model, controls,

@@ -95,9 +95,10 @@ requires a visible color scheme. Do not include a table of contents in a
 normal article unless the venue or user requests one.
 
 Apply local layout controls before global compression: keep a heading with its
-opening paragraph, keep a theorem/proposition statement with its first proof
-lines, do not let a float interrupt an unfinished sentence or display, and do
-not allow a page to begin with a lowercase continuation or a one-word fragment.
+opening paragraph; when a formal theorem or proposition is genuinely used,
+keep its statement with the opening proof lines; do not let a float interrupt
+an unfinished sentence or display, and do not allow a page to begin with a
+lowercase continuation or a one-word fragment.
 Use captions and numbered labels for every figure and table. A bibliography
 must be the final scholarly component; no float may pass it.
 
