@@ -1,22 +1,27 @@
-# Writing a mathematics paper
+# Mathematics papers
 
-Load this during planning and drafting when the assessed domain is `mathematics`, and
-for the mathematical argument of a `physics` theory paper. It describes what a
-competent referee expects to find. It does not relax any truthfulness rule.
+Load this during planning, drafting, and review when the assessed domain is
+`mathematics`. It describes what a competent referee expects. It relaxes no
+rule in `constitution.md`.
+
+Physics theory papers do **not** load this file: `physics.md` carries the
+derivation hygiene that such a paper needs, and routing a physical argument
+through a mathematics paper's structural template is what produces ordinary
+physical results dressed as theorems.
 
 ## What the reader needs
 
 A referee reads to answer three questions, in this order:
 
 1. **What exactly is claimed?** A precise statement with all quantifiers,
-   hypotheses and the class of objects involved.
+   hypotheses, and the class of objects involved.
 2. **Why is it true?** An argument they can follow without reconstructing your
    private reasoning.
 3. **Why does it matter, and where does it sit?** Relation to what was already
    known, and what remains open.
 
 A draft that answers only (1) is a note, not a paper. Most weak drafts fail on
-(2) by compressing the argument, and on (3) by omitting positioning entirely.
+(2) by compressing the argument and on (3) by omitting positioning.
 
 ## Depth calibration — the most common failure
 
@@ -27,13 +32,14 @@ For each substantive result, a complete treatment normally contains:
 
 - the **statement**, displayed and labelled, with hypotheses spelled out;
 - a **proof strategy paragraph** before the proof — what the obstacle is, what
-  idea removes it, why the obvious approach fails. This is the single highest
-  value paragraph in most papers and is almost always missing;
+  idea removes it, why the obvious approach fails. This is the highest-value
+  paragraph in most papers and is almost always missing;
 - the **proof in followable steps**, each step justified or explicitly cited;
 - a **worked instance** small enough to verify by hand, showing the mechanism;
 - **sharpness discussion**: is each hypothesis needed? What breaks without it?
   A counterexample for a dropped hypothesis is worth more than another corollary;
-- **scope**: what the result does not say, stated so a reader cannot over-read it.
+- **scope**: what the result does not say, stated so a reader cannot over-read
+  it.
 
 When the source repository is small, this is where the length legitimately comes
 from — definitions, intermediate steps, the worked instance, and sharpness — not
@@ -63,36 +69,14 @@ For a certificate/enumeration paper: define the exactly covered set, describe th
 checker and its independent verification, report the coverage precisely, and
 separate what is proven for that finite set from what remains conjectural.
 
-## Writing DNA: reference-informed composition patterns
-
-These are distilled, reviewed composition patterns from real mathematics papers.
-They guide exposition; they are not text to imitate and do not constitute
-venue or mathematical acceptance evidence. The runtime receives these abstractions
-only; source papers and extraction evidence remain development artifacts.
-
-- Open with the mathematical problem, the strongest relevant prior boundary, the
-  contribution, and a short roadmap before introducing technical machinery.
-- State definitions and quantifiers before using them. Keep a notation ledger and
-  make edge cases, conventions, and imported hypotheses explicit.
-- Before a long proof, explain the obstacle and strategy, then isolate and prove
-  the decisive lemma or construction. Do not replace the mechanism with a named
-  technique or an assertion that a step is routine.
-- Keep universal, existential, conditional, asymptotic, conjectural, finite,
-  computational, and heuristic claims visibly separate. Match every conclusion
-  to the exact scope proved.
-- Use a worked example, sharpness discussion, counterexample, or limiting case
-  to show why the hypotheses matter.
-- Keep the dependency spine in the main text. Move routine casework, verification
-  tables, and implementation detail to titled appendices that the body points to.
-
-Apply the smallest pattern set that matches the mathematical paper type:
+Apply the smallest pattern set that matches the paper type:
 
 - **Theory**: definitions, proof strategy, theorem/lemma chain, complete proof,
-  sharpness and scope.
+  sharpness, and scope.
 - **Counterexample**: exact claim and quantifiers, explicit witness, hypothesis
   checks, failed conclusion, and what remains open.
 - **Computer-assisted or enumeration**: exactly covered set, checker or
-  certificate, independent verification, reproducibility and finite-scope limit.
+  certificate, independent verification, reproducibility, finite-scope limit.
 
 ## Craft
 
@@ -104,19 +88,18 @@ Apply the smallest pattern set that matches the mathematical paper type:
 - **Put the difficulty where it is.** Do not hide the hard step inside "it is
   easy to see". If a step is routine, say why it is routine. If it is the crux,
   give it its own lemma.
-- **A lemma the main theorem depends on is proved, not announced.** Every
-  result the main theorem uses must carry a self-contained proof in the paper:
-  the objects it quantifies over are defined, the construction it relies on is
-  laid out (a sign-reversing involution is given explicitly, the invariant
-  vectors and their action are written, the seed/base values are derived), and
-  each step is justified. Naming a mechanism ("by a sign-reversing
-  involution"), stating the conclusion, and leaving the mechanism unconstructed
-  is an assertion, not a proof — and a referee will read the main theorem as
-  conditional on it. If a lemma cannot be proved to that standard, weaken the
-  statement of the result to the scope actually established, and say so, rather
-  than presenting it as proved. This is the single most common referee-reported
+- **A lemma the main theorem depends on is proved, not announced.** Every result
+  the main theorem uses must carry a self-contained proof in the paper: the
+  objects it quantifies over are defined, the construction it relies on is laid
+  out (a sign-reversing involution is given explicitly, the invariant vectors
+  and their action are written, the seed/base values are derived), and each step
+  is justified. Naming a mechanism, stating the conclusion, and leaving the
+  mechanism unconstructed is an assertion, not a proof — and a referee will read
+  the main theorem as conditional on it. If a lemma cannot be proved to that
+  standard, weaken the statement of the result to the scope actually
+  established, and say so. This is the single most common referee-reported
   failure on synthetic proofs.
-- **Displayed equations are for equations that are read, referenced or hard to
+- **Displayed equations are for equations that are read, referenced, or hard to
   parse inline.** Label only what you cite later.
 - **Write the abstract last**, from the finished paper. It must contain the
   actual quantifiers of the theorem, not a softened version.
@@ -135,46 +118,39 @@ not characterize a paper you have not read, and do not manufacture a contrast.
 A limitations paragraph should sharpen the contribution, not apologize for it.
 State the boundary as a fact about scope: "The argument uses finiteness of X in
 Step 3; whether the statement survives for infinite X is open." That is
-informative. "This work is only a small step and may not be useful" is noise and
-referees read it as a lack of understanding of one's own result.
+informative. "This work is only a small step and may not be useful" is noise.
 
 ## Never
 
 Fabricate a theorem, a proof step, a counterexample witness, a citation, or a
 novelty claim. Do not upgrade a finite verification into a general theorem, do
-not silently strengthen a quantifier between the theorem and the abstract, and do
-not present a known textbook result as new. Correct or explicitly scope a known
-error; never conceal it to pass a gate.
+not silently strengthen a quantifier between the theorem and the abstract, and
+do not present a known textbook result as new. Correct or explicitly scope a
+known error.
 
 ## The abstract
 
-Write it last, from the finished paper, as continuous prose a mathematician can
-read without decoding notation.
+Continuous prose a mathematician can read without decoding notation, written
+last from the finished paper.
 
 - **Name objects in words, not symbols.** "a family of four quadratic forms in
-  every dimension above two" reads; "$n \geq 3$ and positive rationals $R$,
-  $\kappa$, $d_2,\dots,d_n$" does not. A handful of single symbols is fine when
-  the symbol is genuinely the subject; a parameter list is not.
-- **No formulas.** If a relation must appear, at most one, short. An abstract
-  carrying `$\tau(\mathcal{P}) = 32 > 31 = 2\nu(\mathcal{P}) - 1$` has moved the
-  results section into the abstract.
-- **No computed values.** Counts, cardinalities, enumeration sizes and numeric
+  every dimension above two" reads; a parameter list does not. A handful of
+  single symbols is fine when the symbol is genuinely the subject.
+- **No formulas.** If a relation must appear, at most one, short.
+- **No computed values.** Counts, cardinalities, enumeration sizes, and numeric
   outputs belong in the results section or a table. Say "an explicit finite
   family refutes the conjecture", not the family's size and both invariants.
-- Keep the quantifiers of the actual theorem. Losing them to fit the length is a
-  correctness defect, not a style one.
-
-`paper_style` counts these: a span longer than 60 characters, three or more
-relational expressions, or more than two reported values all block handoff.
+- **Keep the quantifiers of the actual theorem.** Losing them to fit the length
+  is a correctness defect, not a style one.
 
 ## Where numbers live
 
-Running prose is the worst place for numeric detail. A reader cannot compare
+Running prose is the worst place for numeric detail: a reader cannot compare
 values embedded in sentences, and a reviewer cannot check them.
 
 - Tabulate anything enumerable: parameter sweeps, per-case results, verification
-  coverage. A table with units and a caption is checkable; a paragraph of decimals
-  is not.
+  coverage. A table with units and a caption is checkable; a paragraph of
+  decimals is not.
 - Keep in prose only the values a sentence genuinely turns on, and give each one
   its meaning: what it is, what produced it, what it establishes.
 - Long case enumerations and machine-verification output belong in an appendix.
@@ -206,16 +182,16 @@ convention. Then audit the compiled paper against that record.
 
 Two rules carry most of the weight:
 
-- **Never reuse one symbol for incompatible types.** A referee who meets $\phi$
+- **Never reuse one symbol for incompatible types.** A referee who meets `\phi`
   as a map and later as a scalar stops trusting the argument.
 - **State the conventions that can change the theorem**: empty objects, loops and
   parallel edges, orientation, composition order, duals and closures,
-  normalisation, coefficient field, index origin. These are where a correct proof
-  most often reads as wrong.
+  normalisation, coefficient field, index origin. These are where a correct
+  proof most often reads as wrong.
 
-Notation must agree across statements, proofs, examples, figures, appendices and
-any computational certificate. A certificate that indexes from 0 while the paper
-indexes from 1 is a defect even when both are internally consistent.
+Notation must agree across statements, proofs, examples, figures, appendices,
+and any computational certificate. A certificate that indexes from 0 while the
+paper indexes from 1 is a defect even when both are internally consistent.
 
 ## Citing so the citation does its job
 
@@ -227,74 +203,77 @@ right, and it does not support the sentence it is attached to.
 - Put each citation next to the claim it supports. Names collected in an opening
   paragraph support nothing.
 - **An imported relation is stated where it is used, and bound to a checkable
-  source.** When a later step depends on a result imported from another work
-  (an exact relation, a lemma, a cited identity), state the relation's content
-  at the point of use — the objects it involves, its hypotheses and any
-  convention it assumes — and bind it to a source locator that a reader can
-  actually inspect (the concrete passage, not an abstract or landing page). If
-  that passage cannot be inspected, record the result as conditional on the
-  imported relation, and do not present it as a verified consequence.
+  source.** State the relation's content at the point of use — the objects it
+  involves, its hypotheses, and any convention it assumes — and bind it to a
+  source locator a reader can actually inspect (the concrete passage, not an
+  abstract or landing page). If that passage cannot be inspected, record the
+  result as conditional on the imported relation.
 - Say how prior work relates: agrees, generalises, gives an alternative proof,
-  restricts, or conflicts. Address the strongest apparent scope collision head on
-  rather than leaving it for the referee to find.
+  restricts, or conflicts. Address the strongest apparent scope collision head
+  on rather than leaving it for the referee to find.
 - Every bibliography entry needs a reason to be cited, and every material claim
   about the literature needs a citation. Neither direction is optional.
 - A search that found nothing supports only a dated, coverage-bounded statement:
   "we did not locate", never "first" or "unprecedented".
 
-If a primary source is inaccessible, record it as unresolved and keep drafting.
-Do not characterise a paper you have not read.
-
 ## What does not belong in the manuscript
 
 The paper is a mathematical document, not a build report.
 
-- **No artifact hashes** in the title, abstract, body, footnotes or references,
-  unless the hash is itself an object of study. Byte identity is not mathematical
-  correctness. State the evidence directly: an explicit witness, an exact rank, a
-  nonzero minor, or the verification procedure with its coverage.
-- **No workflow state**: internal holds, pending permissions, review-task status,
-  run identifiers, agent names, or model settings in the body.
+- **No artifact hashes** in the title, abstract, body, footnotes, or references,
+  unless the hash is itself an object of study. State the evidence directly: an
+  explicit witness, an exact rank, a nonzero minor, or the verification
+  procedure with its coverage.
+- **No workflow state**: internal holds, pending permissions, review-task
+  status, run identifiers, agent names, or model settings.
+- **No provenance narration in the bibliography** — no verification dates, no
+  registry names, no "not independently verified" notes. Those belong in
+  `research/literature.md`.
 - **No author-facing placeholders.** An unfilled `\address` or `\author` prints
   its instruction text into the PDF and, through the running head, onto every
   page. Leave the field empty instead.
 
-Scientific scope and genuine limitations stay in the manuscript; engineering
-provenance belongs in an excluded manifest.
-
 ## Preamble
 
-Keep the preamble small and add packages only when used. `microtype` is worth
-loading by default, but it must follow `lmodern`: the default Computer Modern
-bitmap fonts make its font expansion a fatal error, not a warning.
+This project's house template is the official APS PRX entrypoint
+(`templates/prx-official/apstemplate.tex`); the preamble is therefore fixed by
+the template unless the user explicitly selects another venue. Do not replace it
+with `article` or `amsart` on your own initiative.
 
-```latex
-\documentclass[11pt]{amsart}
-\usepackage[margin=1in]{geometry}
-\usepackage{amsmath,amssymb,amsthm,mathtools}
-\usepackage{lmodern}      % scalable fonts; must precede microtype
-\usepackage{microtype}
-\usepackage[hidelinks]{hyperref}
-\raggedbottom
-```
+If the user does select a venue whose preamble you control, keep it small and
+add packages only when used. Useful hygiene: load `lmodern` before `microtype`
+(the default Computer Modern bitmap fonts make microtype's font expansion an
+error rather than a warning); number theorem environments within sections and
+equations globally unless the venue says otherwise; supply `\subjclass` (MSC)
+and `\keywords`; keep links active but black; no decorative colour, theorem
+boxes, or oversized headings. Local layout controls are preferable to global
+compression; the compile-repair loop does the real work on overfull boxes.
 
-Measured on four real manuscripts that had been blocked on overfull boxes, the
-worst box before and after adding `lmodern` + `microtype`: 35.1→8.3pt, 44.5→36.9,
-28.6→22.3, and 49.6→53.7. It is a real improvement on average and it made one
-case worse, so treat it as free hygiene rather than a layout fix — the
-compile-repair loop still does the actual work.
+## Review checklist
 
-Number theorem environments within sections and equations globally unless the
-venue says otherwise. Supply `\subjclass` (MSC) and `\keywords`. Keep links
-active but black; no decorative colour, theorem boxes, or oversized headings.
+Applied during whole-paper review, in addition to the shared dimensions in
+`workflows/review.md`:
 
-## Before calling it done
+- Separate universal statements (all objects in a class) from existential,
+  conditional, and finite statements. Match the quantifiers in the abstract and
+  conclusion to the actual theorem; never weaken or strengthen silently.
+- For proofs: identify assumptions, imported theorems and their hypotheses,
+  induction/limits/existence arguments, and whether the chain closes. A "proof
+  by enumeration" is not a proof unless the enumeration is itself proven
+  complete.
+- For counterexamples: one explicit witness refutes a universal claim; verify
+  the witness actually satisfies all hypotheses and violates the conclusion.
+- For certificates/exact computation: state the checker, the exactly covered
+  set, and the independent identity or witness verified. Full coverage of a
+  finite set does not prove the general statement.
+- Check definitions, non-degeneracy, base cases, edge cases (n=0, empty, equal
+  parameters), orientation/sign conventions, and dependencies on an unproven
+  lemma.
+- Distinguish "new theorem" from "new proof of a known result" from "worked
+  example"; do not claim novelty without evidence.
+- Verify a representative nontrivial instance and a limiting/degenerate instance
+  by independent hand computation when feasible; record what was checked.
 
-The compile succeeding is not the check. Inspect every rendered page, then
-confirm: theorem scope and result boundary stated; closest-work evidence
-recorded; notation in the PDF matches the ledger; every load-bearing claim has a
-traceable primary citation; principal proofs explicitly close; no page carries
-clipping, overlap, broken glyphs, or a stranded heading.
-
-If an item is not established, report the precise missing evidence rather than
-weakening the claim to pass.
+Report issues with severity and exact equation/lemma/file location. A missing
+hypothesis, an unproven imported claim, an over-general quantifier, or a silent
+"finite implies infinite" step is critical.

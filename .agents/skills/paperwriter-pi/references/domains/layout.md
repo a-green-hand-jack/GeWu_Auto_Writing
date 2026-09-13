@@ -64,6 +64,21 @@ suggestion.
   and the final two pages. A page beginning with a lowercase continuation, a
   one-word fragment, or a detached caption is a defect.
 
+## The reference region
+
+- The reference list is labeled and reads as one block. With the APS PRX house
+  template the class draws only its separator rule (a horizontal rule that is
+  thicker in the middle) and prints no heading word, so the manuscript must
+  supply the label. A bare rule above entry `[1]`, with no heading, is a defect.
+- The reference list is the final scholarly component. No figure or table
+  appears on the reference page or after it, and the references are not squeezed
+  into a fragment of a page by a float that was not flushed.
+- Each entry is one reference: author, title, venue, year, identifier. A
+  bibliography entry bloated with verification dates, registry names, or
+  drafting-process caveats is a manuscript-hygiene defect, not a long reference.
+- A very short reference list is a coverage finding rather than a layout defect;
+  report it as such instead of judging the page aesthetics.
+
 ## What a pass means
 
 A pass here means the rendered pages are legible and well formed for the exact

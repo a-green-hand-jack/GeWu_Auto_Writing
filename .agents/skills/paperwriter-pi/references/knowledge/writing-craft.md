@@ -74,12 +74,48 @@ Match the verb to the evidence:
 - No editing markers, internal identifiers, absolute paths or references to the
   drafting process survive into the manuscript.
 
-## Diagnostics
+## Definitions, notation and appendices
 
-`paper_consistency`, `paper_bibcheck`, `paper_leakcheck` and `paper_coverage`
-mechanically catch the checkable subset: numbers reported at conflicting
-precision, acronyms used before definition, dangling references, citations with
-no bibliography entry, internal identifiers, and sections far from their budget.
-Run them before handoff and fix what they report. A clean diagnostic run means
-those specific defects are absent; it is not evidence that the paper is good,
-complete or true.
+The objects a reader needs come before the results about them.
+
+- **Build the ledger first.** Before prose, record each symbol, acronym,
+  coined term, and named construct with its plain-language definition, its
+  units or domain/codomain, its first planned use, and the sections that use
+  it. Write it under `research/`.
+- **Introduce the object before its property.** State the setting, variables,
+  quantifiers, conventions, and boundary conditions before any result about
+  them. Do not write a result first and add the definition later.
+- **Two scans after drafting.** A first-use scan: list every acronym,
+  capitalized construct, and nonstandard symbol, and confirm its definition
+  appears earlier in the same paper. A drift scan: confirm one concept keeps
+  one name, one meaning, and one notation across body, appendices, and
+  captions, including any decomposition count.
+- **Disposition every technical detail.** Plan it as `body`, `appendix`, or
+  `research-only` before writing it. Routine derivations, long case lists,
+  implementation detail, auxiliary tables, and validation logs move out of the
+  body; the body states the result and points to the appendix.
+- **Appendices are scientific, titled, and referenced.** Every appendix has a
+  descriptive title, a purpose, and at least one meaningful reference from the
+  body. An appendix never conceals a missing main argument, an unsupported
+  claim, or an undefined object.
+- **Transient detail belongs in `research/`.** Build and workflow information
+  stays out of both the body and the technical appendices.
+
+## Self-checks
+
+Run these on the generated files before handoff; the exact commands are in
+`workflows/preflight.md`.
+
+- Every `\input`/`\include` target exists; every planned section is present and
+  referenced by the entrypoint.
+- Every citation key has a bibliography entry, every entry is cited, and no
+  entry carries process narration.
+- Numbers agree across sections; acronyms and symbols are defined before use;
+  no internal identifiers, paths, or editing markers in the paper.
+- Each display item is referenced from the body and appears on or after the
+  page that first cites it, never after the bibliography.
+
+These checks catch a checkable subset: conflicting precision, undefined
+acronyms, dangling references, citations with no entry, leaked internal
+identifiers, misplaced floats. A clean run means those specific defects are
+absent; it is not evidence that the paper is good, complete, or true.

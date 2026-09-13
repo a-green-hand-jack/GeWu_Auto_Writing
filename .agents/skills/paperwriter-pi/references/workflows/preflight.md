@@ -1,0 +1,186 @@
+# Formal-publication preflight
+
+Run this on the complete `WORKSPACE` before calling the result a formal
+manuscript. Use only Pi's native `read`, `write`, `edit`, `bash`, `grep`,
+`find`, `ls` tools. These checks establish presentation, internal consistency,
+and template conformance only; they are not a claim of scientific truth.
+
+## 1. Manuscript boundary
+
+- `paper/main.tex` exists and every `\input{}` / `\include{}` target exists
+  inside `paper/`.
+- All generated paper files are inside `WORKSPACE`; `SOURCE_ROOT` is untouched.
+- The paper has a title, author field, abstract, scientific sections,
+  limitations/discussion, conclusion, and references.
+- This project's fixed house template is used:
+  `templates/prx-official/apstemplate.tex`, document class exactly
+  `\documentclass[aps,prx,reprint,groupedaddress]{revtex4-2}`. Do not use
+  `article`, `amsart`, PRE, PRL, or `pre-generic` unless the user explicitly
+  selected another venue.
+- No table of contents unless requested.
+
+## 2. Internal-metadata firewall
+
+Search only the manuscript under `paper/`, excluding `research/`. Review every
+hit instead of relying on one count. Unless the user explicitly requested a
+software/artifact paper, none of the following may appear in the title, author
+field, abstract, body, caption, conclusion, or bibliography:
+
+```bash
+grep -RniE 'GitLab|GitHub|github\.com|gitlab\.com|README|\.md\b|\.py\b|\.sh\b|\.yaml\b|\.yml\b|\.json\b|run[-_ ]?id|commit|hash|sandbox|bwrap|provider|agent|model name|PaperWriter|Pi process|platform rank|issue tracker|source path|local path' paper/
+grep -RniE '/home/|/Users/|[A-Za-z]:\\|https?://' paper/
+grep -RniE '^\\(title|author)|Author information pending|source-bound expository draft|Solution[ _-]?[0-9]+|top[ _-]?30|Anonymous' paper/
+```
+
+The second command also finds legitimate scholarly DOI/URLs — inspect each hit
+and retain only necessary scholarly citations. `Anonymous` is allowed when
+anonymity is intentional. Platform names, repository identifiers, paths,
+hashes, run IDs, and agent/process descriptions are never allowed in the
+manuscript; they belong in `research/provenance.md`.
+
+## 3. Title and abstract gate
+
+- The title is reader-facing and derived from the paper's actual scientific
+  object, question, mechanism, and bounded result — not from a repository slug,
+  requested status, verification tier, folder name, or implementation label.
+- The abstract is self-contained, result-first, normally 150–250 words, and
+  states the question, scientific approach, principal result, and scope.
+- No inventory lists, verifier counts, file names, command descriptions,
+  revision history, or repeated provenance disclaimers in the abstract.
+- No formulas in the abstract, and no strings of reported values; at most two
+  or three numbers, and only where they carry a claim.
+- The abstract fits as one intentional front-matter block.
+
+## 4. Definition and appendix gate
+
+- The notation/terminology ledger was built before drafting prose.
+- Every symbol, acronym, named object, domain term, and coined construct is
+  defined before its first argumentative use, including in the abstract.
+- One concept keeps one name and one notation across body, appendices, and
+  captions; no definition drift.
+- Every technical detail has a recorded disposition (`body`, `appendix`,
+  `research-only`). Routine derivations, long case analyses, implementation
+  detail, auxiliary tables, and validation logs live in titled appendices or
+  `research/`, not in the body.
+- Every appendix is scientifically useful, titled, and referenced from the body;
+  an appendix never conceals a missing central argument.
+
+## 5. Formal-environment gate
+
+```bash
+grep -RnE '\\begin\{(theorem|proposition|lemma|corollary|definition)\}' paper/
+```
+
+Every hit must trace to a provenance record whose evidence is theorem-level: an
+explicit hypotheses-plus-proof (or proof-grade derivation) result from the
+source. Physics results, finite-size computations, numerically checked
+identities, fitted forms, and physical mechanisms are presented as prose
+results, displayed equations, derivations, and scoped bounds — never wrapped in
+theorem environments. Convert any mismatch to prose headings such as
+`Main result`, `Derivation`, `Bound`, or `Physical interpretation`.
+
+## 6. Evidence-language gate
+
+Compare every headline statement in the title, abstract, introduction, results,
+and conclusion against `research/provenance.md`. Keep separate language for a
+theorem derived here, a source-reported result reproduced as exposition, an
+independently rerun check, a finite observation, and an open question. Do not
+write `proved`, `exactly verified`, `complete answer`, `resolved`,
+`independent validation`, or a universal/asymptotic claim when the evidence is
+a source report, spot-check, selected family, or finite census. Retained numbers
+must carry interpretable scope, units, precision, and provenance.
+
+## 7. Bibliography gate
+
+```bash
+grep -c '\\bibitem' paper/paper.bbl 2>/dev/null || grep -c '\\bibitem' paper/*.bbl
+grep -RniE 'verified through|not independently verified|preparation environment|Crossref|retrieved on|consulted on|bibliographic fields|API key' paper/references.bib paper/*.bbl
+grep -RniE 'FloatBarrier|placeins' paper/main.tex paper/*.tex
+```
+
+- **Every entry is cited and every citation has an entry.** Delete unused
+  `.bib` entries; an entry with no citation has no reason to exist.
+
+```bash
+grep -o '\\cite[a-z]*{[^}]*}' -R paper/ | sed 's/.*{//;s/}//' | tr ',' '\n' | sed 's/ //g' | sort -u > /tmp/cited.txt
+grep -oE '^@[a-zA-Z]+\{[^,]+' paper/references.bib | sed 's/.*{//' | sort -u > /tmp/entries.txt
+comm -23 /tmp/entries.txt /tmp/cited.txt   # entries never cited
+comm -13 /tmp/entries.txt /tmp/cited.txt   # citations with no entry
+```
+
+- **No provenance narration in the bibliography.** Verification notes such as
+  "verified through the Crossref registry (date)", "not independently verified
+  in the preparation environment", or retrieval dates do not belong in a
+  reference entry; they are internal records and belong in
+  `research/literature.md`. A bibliography note may state a scientific caveat
+  (for example that a work is a preprint), never the drafting process.
+- **Coverage is stated, not implied.** Count the entries. A short list is a
+  coverage finding: if the paper cites fewer than eight content-verified
+  references, `research/literature.md` must record why (genuinely isolated
+  result, no accessible prior work, and what searches were run). Never pad with
+  uncited or unread entries, and never attribute a technical result to a source
+  whose content was not inspected.
+
+## 8. Float and reference-region gate
+
+The reference list is the final scholarly component and must read as one
+labeled block.
+
+- The template preamble loads `placeins`, and `\FloatBarrier` (or the template's
+  equivalent float-flushing directive) appears immediately before
+  `\bibliography`. Dropping it lets pending full-width floats pile up beside or
+  after the reference block.
+- No figure or table appears after the bibliography, and no float shares a page
+  with the start of the reference list in a way that leaves the references
+  squeezed into a fragment of a page.
+- The reference list is labeled. With this house template the APS class prints
+  only its separator rule and no heading word, so the entrypoint must supply
+  the label (for example `\section*{References}` before `\bibliography`). A bare
+  rule above `[1]` is a presentation defect, not a style choice.
+- Check for full-width rules on the reference page (a `table*`/`figure*` sharing
+  the page): render the page and look, or render and analyze pixel rows.
+
+## 9. LaTeX and source gate
+
+```bash
+grep -RniE '^\\documentclass|tableofcontents|colorlinks|\\textcolor|\\href|\\url' paper/
+grep -RniE 'Draft title|TODO|TBD|placeholder|Author information pending|\?\?|undefined' paper/
+grep -RniE 'needs_review|review-only|source-bound|workflow|pending verification' paper/
+```
+
+Require `hyperref` with `hidelinks`, no colored table of contents, no visible
+template markers, and no unresolved placeholders. In two-column templates use
+`aligned`/`split`/`multline` for long equations and starred floats only when a
+display genuinely needs full width.
+
+## 10. Compile and visual gate
+
+Compile the manuscript (engine → bibtex → engine ×2) and read every warning
+location: undefined references, overfull boxes wider than a few points, missing
+glyphs, and font problems. Repair layout defects locally (break long tokens,
+keep a heading with its opening paragraph, keep a float away from an unfinished
+sentence or display). Never hide overflow, relax margins, shrink text globally,
+or delete evidence to pass.
+
+Then inspect the rendered first page, every figure/table page, the reference
+page, and the final two pages:
+
+- no clipped titles, labels, equations, or captions; no missing-glyph boxes;
+- no section heading stranded at the bottom of a page; no page beginning with a
+  lowercase continuation or a one-word fragment;
+- floats appear on or after the page that first references them, never after
+  the bibliography;
+- figure text legible at print scale; lines/categories distinguishable without
+  colour; captions self-contained;
+- front matter reads cleanly with required licence notices retained.
+
+If the model cannot read images, or rendering is unavailable, record visual
+inspection as blocked. Never infer visual success from a compiler exit code.
+
+## 11. Final report
+
+Record in `research/validation.md`: the commands actually run and their
+results, the files and pages inspected, the bibliography size and coverage
+justification, remaining warnings, and blocked gates. Do not write
+`submission-ready`, `scientifically verified`, or `visually approved` unless the
+exact gates and evidence support those phrases.
