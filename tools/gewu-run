@@ -73,17 +73,22 @@ while : ; do
   echo "$PI_PID" > "$TASK_DIR/pid"
 
   # Watchdog: stop the attempt when the workspace stops changing.
+  # The stall baseline is per attempt. A retry keeps the workspace from the
+  # previous attempt, so measuring against the newest file alone would declare
+  # the new attempt dead on its first check (that bug killed attempts 2-3 in
+  # the first retry run within minutes).
+  attempt_start=$(date +%s)
   (
     while kill -0 "$PI_PID" 2>/dev/null; do
       sleep 60
       newest=$(find "$TASK_DIR/workspace" -type f -printf '%T@\n' 2>/dev/null | sort -n | tail -1 | cut -d. -f1)
       now=$(date +%s)
-      if [ -z "$newest" ]; then
-        start=$(date -u -d "$(cat "$TASK_DIR/started-at")" +%s 2>/dev/null || echo "$now")
-        idle=$(( now - start ))
+      if [ -z "$newest" ] || [ "$newest" -lt "$attempt_start" ]; then
+        baseline=$attempt_start
       else
-        idle=$(( now - newest ))
+        baseline=$newest
       fi
+      idle=$(( now - baseline ))
       if [ "$idle" -gt "$STALL" ]; then
         echo "stalled: no workspace change for ${idle}s (limit ${STALL}s)" > "$TASK_DIR/stall-detected"
         pkill -TERM -P "$PI_PID" 2>/dev/null
