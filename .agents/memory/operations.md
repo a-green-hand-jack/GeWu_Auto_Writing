@@ -66,3 +66,17 @@ ECS 是 Ubuntu 24.04，**无免密 sudo**、docker 不可用、poppler 未装。
 - **PATH**：非交互 ssh 没有 `~/.local/bin`。launcher 必须自己 `export PATH="$HOME/.local/bin:$HOME/texlive/2026/bin/x86_64-linux:$PATH"`，并在启动前用 `command -v pi` 做守卫。
 - **不要修改正在运行的脚本**：bash 边读边执行，改运行中的 launcher 会导致不可预期行为。要改就新建脚本文件。
 - **运行产物**：`paperwriter-pi-runs/` 已被 `.gitignore` 忽略，属于生成物；不逐份修补（见 `paper_writing_policy.md`：失败即整份重跑）。
+
+## 规则 5：看门狗（provider 卡死）
+
+模型供应商偶尔会挂起 HTTP 请求：pi 进程活着、**CPU 时间几乎不增长**、workspace 长时间没有新文件。首批 30 个任务里出现 2 次，各空转约 75 分钟。
+
+判断方法：比较进程的 `CPU TIME`（`ps -o etime,time`）与 workspace 最新文件时间。CPU 时间远小于墙上时间 + 文件长时间不更新 = 卡死，不是"在算"。
+
+处理：按环境失败处理（**不是**写作结果），停掉并整份重跑。启动任务用 `tools/gewu-run`：
+
+```bash
+gewu-run --task-dir DIR --timeout 10800 --stall 1200   # 20 分钟无写入即判卡死并终止
+```
+
+它写与 launcher 相同的 `pid/started-at/run.log/exit-code/finished-at`，额外写 `stall-detected`。批量的 `timeout 14400` 只兜住"永远不返回"，单独的 stall 看门狗才能及早释放卡死任务。
