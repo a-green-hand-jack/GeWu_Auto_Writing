@@ -130,10 +130,10 @@ comm -13 /tmp/entries.txt /tmp/cited.txt   # citations with no entry
 The reference list is the final scholarly component and must read as one
 labeled block.
 
-- The template preamble loads `placeins`, and `\FloatBarrier` (or the template's
+- The preamble loads `placeins`, and `\FloatBarrier` (or the template's
   equivalent float-flushing directive) appears immediately before
-  `\bibliography`. Dropping it lets pending full-width floats pile up beside or
-  after the reference block.
+  `\bibliography` — in the amsart entrypoint as well as the PRX one. Dropping it
+  lets pending floats pile up beside or after the reference block.
 - No figure or table appears after the bibliography, and no float shares a page
   with the start of the reference list in a way that leaves the references
   squeezed into a fragment of a page.

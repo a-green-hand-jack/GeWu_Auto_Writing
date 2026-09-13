@@ -248,6 +248,7 @@ when used.
 \usepackage[T1]{fontenc}
 \usepackage{graphicx}
 \usepackage{booktabs}
+\usepackage{placeins}     % provides \FloatBarrier
 \usepackage[hidelinks]{hyperref}
 \bibliographystyle{amsplain}
 \raggedbottom
@@ -261,8 +262,9 @@ when used.
 - Keep links active but black; no decorative colour, theorem boxes, or oversized
   headings.
 - amsart prints its own `References` heading, so no manual label is needed; the
-  reference list is still the final scholarly component and pending floats are
-  still flushed before it.
+  reference list is still the final scholarly component, so keep `placeins`
+  loaded and put `\FloatBarrier` immediately before `\bibliography` exactly as
+  in the PRX entrypoint.
 - Local layout controls are preferable to global compression; the
   compile-repair loop does the real work on overfull boxes.
 
