@@ -1,0 +1,197 @@
+#!/usr/bin/env bash
+# gewu-batch — inspect the GeWu paper-writing batch runs.
+#
+# Operates on $HOME/GeWu_Auto_Writing/paperwriter-pi-runs/<run>/<solution>/{task.md,run.log,
+# exit-code,started-at,finished-at,workspace/}. Read-only: it never modifies a run.
+#
+# Usage:
+#   gewu-batch list                      list run directories, newest first
+#   gewu-batch watches [RUN]             one line per run: finished/running/total
+#   gewu-batch status [RUN]              per-task table: state, files, tex, bib, pdf, elapsed
+#   gewu-batch gates [RUN]               per-paper gate metrics (template, refs, bibliography, theorem envs)
+#   gewu-batch report [RUN]              aggregate summary over the tasks in RUN
+#   gewu-batch tail RUN TASK [N]         tail a task's run.log (default 40 lines)
+#   gewu-batch show RUN TASK FILE        print a file from a task workspace (relative path)
+#
+# RUN may be a full path, a glob fragment (e.g. 'math5'), or empty for the newest run.
+set -uo pipefail
+
+BASE="${GEWU_BATCH_BASE:-$HOME/GeWu_Auto_Writing/paperwriter-pi-runs}"
+
+die() { echo "gewu-batch: $*" >&2; exit 1; }
+
+resolve_run() {
+  local q="${1:-}"
+  if [ -z "$q" ]; then
+    ls -td "$BASE"/*/ 2>/dev/null | head -1
+  elif [ -d "$q" ]; then
+    printf '%s\n' "$q"
+  else
+    ls -td "$BASE"/*"$q"*/ 2>/dev/null | head -1
+  fi
+}
+
+run_name() { basename "${1%/}"; }
+
+tasks_of() { for d in "$1"/*/; do [ -d "$d/workspace" ] && basename "$d"; done; }
+
+# number of tasks of a run currently held by a live pi process
+live_of() {
+  local name; name="$(run_name "$1")"
+  pgrep -af 'task\.md' 2>/dev/null | grep -Fc "/$name/" || true
+}
+
+state_of() {
+  local d="$1"
+  if [ -f "$d/exit-code" ]; then
+    local c; c="$(cat "$d/exit-code")"
+    [ "$c" = "0" ] && echo "done" || echo "exit:$c"
+  else
+    echo "running"
+  fi
+}
+
+elapsed_of() {
+  local d="$1" s f
+  s="$(cat "$d/started-at" 2>/dev/null)"; [ -z "$s" ] && { echo "-"; return; }
+  f="$(cat "$d/finished-at" 2>/dev/null)"
+  local end; end="${f:-$(date -u +%Y-%m-%dT%H:%M:%SZ)}"
+  local ss es; ss=$(date -u -d "$s" +%s 2>/dev/null) || { echo "-"; return; }
+  es=$(date -u -d "$end" +%s 2>/dev/null) || { echo "-"; return; }
+  local m=$(( (es - ss) / 60 ))
+  printf '%dm' "$m"
+}
+
+cmd_list() {
+  local d
+  for d in $(ls -td "$BASE"/*/ 2>/dev/null); do
+    local total done_
+    total=$(tasks_of "$d" | wc -l)
+    done_=$(for t in $(tasks_of "$d"); do [ -f "$d$t/exit-code" ] && echo x; done | wc -l)
+    running="$(live_of "$d")"
+    printf '%s  tasks=%-3s finished=%-3s running=%-3s\n' "$(run_name "$d")" "$total" "$done_" "$running"
+  done
+}
+
+cmd_watches() {
+  local run; run="$(resolve_run "${1:-}")"; [ -z "$run" ] && die "no run found"
+  local total done_ running
+  total=$(tasks_of "$run" | wc -l)
+  done_=$(for t in $(tasks_of "$run"); do [ -f "$run$t/exit-code" ] && echo x; done | wc -l)
+  running="$(live_of "$run")"
+  printf '%s  finished=%s running=%s total=%s\n' "$(run_name "$run")" "$done_" "$running" "$total"
+}
+
+cmd_status() {
+  local run; run="$(resolve_run "${1:-}")"; [ -z "$run" ] && die "no run found"
+  echo "RUN=$(run_name "$run")   now=$(date -u +%H:%M:%SZ)"
+  printf '%-46s %-8s %-6s %-5s %-5s %-5s %-6s\n' TASK STATE FILES TEX BIB PDF ELAPSED
+  local t state files tex bib pdf el
+  for t in $(tasks_of "$run"); do
+    local d="$run$t"
+    state="$(state_of "$d")"
+    files=$(find "$d/workspace" -type f 2>/dev/null | wc -l)
+    tex=$(find "$d/workspace" -name '*.tex' 2>/dev/null | wc -l)
+    bib=$(find "$d/workspace" -name '*.bib' 2>/dev/null | wc -l)
+    pdf=$(find "$d/workspace" -name '*.pdf' 2>/dev/null | wc -l)
+    el="$(elapsed_of "$d")"
+    printf '%-46s %-8s %-6s %-5s %-5s %-5s %-6s\n' "$t" "$state" "$files" "$tex" "$bib" "$pdf" "$el"
+  done
+}
+
+# gate metrics for one task directory
+gate_line() {
+  local d="$1" t="$2"
+  local ws="$d/workspace" paper="$d/workspace/paper"
+  local class floatbarrier refslabel bibitems uncited narration theorems pdf research
+  class=$(grep -rhoE 'documentclass(\[[^]]*\])?\{[a-z0-9-]+\}' "$ws" --include='*.tex' 2>/dev/null | sort -u | tr '\n' ' ')
+  [ -z "$class" ] && class="-"
+  if grep -rq 'FloatBarrier' "$ws" --include='*.tex' 2>/dev/null; then floatbarrier=yes; else floatbarrier=NO; fi
+  if grep -rqE 'section\*\{References\}|section\*\{REFERENCES\}' "$ws" --include='*.tex' 2>/dev/null; then
+    refslabel=manual
+  elif printf '%s' "$class" | grep -q amsart; then
+    refslabel=amsart
+  else
+    refslabel=MISSING
+  fi
+  local bbl; bbl=$(find "$ws" -name '*.bbl' 2>/dev/null | head -1)
+  if [ -n "$bbl" ]; then bibitems=$(grep -c '\\bibitem' "$bbl"); else bibitems="$(grep -c '^@' "$paper/references.bib" 2>/dev/null || echo 0)b"; fi
+  if [ -f "$paper/references.bib" ]; then
+    local cited entries
+    cited=$(grep -rhoE '\\cite[a-zA-Z]*\{[^}]*\}' "$ws" --include='*.tex' 2>/dev/null | sed 's/.*{//;s/}//' | tr ',' '\n' | tr -d ' ' | sort -u)
+    entries=$(grep -oE '^@[a-zA-Z]+\{[^,]+' "$paper/references.bib" | sed 's/.*{//' | sort -u)
+    uncited=$(comm -23 <(printf '%s\n' "$entries") <(printf '%s\n' "$cited") | grep -c . || true)
+  else
+    uncited="-"
+  fi
+  narration=$(grep -ciE 'verified through|not independently verified|preparation environment|Crossref|retrieved on|consulted on' "$ws" --include='*.bib' --include='*.bbl' 2>/dev/null | awk -F: '{s+=$2} END{print s+0}')
+  theorems=$(grep -rhoE '\\begin\{(theorem|proposition|lemma|corollary)\}' "$ws" --include='*.tex' 2>/dev/null | wc -l)
+  if find "$ws" -maxdepth 2 -name 'main.pdf' -o -maxdepth 2 -name 'paper.pdf' 2>/dev/null | grep -q .; then pdf=yes; else pdf=no; fi
+  research=$(find "$ws/research" -name '*.md' 2>/dev/null | wc -l)
+  printf '%-46s %-9s %-9s %-8s %-9s %-7s %-9s %-8s %-5s %s\n' \
+    "$t" "$(state_of "$d")" "${class:0:30}" "$floatbarrier" "$refslabel" "$bibitems" "$uncited" "$narration" "$theorems" "$pdf"
+}
+
+cmd_gates() {
+  local run; run="$(resolve_run "${1:-}")"; [ -z "$run" ] && die "no run found"
+  echo "RUN=$(run_name "$run")"
+  printf '%-46s %-9s %-9s %-9s %-8s %-9s %-7s %-9s %-8s %s\n' \
+    TASK STATE CLASS FLOATBAR REFLABEL BIBITEMS UNCITED NARRATION THEOREMS PDF
+  local t
+  for t in $(tasks_of "$run"); do gate_line "$run$t" "$t"; done
+}
+
+cmd_report() {
+  local run; run="$(resolve_run "${1:-}")"; [ -z "$run" ] && die "no run found"
+  local t total=0 finished=0 compiled=0 prx=0 ams=0 fb=0 label=0 narr=0 zerothm=0
+  local bibsum=0 bibn=0
+  for t in $(tasks_of "$run"); do
+    total=$((total+1))
+    local d="$run$t" ws="$d/workspace"
+    [ -f "$d/exit-code" ] && finished=$((finished+1))
+    find "$ws" -maxdepth 2 \( -name 'main.pdf' -o -name 'paper.pdf' \) 2>/dev/null | grep -q . && compiled=$((compiled+1))
+    grep -rq 'revtex4-2' "$ws" --include='*.tex' 2>/dev/null && prx=$((prx+1))
+    grep -rq 'documentclass.*amsart' "$ws" --include='*.tex' 2>/dev/null && ams=$((ams+1))
+    grep -rq 'FloatBarrier' "$ws" --include='*.tex' 2>/dev/null && fb=$((fb+1))
+    if grep -rqE 'section\*\{References\}' "$ws" --include='*.tex' 2>/dev/null || grep -rq 'documentclass.*amsart' "$ws" --include='*.tex' 2>/dev/null; then label=$((label+1)); fi
+    local n; n=$(grep -ciE 'verified through|not independently verified|preparation environment|Crossref|retrieved on' "$ws" --include='*.bib' --include='*.bbl' 2>/dev/null | awk -F: '{s+=$2} END{print s+0}')
+    [ "${n:-0}" != "0" ] && narr=$((narr+1))
+    local th; th=$(grep -rhoE '\\begin\{(theorem|proposition|lemma|corollary)\}' "$ws" --include='*.tex' 2>/dev/null | wc -l)
+    [ "$th" = "0" ] && zerothm=$((zerothm+1))
+    local bbl; bbl=$(find "$ws" -name '*.bbl' 2>/dev/null | head -1)
+    if [ -n "$bbl" ]; then local c; c=$(grep -c '\\bibitem' "$bbl"); bibsum=$((bibsum+c)); bibn=$((bibn+1)); fi
+  done
+  echo "RUN=$(run_name "$run")"
+  echo "tasks=$total finished=$finished"
+  echo "compiled_pdf=$compiled  prx_class=$prx  amsart_class=$ams"
+  echo "floatbarrier_present=$fb  reference_label_present=$label"
+  echo "papers_with_bibliography_narration=$narr  papers_with_zero_theorem_envs=$zerothm"
+  if [ "$bibn" -gt 0 ]; then echo "bibliography_entries: n=$bibn total=$bibsum mean=$((bibsum / bibn))"; fi
+}
+
+cmd_tail() {
+  local run t n
+  run="$(resolve_run "${1:-}")"; t="${2:-}"; n="${3:-40}"
+  [ -z "$run" ] && die "no run found"; [ -z "$t" ] && die "usage: gewu-batch tail RUN TASK [N]"
+  tail -n "$n" "$run$t/run.log"
+}
+
+cmd_show() {
+  local run t f
+  run="$(resolve_run "${1:-}")"; t="${2:-}"; f="${3:-}"
+  [ -z "$run" ] && die "no run found"; [ -z "$t" ] && die "usage: gewu-batch show RUN TASK FILE"
+  cat "$run$t/workspace/$f"
+}
+
+case "${1:-}" in
+  list)    shift; cmd_list "$@" ;;
+  watches) shift; cmd_watches "$@" ;;
+  status)  shift; cmd_status "$@" ;;
+  gates)   shift; cmd_gates "$@" ;;
+  report)  shift; cmd_report "$@" ;;
+  tail)    shift; cmd_tail "$@" ;;
+  show)    shift; cmd_show "$@" ;;
+  ""|-h|--help|help)
+    sed -n '2,20p' "$0" | sed 's/^# \{0,1\}//' ;;
+  *) die "unknown command '$1' (try: gewu-batch help)" ;;
+esac

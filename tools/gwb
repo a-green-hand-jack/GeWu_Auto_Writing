@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+# gwb — run the gewu-batch CLI on the GeWu ECS host.
+#
+#   gwb status            # newest run
+#   gwb gates math5
+#   gwb report
+#   gwb list
+#
+# Override the host with GEWU_BATCH_HOST (default: gewu-ecs).
+set -euo pipefail
+HOST="${GEWU_BATCH_HOST:-gewu-ecs}"
+exec ssh -o BatchMode=yes -o ConnectTimeout=10 "$HOST" "bash -lc 'gewu-batch $(printf '%q ' "$@")'"

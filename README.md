@@ -103,6 +103,21 @@ WORKSPACE/
     └── validation.md
 ```
 
+## 运维 CLI
+
+`tools/gewu-batch` 是只读的批量运行检查器（在 ECS 上安装为 `gewu-batch`，本地用 `tools/gwb` 经 ssh 调用）：
+
+```bash
+./tools/gwb list                 # 所有 run 及 finished/running
+./tools/gwb watches math5        # 单个 run 的进度一行
+./tools/gwb status top30         # 逐任务表
+./tools/gwb gates top30          # 逐篇门禁指标（模板/FloatBarrier/References/bibitem/未引用/叙述/theorem/PDF）
+./tools/gwb report               # 汇总
+./tools/gwb tail top30 18-... 40 # 看某任务报告
+```
+
+长任务一律后台启动（`setsid nohup ... < /dev/null &`），不要在前台等；反复执行的检查命令沉淀到该 CLI。详见 `.agents/memory/operations.md`。
+
 ## 写作与排版门禁
 
 在已产出的 30 篇 PRX 论文上做过像素级与文本层排查，发现并已写入 `workflows/preflight.md` 的缺陷类型：
