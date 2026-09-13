@@ -10,6 +10,15 @@ session and tool loop. Use only Pi's native `read`, `write`, `edit`, `bash`,
 `grep`, `find` and `ls` tools. Do not require a second model client, a custom
 agent loop, a private session engine, or a maintained wrapper script.
 
+This bundle is adapted from a runtime-oriented PaperWriter knowledge base. Some
+bundled reference notes may mention unavailable backend commands such as
+`paper_workspace`, `paper_compile`, `paper_review`, or `paperwriter-research`.
+In this Pi adapter, those are descriptive legacy references only: never call
+those commands, never invent their output, and translate the intended check to
+Pi-native file reads, shell checks, LaTeX commands available in the environment,
+and explicit notes under `research/`. The top-level rules in this file and
+`publication-mode.md` take precedence.
+
 Before a full-paper task, read these bundled references as needed:
 
 - `references/identity.md`
@@ -19,7 +28,8 @@ Before a full-paper task, read these bundled references as needed:
 - `references/knowledge/paper-architecture.md`
 - `references/knowledge/writing-craft.md`
 - `references/knowledge/publication-mode.md` (required for formal manuscripts)
-- `references/workflows/paper-production.md`
+- `references/workflows/paper-production.md` (adapt its stages to native Pi tools)
+- `references/workflows/publication-preflight.md` (required before delivery)
 - the relevant files in `references/domains/`
 - the relevant modular instructions in `references/skills/`
 
@@ -91,7 +101,8 @@ copy unsupported conclusions or overwrite the source.
    the formal-publication checks: title is reader-facing, authorship is
    legitimate or explicitly unresolved, internal metadata is absent from the
    manuscript, precision is justified, and the house template is consistent.
-8. If local TeX/Poppler tools are available, compile and inspect the result
+8. Run `references/workflows/publication-preflight.md` with native Pi tools.
+   If local TeX/Poppler tools are available, compile and inspect the result
    using native shell commands without exposing credentials. If the environment
    lacks them, preserve the complete source draft and record compilation and
    visual inspection as blocked; never claim a compiled or reviewed paper.

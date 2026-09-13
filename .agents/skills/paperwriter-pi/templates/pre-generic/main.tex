@@ -2,11 +2,17 @@
 % REVTeX class and bibliography styles must be supplied by the user's TeX installation.
 \documentclass[aps,pre,reprint]{revtex4-2}
 \usepackage{amsmath,amssymb,graphicx}
+\usepackage{microtype}
+\usepackage{needspace}
+\usepackage{placeins}
 \usepackage[hidelinks]{hyperref}
+\emergencystretch=2em
 \begin{document}
 % Formal-publication house template: no table of contents unless requested.
 \title{Reader-facing scientific title}
-\author{Author names to be supplied by the submitting authors}
+% Use source-authorized names only. Use Anonymous for blinded output when
+% legitimate authorship is not established; never expose repository metadata.
+\author{Anonymous}
 \begin{abstract}
 % Write the evidence-bounded abstract after drafting the technical core.
 \end{abstract}
@@ -14,5 +20,9 @@
 % Add planned section files with \input; do not expose internal repository
 % paths, filenames, scripts, provider names, run IDs, or platform links.
 % Keep source locators in research/provenance.md.
+% Use \needspace before short headings/theorem blocks and \FloatBarrier at
+% scientific section boundaries when floats would interrupt unfinished prose.
+\FloatBarrier
 \bibliography{references}
+\FloatBarrier
 \end{document}

@@ -19,16 +19,23 @@ suggestion.
 - **Whitespace.** Any block of blank space larger than about a quarter page, and
   in two-column layouts, uneven column balance on the same page.
 - **Headings.** No section heading stranded at the bottom of a page with its
-  first paragraph overleaf.
+  first paragraph overleaf. Keep short subsection headings with at least the
+  first paragraph or list item; never allow a section number to run into its
+  title or a heading to hyphenate mid-word.
 
 ## Floats and display items
 
 - Each figure or table appears on or after the page that first references it,
-  and not pushed to the end of the paper.
+  and is not pushed to the end of the paper. A float must not interrupt an
+  unfinished sentence, theorem, proof, displayed equation, or list item. Flush
+  pending floats before the bibliography so no figure or table follows the
+  references.
 - In a two-column layout, anything needing full width uses the starred float
   form rather than being squeezed into one column.
 - Captions are self-contained: a reader who has not reached the body text can
-  tell what the display item shows and what the axes or columns mean.
+  tell what the display item shows and what the axes or columns mean. Captions
+  contain scientific interpretation and scope, not script names, file paths,
+  hashes, run IDs, platform status, or build diagnostics.
 - Table rules follow the booktabs convention: no vertical rules, no double
   horizontal rules.
 
@@ -50,6 +57,12 @@ suggestion.
   placeholder text left in place. Required licence notices stay.
 - Every figure or table referenced in the body exists, and every included one is
   referenced somewhere.
+- Reference lists are the final scholarly component. Avoid a one-item orphan
+  page, excessive raw URL wrapping, or a sparse terminal page when local
+  bibliography spacing can fix it.
+- Inspect the first page, every figure/table page, pages around theorem blocks,
+  and the final two pages. A page beginning with a lowercase continuation, a
+  one-word fragment, or a detached caption is a defect.
 
 ## What a pass means
 

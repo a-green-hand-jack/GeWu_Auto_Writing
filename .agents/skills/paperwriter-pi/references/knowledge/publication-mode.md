@@ -18,10 +18,12 @@ requests a technical report, use this mode for every manuscript.
   model name, agent name, Git provider, repository, file path, timestamp, run
   ID, or internal status in the author line.
 - Never invent authorship. Use only explicit source attribution. If the source
-  does not establish publishable authorship, use a clearly marked neutral
-  placeholder such as `Author names to be supplied by the submitting authors`
-  and record the unresolved authorship gate under `research/`, not as a fake
-  institutional or agent identity.
+  does not establish publishable authorship, use `Anonymous` for a blinded
+  manuscript or `Authors to be supplied by the submitting authors` for an
+  unblinded working draft. Never use "Author information pending," "source-
+  bound expository draft," a repository owner, a platform identity, or an agent
+  identity in the author field. Record the unresolved authorship gate under
+  `research/`, not as a fake institutional identity.
 - Do not imply that a generated draft has been accepted, certified, peer
   reviewed, or approved for submission.
 
@@ -76,15 +78,33 @@ by default.
 
 Before delivery, verify that all papers in a batch share the same document
 class, margin/column policy, heading hierarchy, bibliography style,
-hyperlink policy, title/author policy, and front-matter structure. Hyperlinks
-must be unobtrusive and black (`hidelinks`) unless a specified venue requires a
+hyperlink policy, title/author policy, and front-matter structure. Use the
+bundled `templates/pre-generic` template for a neutral batch. Hyperlinks must
+be unobtrusive and black (`hidelinks`) unless a specified venue requires a
 visible color scheme. Do not include a table of contents in a normal article
 unless the venue or user requests one.
 
+Apply local layout controls before global compression: keep a heading with its
+opening paragraph, keep a theorem/proposition statement with its first proof
+lines, do not let a float interrupt an unfinished sentence or display, and do
+not allow a page to begin with a lowercase continuation or a one-word fragment.
+Use captions and numbered labels for every figure and table. A bibliography
+must be the final scholarly component; no float may pass it.
+
 Read every rendered first page and representative interior/final pages. A
 formal-publication pass is incomplete if internal metadata appears in the
-manuscript, if placeholder front matter is unexplained, or if template choices
-vary across papers.
+manuscript, if placeholder front matter is unexplained, if template choices
+vary across papers, or if a visual defect is merely inferred from source text.
+
+## Required preflight
+
+Before compilation, perform the checks in
+`references/workflows/publication-preflight.md` with native Pi tools. The
+preflight is a required writing gate, not a scientific-validity claim. If it
+finds internal metadata in the manuscript, an unresolved placeholder, a
+missing section target, an inconsistent citation, a visible template marker,
+or an evidence-level mismatch, repair the source and rerun the check. Record
+full locators and detailed machine/runtime facts only under `research/`.
 
 ## Adapted editorial sources
 
