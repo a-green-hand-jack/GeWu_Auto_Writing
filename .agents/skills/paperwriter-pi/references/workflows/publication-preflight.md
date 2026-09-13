@@ -13,8 +13,10 @@ and source consistency only; they do not establish scientific truth.
   untouched.
 - Confirm the paper has a title, author field, abstract, scientific sections,
   limitations/discussion, conclusion, and references.
-- Use one house template for the batch: the neutral default is
-  `templates/pre-generic`. Do not add a table of contents unless requested.
+- Use one house template for the batch: this project's default is the official
+  APS PRX entrypoint `templates/prx-official/apstemplate.tex`. Do not use
+  `article`, `amsart`, PRE, PRL, or `pre-generic` for this batch. Do not add a
+  table of contents unless requested.
 - Check that the document class, bibliography style, hyperlink policy, heading
   hierarchy, and front matter match the other papers in the same batch.
 
@@ -47,8 +49,11 @@ field.
 
 ## 3. Abstract and title gate
 
-- The title is reader-facing and names the scientific object/problem/result;
-  it does not copy a repository slug or implementation label.
+- The title is reader-facing and is derived from the paper's actual scientific
+  object, question, mechanism, and bounded result. It does not copy a
+  repository slug, requested status, verification tier, folder name, or
+  implementation label. The title is selected after the technical core is
+  understood, not before source inspection.
 - The abstract is self-contained, result-first, and normally 150--250 words
   unless a venue specifies otherwise. It contains the question, scientific
   approach, principal result, and bounded scope/limitation.
@@ -58,7 +63,22 @@ field.
   page, shorten it or deliberately place it on its own page; do not accept an
   accidental sentence split.
 
-## 4. Evidence-language gate
+## 4. Definition and appendix gate
+
+- Build the notation/terminology ledger before drafting prose.
+- Define every symbol, acronym, named object, domain term, coined construct,
+  and theorem hypothesis before its first argumentative use.
+- For each technical detail, record `body`, `appendix`, `supplement`, or
+  `research-only` disposition before writing it.
+- Keep the main text focused on the shortest complete scientific argument.
+  Move routine derivations, long case analyses, implementation details,
+  auxiliary tables/figures, notation expansions, and detailed validation
+  matrices to a titled appendix or research record.
+- Every appendix must be scientifically useful, have a descriptive title, and
+  be referenced from the body. Do not use an appendix to conceal an undefined
+  object, unsupported claim, or missing central argument.
+
+## 5. Evidence-language gate
 
 Compare every headline statement in the title, abstract, introduction, results,
 and conclusion with `research/provenance.md` and `research/validation.md`.
@@ -77,7 +97,7 @@ proof sketch. If a number is retained, its scope, units, precision and
 provenance must be clear. Preserve full precision only in research records
 unless it is scientifically necessary in the paper.
 
-## 5. Prose and structure gate
+## 6. Prose and structure gate
 
 - Draft the technical core before the abstract and rewrite the abstract last.
 - Headings state the scientific role or bounded conclusion, not an internal
@@ -95,17 +115,24 @@ unless it is scientifically necessary in the paper.
 - Ensure the conclusion synthesizes durable findings, scope, and open questions
   instead of repeating the abstract or an audit log.
 
-## 6. LaTeX and visual gate
+## 7. LaTeX and visual gate
 
 Before compilation, inspect the source for:
 
 ```bash
-grep -RniE 'tableofcontents|colorlinks|\\textcolor|\\href|\\url|section[[:space:]]*[0-9]' paper/
+grep -RniE '^\\documentclass|tableofcontents|colorlinks|\\textcolor|\\href|\\url|section[[:space:]]*[0-9]' paper/
 grep -RniE 'Draft title|TODO|TBD|placeholder|Author information pending|\\?\\?|undefined' paper/
 ```
 
-For a neutral batch, use `hyperref` with `hidelinks`, no colored table of
-contents, and no visible template markers. Use `needspace` or equivalent local
+For this batch, require exactly the PRX REVTeX class in every main entrypoint:
+
+```text
+\\documentclass[aps,prx,reprint,groupedaddress]{revtex4-2}
+```
+
+Use `hyperref` with `hidelinks`, no colored table of contents, and no visible
+template markers. A paper with an `article` or `amsart` class fails the template
+gate even if it compiles. Use `needspace` or equivalent local
 controls where appropriate. After compilation, inspect the rendered first,
 interior, figure/table, and final pages:
 
@@ -123,7 +150,7 @@ interior, figure/table, and final pages:
 If a model cannot read images, record visual inspection as blocked. Never infer
 visual success from `pdflatex` exit code or source inspection.
 
-## 7. Final report
+## 8. Final report
 
 Record under `research/validation.md`:
 

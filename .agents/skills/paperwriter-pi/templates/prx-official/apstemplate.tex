@@ -21,6 +21,13 @@
 %  Add 'draft' option to mark overfull boxes with black boxes
 %  Add 'showkeys' option to make keywords appear
 \documentclass[aps,prx,reprint,groupedaddress]{revtex4-2}
+\usepackage{amsmath,amssymb,graphicx}
+\usepackage{microtype}
+\usepackage{needspace}
+\usepackage{placeins}
+\usepackage[hidelinks]{hyperref}
+\emergencystretch=2em
+% The PRX class above is the fixed house template for this project.
 %\documentclass[aps,prl,preprint,superscriptaddress]{revtex4-2}
 %\documentclass[aps,prl,reprint,groupedaddress]{revtex4-2}
 
@@ -39,8 +46,9 @@
 % to display numbers if necessary
 %\preprint{}
 
-%Title of paper
-\title{}
+%Title of paper: derive this from the scientific content, not repository
+%status, folder names, verification labels, or implementation details.
+\title{Reader-facing scientific title}
 
 % repeat the \author .. \affiliation  etc. as needed
 % \email, \thanks, \homepage, \altaffiliation all apply to the current
@@ -52,7 +60,10 @@
 % \affiliation command. The \affiliation command should follow the
 % other information
 % \affiliation can be followed by \email, \homepage, \thanks as well.
-\author{}
+% Use source-authorized names only. Use Anonymous for blinded output when
+% legitimate authorship is not established; never expose repository metadata.
+\author{Anonymous}
+\noaffiliation
 %\email[]{Your e-mail address}
 %\homepage[]{Your web page}
 %\thanks{}
@@ -66,7 +77,8 @@
 %\collaboration{}
 %\noaffiliation
 
-\date{\today}
+% Omit dates from the formal manuscript unless the selected venue requires one.
+%\date{\today}
 
 \begin{abstract}
 % insert abstract here
@@ -154,8 +166,9 @@
 % \end{table}
 % \end{turnpage}
 
-% Specify following sections are appendices. Use \appendix* if there
-% only one appendix.
+% Put routine derivations, long case analyses, implementation details,
+% auxiliary tables, and detailed validation material in titled appendices.
+% Every appendix must be referenced from the main text.
 %\appendix
 %\section{}
 
@@ -164,6 +177,9 @@
 % put your acknowledgments here.
 %\end{acknowledgments}
 
+% Flush scientific floats before the bibliography. The bibliography must be
+% the final scholarly component; do not place figures/tables after it.
+\FloatBarrier
 % Create the reference section using BibTeX:
 \bibliography{basename of .bib file}
 

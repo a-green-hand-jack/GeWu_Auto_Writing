@@ -2,11 +2,12 @@
   "venue_id": "prx",
   "version": "REVTeX 4.2f distribution, official APS apstemplate sample (header 4.2a), with prx option",
   "article_type": "article",
+  "default_for_project": true,
   "source_url": "https://journals.aps.org/revtex",
   "license": "Official APS REVTeX sample template; retain APS copyright and REVTeX README restrictions. REVTeX class/styles are not bundled and must come from the user's TeX installation under LPPL 1.3c.",
   "engine": "pdflatex",
   "entrypoint": "apstemplate.tex",
-  "files": ["apstemplate.tex"],
+  "required_documentclass": "\\documentclass[aps,prx,reprint,groupedaddress]{revtex4-2}",
   "style": {
     "audience": "A broad audience of physicists across pure, applied and interdisciplinary physics",
     "narrative": "Concise, self-contained account of an innovative result with clear long-term significance and context for non-specialists",

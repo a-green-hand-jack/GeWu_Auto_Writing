@@ -28,6 +28,7 @@ Before a full-paper task, read these bundled references as needed:
 - `references/knowledge/paper-architecture.md`
 - `references/knowledge/writing-craft.md`
 - `references/knowledge/publication-mode.md` (required for formal manuscripts)
+- `references/knowledge/definition-order-and-appendices.md` (required for technical papers)
 - `references/workflows/paper-production.md` (adapt its stages to native Pi tools)
 - `references/workflows/publication-preflight.md` (required before delivery)
 - the relevant files in `references/domains/`
@@ -78,16 +79,26 @@ copy unsupported conclusions or overwrite the source.
 3. Assess domain, paper type, maturity and the strongest contribution actually
    supported by the source. Mixed physics/mathematics collections require an
    explicit comparative framing; do not force every item into one scientific
-   template. For a formal manuscript, load `references/knowledge/publication-mode.md`
-   and apply its title, authorship, metadata-firewall, numerical-discipline and
-   house-template rules before drafting.
+   template. For this project, the formal default is the official APS PRX
+   template at `templates/prx-official/apstemplate.tex`; do not substitute
+   `article`, `amsart`, PRE, PRL, or `pre-generic`. Load
+   `references/knowledge/publication-mode.md` and
+   `references/knowledge/definition-order-and-appendices.md` before drafting.
 4. Plan a real paper with substantive technical sections, evidence/methods,
    results or theorem statements, comparisons, limitations and conclusion. The
-   body must communicate the scientific argument, not the source repository:
-   keep internal file names, script implementation, provider/model details,
-   platform links, run identifiers and detailed bookkeeping in `research/`
-   provenance records only.
-   Produce a manuscript, not an outline or a flattering catalogue.
+   title must be derived from the scientific content after the object, question,
+   mechanism, and bounded result are understood; never derive it from a folder,
+   status, or evidence label. Build a terminology/notation ledger before prose
+   and define every acronym, symbol, named construct, domain term, and theorem
+   hypothesis before use. Plan a disposition for each technical detail:
+   `body`, `appendix`, `supplement`, or `research-only`.
+   The body must communicate the scientific argument, not the source
+   repository: keep internal file names, script implementation, provider/model
+   details, platform links, run identifiers and detailed bookkeeping in
+   `research/` provenance records only. Move routine derivations, long case
+   lists, implementation details, auxiliary tables, and validation logs to
+   titled appendices or research records, with body cross-references where
+   appropriate. Produce a manuscript, not an outline or a flattering catalogue.
 5. Read the appropriate domain writing and review guidance before drafting.
    Preserve definitions, assumptions, proof boundaries, computational caps and
    negative results. Accepted platform status is not independent scientific
@@ -97,10 +108,12 @@ copy unsupported conclusions or overwrite the source.
    approval. Mark claims as source-reported, reproduced, inferred or open.
 7. Run native consistency checks by rereading the generated files: all planned
    sections must be present and referenced by `main.tex`; notation and numbers
-   must agree; citations must exist; source coverage must be honest. Also run
-   the formal-publication checks: title is reader-facing, authorship is
-   legitimate or explicitly unresolved, internal metadata is absent from the
-   manuscript, precision is justified, and the house template is consistent.
+   must agree; every term is defined before use; citations must exist; source
+   coverage must be honest. Check that appendices are titled, scientifically
+   useful, and referenced by the body. Also run the formal-publication checks:
+   title is content-derived and reader-facing, authorship is legitimate or
+   explicitly unresolved, internal metadata is absent from the manuscript,
+   precision is justified, and the PRX house template is used consistently.
 8. Run `references/workflows/publication-preflight.md` with native Pi tools.
    If local TeX/Poppler tools are available, compile and inspect the result
    using native shell commands without exposing credentials. If the environment
@@ -117,8 +130,10 @@ are explicitly supplied alongside `SOURCE_ROOT`. Cover every listed Solution,
 including both physics and mathematics entries. A cross-repository synthesis
 may compare methods and evidence, but must not merge independent claims into a
 new theorem or imply that the collection has a single author or experiment.
-Prefer a transparent survey/analysis title and explain the selection rule,
-source snapshot, and finite coverage.
+Prefer a transparent survey/analysis title derived from the collection's actual
+scientific content, and explain the selection rule, source snapshot, and finite
+coverage. Do not use the collection status, rank, or repository naming scheme
+as the title.
 
 ## Completion report
 

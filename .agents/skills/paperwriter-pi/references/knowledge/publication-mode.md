@@ -6,13 +6,22 @@ requests a technical report, use this mode for every manuscript.
 
 ## Publication identity
 
-- Choose a descriptive scientific title written for a reader. Do not use a
-  repository slug, Solution number, problem ID, model name, run label, or
-  implementation phrase as the title. Prefer the problem, object, method, and
-  bounded result over internal provenance.
-- Use one consistent house template for the whole batch. For neutral papers,
-  use the bundled `templates/pre-generic` template. Do not choose a different
-  class or hyperlink policy per project unless the user specifies a venue.
+- Choose a descriptive scientific title from the paper's actual scientific
+  content, not from a requested status, repository label, folder name, venue
+  name, or evidence tier. First identify the object/problem, central question,
+  method or structural idea, and strongest bounded result; draft several
+  reader-facing candidates and select the shortest precise one. Do not use a
+  repository slug, Solution number, problem ID, model name, run label,
+  verification status, or implementation phrase as the title. Words such as
+  `exact`, `complete`, `verified`, and `resolved` are allowed only when they
+  describe a scientifically established result at the scope stated in the
+  title, never merely the workflow status.
+- Use one consistent house template for the whole batch. For this project,
+  the default is the official APS PRX REVTeX template at
+  `templates/prx-official/apstemplate.tex`, whose class must remain
+  `\\documentclass[aps,prx,reprint,groupedaddress]{revtex4-2}`. Do not use
+  `article`, `amsart`, PRE, PRL, or `pre-generic` for this batch unless the user
+  explicitly selects another venue.
 - Keep the front matter minimal and publication-like: title, legitimate author
   attribution, abstract, and required metadata only. Never put a platform name,
   model name, agent name, Git provider, repository, file path, timestamp, run
@@ -78,11 +87,12 @@ by default.
 
 Before delivery, verify that all papers in a batch share the same document
 class, margin/column policy, heading hierarchy, bibliography style,
-hyperlink policy, title/author policy, and front-matter structure. Use the
-bundled `templates/pre-generic` template for a neutral batch. Hyperlinks must
-be unobtrusive and black (`hidelinks`) unless a specified venue requires a
-visible color scheme. Do not include a table of contents in a normal article
-unless the venue or user requests one.
+hyperlink policy, title/author policy, and front-matter structure. For this
+project use the bundled official APS PRX entrypoint
+`templates/prx-official/apstemplate.tex` for every paper in the batch.
+Hyperlinks must be unobtrusive and black (`hidelinks`) unless a specified venue
+requires a visible color scheme. Do not include a table of contents in a
+normal article unless the venue or user requests one.
 
 Apply local layout controls before global compression: keep a heading with its
 opening paragraph, keep a theorem/proposition statement with its first proof
@@ -95,6 +105,17 @@ Read every rendered first page and representative interior/final pages. A
 formal-publication pass is incomplete if internal metadata appears in the
 manuscript, if placeholder front matter is unexplained, if template choices
 vary across papers, or if a visual defect is merely inferred from source text.
+
+## Definition and appendix gate
+
+Before drafting the abstract or results, load
+`references/knowledge/definition-order-and-appendices.md`. Create the
+notation/terminology ledger first. Do not use an acronym, symbol, named object,
+coined term, theorem label, or domain phrase before defining it and stating
+its scope. Plan each technical item as `body`, `appendix`, `supplement`, or
+`research-only`; move routine derivations, long cases, implementation details,
+auxiliary tables, and validation logs out of the body and into a titled,
+body-referenced appendix or research record.
 
 ## Required preflight
 

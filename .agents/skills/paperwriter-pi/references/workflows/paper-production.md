@@ -1,6 +1,12 @@
 # Complete paper production
 
-Use this workflow for a Full Draft request. The native backend stays in one long
+Use this workflow for a Full Draft request. In this prompt-only Pi adapter,
+all backend/runtime command names in this legacy workflow are instructions to
+translate into native Pi file and shell operations; never call unavailable
+`paper_*` or `paperwriter-*` commands and never fabricate their receipts.
+For this project the fixed house template is
+`templates/prx-official/apstemplate.tex` with
+`\\documentclass[aps,prx,reprint,groupedaddress]{revtex4-2}`. The native backend stays in one long
 run while it reads, plans and writes; do not restart for each chapter. Checkpoints
 are actual manuscript files, not a reason to stop. Allow 7,200 seconds for the
 draft and 10,800 seconds for the complete lifecycle. Ordinary paperwriter tasks
@@ -28,9 +34,11 @@ draft, never scientific or submission approval. Keep legacy receipts strict.
    `assessment.json`: `../domains/<domain>/writing.md` is loaded for planning and
    drafting, `../domains/<domain>/review.md` for the later review. A `physics`
    theory paper routes to both `physics` and `mathematics`.
-   Select the default PRX, PRE, PRL or other packaged templates from runtime resources, or accept the
-   user's explicit template directory/metadata. Never depend on a development
-   template-generation script. Read source/license/style records, or retrieve
+   Select the fixed official PRX template at
+   `templates/prx-official/apstemplate.tex` and verify its document class,
+   APS source/license notice, and `hidelinks` policy. Do not substitute
+   `article`, `amsart`, PRE, PRL, or `pre-generic` in this project. Never
+   depend on a development template-generation script. Read source/license/style records, or retrieve
    official sources. Never equate adopting journal typography with meeting its
    originality/importance requirement, and honor the template availability three
    states (official-redistributable / official-guidelines-only / none).
@@ -57,9 +65,12 @@ draft, never scientific or submission approval. Keep legacy receipts strict.
    into a stronger claim, or omit a critical caveat to achieve an attractive story.
    For a small solution repository, spend the available budget on definitions,
    intermediate derivations, evidence interpretation, related-work context and
-   limitations. Complete rather than merely outline. Before assembly, confirm
-   that every planned section has substantive content and that main.tex inputs
-   each one. Persist progress throughout the run.
+   limitations. Build the notation/terminology ledger before prose, define every
+   object before its first use, and assign long derivations, implementation
+   details, auxiliary tables, and validation logs to titled appendices or
+   research records. Complete rather than merely outline. Before assembly,
+   confirm that every planned section has substantive content and that main.tex
+   inputs each one. Persist progress throughout the run.
 5. Obtain genuine references and semantic support; bibliography metadata alone is
    insufficient. Use literature-and-figures. Request independent computation in a
    credential-free worker when useful; report exact finite coverage and limitations.
