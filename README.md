@@ -29,7 +29,7 @@
 └── paperwriter-*-runs/         # 本地生成的运行数据，默认不纳入本仓库
 ```
 
-`paperwriter-pi` 是一个 **prompt-only skill**：它包含写作协议、证据策略、工作流、领域参考和 LaTeX 模板，不包含第二套模型客户端、PaperWriter backend、Pi extension 或长期维护的 agent loop。
+`paperwriter-pi` 是一个 **prompt-only skill**，分三层组织：`references/constitution.md`（恒定加载的原则层）、`references/workflows/`（Pi 原生完整写作流程与交付前门禁）、`references/domains/<domain>.md`（按证据选择一个领域指南）。不包含第二套模型客户端、PaperWriter backend、Pi extension 或长期维护的 agent loop，也不包含需要执行的辅助脚本。
 
 `gewu-top30/` 中的 30 个子目录保留各自的 Git 历史。为了避免在外层仓库中产生不可用的嵌套 gitlink，外层仓库只跟踪其 manifest；Solution 源码仍作为本地/远程的只读研究输入单独维护。
 
@@ -51,7 +51,6 @@ pi \
   --no-themes \
   --tools read,write,edit,bash,grep,find,ls \
   --skill /path/to/.agents/skills/paperwriter-pi/SKILL.md \
-  --skill /path/to/.agents/skills/paperwriter-pi/references/skills \
   --print @/path/to/task.md
 ```
 
@@ -74,10 +73,22 @@ WORKSPACE/
 │   ├── references.bib
 │   └── main.pdf              # 若编译门禁可用
 └── research/
-    ├── inventory.*
-    ├── provenance.*
-    └── validation.*
+    ├── inventory.md
+    ├── assessment.md
+    ├── plan.md
+    ├── provenance.md
+    ├── literature.md
+    └── validation.md
 ```
+
+## 写作与排版门禁
+
+在已产出的 30 篇 PRX 论文上做过像素级与文本层排查，发现并已写入 `workflows/preflight.md` 的缺陷类型：
+
+- 模板自带的 `placeins` / `\FloatBarrier` 被丢弃（30/30），导致整幅 `table*` 与参考文献挤在同一页；
+- APS PRX 类只画粗细渐变的分隔线而不印 “REFERENCES” 标题词，入口文件必须自己补 `\section*{References}`；
+- 参考文献条目里写入内部流程描述（Crossref 校验日期、“not independently verified in the preparation environment”），这类内容属于 `research/literature.md`；
+- 参考文献过少时应作为覆盖度问题显式记录，而不是当作版式问题或静默通过。
 
 ## 最近一次 Top 30 运行
 
