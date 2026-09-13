@@ -24,7 +24,7 @@
 
 `RUN` 参数可用完整路径、名字片段（如 `math5`、`top30`）或留空表示最新。本地通过 `tools/gwb <cmd>` 经 ssh 调用（`GEWU_BATCH_HOST` 可改主机）。
 
-## 规则 4：模型视觉能力（已实测，2026-09-13）
+## 规则 3：模型视觉能力（已实测，2026-09-13）
 
 **GravArc Router 下没有任何可用视觉模型，`deepseek-v4.1-flash` 实际是纯文本。**
 
@@ -44,7 +44,7 @@
 - 若需要真正的逐页视觉验收，用已验证可读图的 `apex/gpt-5.6-sol`（或其他 `apex` 视觉模型）对渲染后的页面图做第二遍检查；注意**ECS 上没有 poppler**（无 `pdftoppm`），需先安装渲染工具或在本机渲染后再送检；
 - 修改模型声明做实验后必须恢复原文件并校验哈希（本次已恢复并比对 sha256 一致）。
 
-## 规则 3：踩过的坑（务必避免）
+## 规则 4：踩过的坑（务必避免）
 
 - **传输脚本**：用 `ssh host 'cat > FILE' < local_file`。不要把 heredoc 传输与 `&` 后台链写在同一行，否则 heredoc 的 stdin 被吞，远端文件变成 0 字节（已实际踩过，导致 5 个数学任务以 exit 127 瞬间失败）。
 - **PATH**：非交互 ssh 没有 `~/.local/bin`。launcher 必须自己 `export PATH="$HOME/.local/bin:$HOME/texlive/2026/bin/x86_64-linux:$PATH"`，并在启动前用 `command -v pi` 做守卫。
