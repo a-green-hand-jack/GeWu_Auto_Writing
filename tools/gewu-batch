@@ -127,10 +127,32 @@ gate_line() {
   local bbl; bbl=$(find "$ws" -name '*.bbl' 2>/dev/null | head -1)
   if [ -n "$bbl" ]; then bibitems=$(grep -c '\\bibitem' "$bbl"); else bibitems="$(grep -c '^@' "$paper/references.bib" 2>/dev/null || echo 0)b"; fi
   if [ -f "$paper/references.bib" ]; then
-    local cited entries
-    cited=$(grep -rhoE '\\cite[a-zA-Z]*\{[^}]*\}' "$paper" --include='*.tex' 2>/dev/null | sed 's/.*{//;s/}//' | tr ',' '\n' | tr -d ' ' | sort -u)
-    entries=$(grep -oE '^@[a-zA-Z]+\{[^,]+' "$paper/references.bib" | sed 's/.*{//' | sort -u)
-    uncited=$(comm -23 <(printf '%s\n' "$entries") <(printf '%s\n' "$cited") | grep -c . || true)
+    # Flatten the sources before matching: a \cite{...} group may span lines,
+    # and naive line-based grep then reports cited keys as uncited.
+    uncited=$(python3 - "$paper" <<'PYUNC'
+import glob, os, re, sys
+scope = sys.argv[1]
+flat = []
+for f in glob.glob(os.path.join(scope, '**', '*.tex'), recursive=True):
+    try:
+        flat.append(open(f, errors='ignore').read())
+    except OSError:
+        pass
+text = ' '.join(flat)
+cited = set()
+for grp in re.findall(r'\\[a-zA-Z]*[Cc]ite[a-zA-Z]*\s*(?:\[[^\]]*\])?\s*\{([^}]*)\}', text, re.S):
+    for key in grp.split(','):
+        key = key.strip()
+        if key:
+            cited.add(key)
+bib = os.path.join(scope, 'references.bib')
+entries = set()
+if os.path.exists(bib):
+    for m in re.finditer(r'@[a-zA-Z]+\s*\{\s*([^,\s]+)', open(bib, errors='ignore').read()):
+        entries.add(m.group(1))
+print(len(entries - cited))
+PYUNC
+)
   else
     uncited="-"
   fi
@@ -160,7 +182,7 @@ cmd_report() {
     local d="$run$t" paper
     paper="$(paper_scope "$d")"
     [ -f "$d/exit-code" ] && finished=$((finished+1))
-    find "$ws" -maxdepth 2 \( -name 'main.pdf' -o -name 'paper.pdf' \) 2>/dev/null | grep -q . && compiled=$((compiled+1))
+    find "$d/workspace" -maxdepth 2 \( -name 'main.pdf' -o -name 'paper.pdf' \) 2>/dev/null | grep -q . && compiled=$((compiled+1))
     grep -rq 'revtex4-2' "$paper" --include='*.tex' 2>/dev/null && prx=$((prx+1))
     grep -rq 'documentclass.*amsart' "$paper" --include='*.tex' 2>/dev/null && ams=$((ams+1))
     grep -rq 'FloatBarrier' "$paper" --include='*.tex' 2>/dev/null && fb=$((fb+1))
@@ -169,7 +191,7 @@ cmd_report() {
     [ "${n:-0}" != "0" ] && narr=$((narr+1))
     local th; th=$(grep -rhoE '\\begin\{(theorem|proposition|lemma|corollary)\}' "$paper" --include='*.tex' 2>/dev/null | wc -l)
     [ "$th" = "0" ] && zerothm=$((zerothm+1))
-    local bbl; bbl=$(find "$ws" -name '*.bbl' 2>/dev/null | head -1)
+    local bbl; bbl=$(find "$d/workspace" -name '*.bbl' 2>/dev/null | head -1)
     if [ -n "$bbl" ]; then local c; c=$(grep -c '\\bibitem' "$bbl"); bibsum=$((bibsum+c)); bibn=$((bibn+1)); fi
   done
   echo "RUN=$(run_name "$run")"
@@ -216,10 +238,10 @@ cmd_handover() {
     echo "Label: source drafts, compiled. Visual inspection is the reviewer's own step"
     echo "(the writing model has no image input); nothing here is submission approval."
     echo
-    echo "| # | manuscript | class | pages | refs | thm | research notes | pdf |"
-    echo "|---|---|---|---|---|---|---|---|"
+    echo "| # | manuscript | state | class | pages | refs | thm | research notes | pdf |"
+    echo "|---|---|---|---|---|---|---|---|---|"
   } > "$index"
-  echo "solution,run,class,pages,refs,theorems,research_notes,pdf" > "$csv"
+  echo "solution,run,state,class,pages,refs,theorems,research_notes,pdf" > "$csv"
 
   local idx=0 t r run d pdf ws class pages refs thms notes base
   for r in "${runs[@]}"; do
@@ -251,8 +273,9 @@ except Exception:
       if [ -n "$bbl" ]; then refs=$(grep -c '\\bibitem' "$bbl"); else refs="$(grep -c '^@' "$ws/paper/references.bib" 2>/dev/null || echo -)"; fi
       thms=$(grep -rhoE '\\begin\{(theorem|proposition|lemma|corollary)\}' "$pscope" --include='*.tex' 2>/dev/null | wc -l)
       notes=$(find "$ws/research" -name '*.md' 2>/dev/null | wc -l)
-      printf '| %d | %s | %s | %s | %s | %s | %s | %s |\n' "$idx" "$t" "$class" "$pages" "$refs" "$thms" "$notes" "$base" >> "$index"
-      printf '%s,%s,%s,%s,%s,%s,%s,%s\n' "$t" "$(run_name "$run")" "$class" "$pages" "$refs" "$thms" "$notes" "$base" >> "$csv"
+      local st; st="$(state_of "$d")"
+      printf '| %d | %s | %s | %s | %s | %s | %s | %s | %s |\n' "$idx" "$t" "$st" "$class" "$pages" "$refs" "$thms" "$notes" "$base" >> "$index"
+      printf '%s,%s,%s,%s,%s,%s,%s,%s,%s\n' "$t" "$(run_name "$run")" "$st" "$class" "$pages" "$refs" "$thms" "$notes" "$base" >> "$csv"
     done
   done
 
