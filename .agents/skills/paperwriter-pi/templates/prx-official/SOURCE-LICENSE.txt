@@ -1,0 +1,10 @@
+This directory contains the official APS REVTeX `apstemplate.tex` sample,
+downloaded from the REVTeX 4.2 distribution and configured with the `prx`
+journal option. The APS copyright and source notices in that file are retained.
+
+Source: https://journals.aps.org/revtex
+Current REVTeX release: 4.2f (2023-05-30).
+
+The REVTeX class, APS style files and BibTeX files are not redistributed here;
+they must be supplied by the user's TeX installation. Consult the upstream
+REVTeX README and LPPL 1.3c license for the complete terms.

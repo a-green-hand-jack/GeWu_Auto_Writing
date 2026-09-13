@@ -1,0 +1,33 @@
+# Generated PaperWriter/Pi runs and large local artifacts
+/paperwriter-*-runs/
+
+# The Top 30 collection is a set of independent nested Git repositories.
+# Keep its outer manifest, but do not turn children into unusable gitlinks.
+/gewu-top30/*
+!/gewu-top30/MANIFEST.json
+
+# LaTeX build products
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.run.xml
+*.synctex.gz
+*.toc
+
+# Python and editor artifacts
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.vscode/
+.idea/
+.DS_Store
+
+# Local configuration and credentials
+.env
+.env.*
+!.env.example

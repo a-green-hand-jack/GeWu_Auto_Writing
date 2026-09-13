@@ -1,0 +1,17 @@
+{
+  "venue_id": "prx",
+  "version": "REVTeX 4.2f distribution, official APS apstemplate sample (header 4.2a), with prx option",
+  "article_type": "article",
+  "source_url": "https://journals.aps.org/revtex",
+  "license": "Official APS REVTeX sample template; retain APS copyright and REVTeX README restrictions. REVTeX class/styles are not bundled and must come from the user's TeX installation under LPPL 1.3c.",
+  "engine": "pdflatex",
+  "entrypoint": "apstemplate.tex",
+  "files": ["apstemplate.tex"],
+  "style": {
+    "audience": "A broad audience of physicists across pure, applied and interdisciplinary physics",
+    "narrative": "Concise, self-contained account of an innovative result with clear long-term significance and context for non-specialists",
+    "structure": "Abstract; accessible introduction; model or methods; central results; discussion; conclusion; appendices or supplemental material",
+    "citation_rules": "Use APS REVTeX bibliography style and provide complete article titles where possible",
+    "length_rules": "PRX has no fixed four-page limit; keep the manuscript concise while providing enough context and technical support for broad readership"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "venue_id": "prl",
+  "version": "generic-revtex4-2-prl",
+  "article_type": "letter",
+  "source_url": "https://journals.aps.org/revtex",
+  "license": "PaperWriter-authored wrapper: MIT (see SOURCE-LICENSE.txt). REVTeX is not bundled; obtain class/styles through a licensed user TeX installation; upstream REVTeX uses LPPL.",
+  "engine": "pdflatex",
+  "entrypoint": "main.tex",
+  "files": ["main.tex"],
+  "style": {
+    "audience": "A broad readership of physicists and related-field researchers; venue fit requires independent review",
+    "narrative": "Concise, self-contained letter with supported impact, innovation and interest",
+    "structure": "abstract; brief introduction; central result sections; conclusion; optional end matter",
+    "citation_rules": "REVTeX numbered references; verify current APS author instructions and each citation",
+    "length_rules": "3750-word core limit (about four pages) plus up to two pages of end matter; verify current APS instructions"
+  }
+}
