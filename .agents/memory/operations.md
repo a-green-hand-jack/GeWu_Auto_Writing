@@ -65,6 +65,8 @@ ECS 是 Ubuntu 24.04，**无免密 sudo**、docker 不可用、poppler 未装。
 - **传输脚本**：用 `ssh host 'cat > FILE' < local_file`。不要把 heredoc 传输与 `&` 后台链写在同一行，否则 heredoc 的 stdin 被吞，远端文件变成 0 字节（已实际踩过，导致 5 个数学任务以 exit 127 瞬间失败）。
 - **PATH**：非交互 ssh 没有 `~/.local/bin`。launcher 必须自己 `export PATH="$HOME/.local/bin:$HOME/texlive/2026/bin/x86_64-linux:$PATH"`，并在启动前用 `command -v pi` 做守卫。
 - **不要修改正在运行的脚本**：bash 边读边执行，改运行中的 launcher 会导致不可预期行为。要改就新建脚本文件。
+- **不要用宽松 pattern 杀进程**：`pkill -f "flash/<slug>/task.md"` 会连带匹配到**另一个 run 目录下的同名任务**（路径尾部相同），实际踩过：清理旧挂死进程时把刚启动的重跑任务一起杀了（exit 143，1 分钟即退）。杀进程要用**完整任务目录绝对路径**做匹配，并在杀之前 `pgrep -af` 确认命中清单。
+- **不要在被 agent 读取的目录里改文件**：正在运行的 Pi 会在过程中按需读取 skill 文件（如 preflight、domain 指南）。批次运行期间替换 skill 目录会改变尚在运行任务的行为——已实际踩过（物理任务 `05` 中途读到新的领域路由规则）。批次要冻结输入：**把 skill 复制一份到 run 目录**，用 `--skill <run>/skill/SKILL.md` 启动。
 - **运行产物**：`paperwriter-pi-runs/` 已被 `.gitignore` 忽略，属于生成物；不逐份修补（见 `paper_writing_policy.md`：失败即整份重跑）。
 
 ## 规则 5：看门狗（provider 卡死）
