@@ -235,19 +235,36 @@ The paper is a mathematical document, not a build report.
 
 ## Preamble
 
-This project's house template is the official APS PRX entrypoint
-(`templates/prx-official/apstemplate.tex`); the preamble is therefore fixed by
-the template unless the user explicitly selects another venue. Do not replace it
-with `article` or `amsart` on your own initiative.
+Typography follows the assessed domain (see `SKILL.md`): a mathematics
+manuscript uses the amsart house preamble below, not the APS PRX entrypoint,
+and not a bare `article` class. Keep the preamble small and add packages only
+when used.
 
-If the user does select a venue whose preamble you control, keep it small and
-add packages only when used. Useful hygiene: load `lmodern` before `microtype`
-(the default Computer Modern bitmap fonts make microtype's font expansion an
-error rather than a warning); number theorem environments within sections and
-equations globally unless the venue says otherwise; supply `\subjclass` (MSC)
-and `\keywords`; keep links active but black; no decorative colour, theorem
-boxes, or oversized headings. Local layout controls are preferable to global
-compression; the compile-repair loop does the real work on overfull boxes.
+```latex
+\documentclass[11pt,reqno]{amsart}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{lmodern}      % scalable fonts; must precede microtype
+\usepackage{microtype}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage[hidelinks]{hyperref}
+\bibliographystyle{amsplain}
+\raggedbottom
+```
+
+- `lmodern` must precede `microtype`: the default Computer Modern bitmap fonts
+  make font expansion an error rather than a warning.
+- Number theorem environments within sections and equations globally unless the
+  venue says otherwise.
+- Supply `\subjclass` (MSC) and `\keywords`.
+- Keep links active but black; no decorative colour, theorem boxes, or oversized
+  headings.
+- amsart prints its own `References` heading, so no manual label is needed; the
+  reference list is still the final scholarly component and pending floats are
+  still flushed before it.
+- Local layout controls are preferable to global compression; the
+  compile-repair loop does the real work on overfull boxes.
 
 ## Review checklist
 

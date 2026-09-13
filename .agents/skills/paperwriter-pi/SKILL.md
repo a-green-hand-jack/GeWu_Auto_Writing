@@ -70,24 +70,29 @@ levels, literature notes, validation records, prior versions — lives in
 `research/`. If a source repository already contains a manuscript, treat it as
 evidence to assess, not as permission to copy unsupported conclusions.
 
-## House template
+## House templates
 
-This project uses the official APS PRX entrypoint
-`templates/prx-official/apstemplate.tex`, with the document class exactly
-`\documentclass[aps,prx,reprint,groupedaddress]{revtex4-2}`. Do not substitute
-`article`, `amsart`, PRE, PRL, or `pre-generic` unless the user explicitly
-selects another venue.
+Typography is declared per domain and routed by the assessed domain — not
+invented per paper. A physics manuscript and a mathematics manuscript are
+different kinds of document, and forcing one into the other's format is a
+category error; but leaving the format to free choice reintroduces the
+cross-paper drift that makes a batch incoherent and uncheckable.
 
-Two template details are easy to lose and were lost in every earlier run:
+| assessed domain | entrypoint | required document class |
+|---|---|---|
+| physics | `templates/prx-official/apstemplate.tex` | `\documentclass[aps,prx,reprint,groupedaddress]{revtex4-2}` |
+| mathematics | house amsart preamble in `references/domains/mathematics.md` | `\documentclass[11pt,reqno]{amsart}` |
+| other domains | the venue the user selected | as that venue requires |
 
-- keep the preamble's `placeins` package and the `\FloatBarrier` immediately
-  before `\bibliography`, so pending full-width floats are flushed before the
-  reference list;
-- the APS class prints only its separator rule and no heading word, so the
-  entrypoint supplies the label (for example `\section*{References}` before
-  `\bibliography`).
+If the user selected no venue for a domain with no entry above, use a neutral
+single-column expository format, record the choice and its reason in
+`research/assessment.md`, and keep it uniform across that domain's papers.
 
-Both are checked in `workflows/preflight.md`.
+Two PRX-specific details are easy to lose and were lost in every earlier run:
+keep the preamble's `placeins` package and the `\FloatBarrier` immediately
+before `\bibliography`, and label the reference list (`\section*{References}`),
+since the APS class prints only its separator rule and no heading word. amsart
+prints its own `References` heading and needs `amsplain`.
 
 ## Writing protocol
 

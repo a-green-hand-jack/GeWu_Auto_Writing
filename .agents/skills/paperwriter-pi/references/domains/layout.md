@@ -66,10 +66,12 @@ suggestion.
 
 ## The reference region
 
-- The reference list is labeled and reads as one block. With the APS PRX house
-  template the class draws only its separator rule (a horizontal rule that is
+- The reference list is labeled and reads as one block. With the APS PRX
+  entrypoint the class draws only its separator rule (a horizontal rule that is
   thicker in the middle) and prints no heading word, so the manuscript must
-  supply the label. A bare rule above entry `[1]`, with no heading, is a defect.
+  supply the label; a bare rule above entry `[1]`, with no heading, is a defect.
+  amsart prints its own `References` heading — check that a label exists either
+  way.
 - The reference list is the final scholarly component. No figure or table
   appears on the reference page or after it, and the references are not squeezed
   into a fragment of a page by a float that was not flushed.

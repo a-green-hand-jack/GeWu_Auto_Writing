@@ -12,11 +12,15 @@ and template conformance only; they are not a claim of scientific truth.
 - All generated paper files are inside `WORKSPACE`; `SOURCE_ROOT` is untouched.
 - The paper has a title, author field, abstract, scientific sections,
   limitations/discussion, conclusion, and references.
-- This project's fixed house template is used:
-  `templates/prx-official/apstemplate.tex`, document class exactly
-  `\documentclass[aps,prx,reprint,groupedaddress]{revtex4-2}`. Do not use
-  `article`, `amsart`, PRE, PRL, or `pre-generic` unless the user explicitly
-  selected another venue.
+- Template conformance: the document class matches the domain recorded in
+  `research/assessment.md` — the APS PRX entrypoint
+  `templates/prx-official/apstemplate.tex` with
+  `\documentclass[aps,prx,reprint,groupedaddress]{revtex4-2}` for physics, the
+  amsart house preamble from `references/domains/mathematics.md` for
+  mathematics, or the user's selected venue otherwise. A physics paper must not
+  use `article`, `amsart`, PRE, PRL, or `pre-generic`; a mathematics paper must
+  not be forced into the physics two-column format. Check that every paper in
+  the same domain group uses the same class and preamble.
 - No table of contents unless requested.
 
 ## 2. Internal-metadata firewall
@@ -133,10 +137,11 @@ labeled block.
 - No figure or table appears after the bibliography, and no float shares a page
   with the start of the reference list in a way that leaves the references
   squeezed into a fragment of a page.
-- The reference list is labeled. With this house template the APS class prints
+- The reference list is labeled. With the PRX entrypoint the APS class prints
   only its separator rule and no heading word, so the entrypoint must supply
-  the label (for example `\section*{References}` before `\bibliography`). A bare
-  rule above `[1]` is a presentation defect, not a style choice.
+  the label (for example `\section*{References}` before `\bibliography`); a
+  bare rule above `[1]` is a presentation defect, not a style choice. amsart
+  prints its own `References` heading. Require some label in either case.
 - Check for full-width rules on the reference page (a `table*`/`figure*` sharing
   the page): render the page and look, or render and analyze pixel rows.
 

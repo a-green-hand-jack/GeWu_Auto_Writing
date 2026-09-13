@@ -12,15 +12,23 @@
 
 `paperwriter-*-runs/` 下的运行产物是生成物、已被 `.gitignore` 忽略，不视作需要维护的资产，也不逐份修补。
 
-## 模板：固定使用 PRX
+## 模板：按领域路由，不按论文自由选择
 
-正式手稿固定使用 `templates/prx-official/apstemplate.tex`，document class 必须是：
+排版是**项目声明**的属性，由**评估出的领域**路由；模型只负责从证据判断领域，不负责发明格式。
 
-```latex
-\documentclass[aps,prx,reprint,groupedaddress]{revtex4-2}
-```
+| 领域 | 入口 | document class |
+|---|---|---|
+| Physics（25 篇） | `templates/prx-official/apstemplate.tex` | `\documentclass[aps,prx,reprint,groupedaddress]{revtex4-2}` |
+| Mathematics（5 篇：rank 10/12/13/14/23） | `domains/mathematics.md` 里的 amsart 房规 preamble | `\documentclass[11pt,reqno]{amsart}` + `\bibliographystyle{amsplain}` |
+| 其他领域 | 用户指定的 venue | 按该 venue 要求 |
 
-任何使用 `article`、`amsart`、`plainnat`、`unsrt`、PRE、PRL 或 `pre-generic` 的历史产出都视为 legacy，应当重新生成，而不是就地改造。
+要点：
+
+- 数学稿**不**塞进 PRX 两栏物理格式，物理稿**不**用 `article`/`amsart`/PRE/PRL/`pre-generic`；
+- 同一领域组内必须class 与 preamble 一致，且 preflight 按“class 是否匹配已记录领域”检查，而不是硬编码“必须 PRX”；
+- PRX 需要手工补 `\section*{References}`（APS class 只画分隔线不印标题词）；amsart 自带 `References` 标题。
+
+历史备注：上一批（2026-09-13-r4）实际上已经是这个行为——物理用 PRX、数学用 `amsart`。本项目曾经的 `publication-mode.md` 把它写成“整批固定 PRX”，而数学指南又推荐 amsart，二者矛盾；现已改为显式声明+按领域路由。
 
 ## 已确认的产出缺陷（2026-09-13 的 30 篇产出，实证记录）
 

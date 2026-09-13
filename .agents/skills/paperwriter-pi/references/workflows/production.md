@@ -64,12 +64,15 @@ Write `research/assessment.md` as a short prose judgement, not a schema:
   classification as a limitation. Do not load a second domain's full writing
   framework "for the derivations" — each domain file already carries the
   derivation hygiene it needs;
-- the template: this project's fixed house template is
-  `templates/prx-official/apstemplate.tex` with
-  `\documentclass[aps,prx,reprint,groupedaddress]{revtex4-2}`. Do not
-  substitute `article`, `amsart`, PRE, PRL, or `pre-generic` unless the user
-  explicitly selects another venue; then verify that venue's current template
-  and license yourself. Never invent page limits, years, or license terms.
+- the template route for the assessed domain: physics uses the APS PRX
+  entrypoint `templates/prx-official/apstemplate.tex` with
+  `\documentclass[aps,prx,reprint,groupedaddress]{revtex4-2}`; mathematics uses
+  the amsart house preamble in `references/domains/mathematics.md`. Do not force
+  a mathematics manuscript into the physics two-column format, and do not invent
+  a format for a domain with no declared entry — record the choice and its
+  reason in `research/assessment.md` and keep it uniform within the group. If
+  the user selected another venue, verify that venue's current template and
+  license yourself, and never invent page limits, years, or license terms.
 
 ## 4. Plan
 
@@ -147,7 +150,8 @@ cross-section takeaway only.
 
 ## 8. Assemble
 
-Build `paper/main.tex` from the house template: input every planned section,
+Build `paper/main.tex` from the entrypoint declared for the assessed domain:
+input every planned section,
 remove instructional placeholder text, keep required license notices,
 `hyperref` with `hidelinks`, no table of contents unless requested. Each
 section is a separate safe-named `.tex` file. The bibliography is the final

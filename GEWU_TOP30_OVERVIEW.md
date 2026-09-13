@@ -2,14 +2,18 @@
 
 > 数据来源：GeWu Magazine 排行榜（页面标注更新时间：2026-09-10）。
 > 本目录中的仓库是冻结的只读参考资料；后续分析不应修改这些仓库。
+>
+> 领域计数以本表逐行条目与 `gewu-top30/MANIFEST.json` 的 `category` 字段为准
+> （Physics 25 / Mathematics 5，数学为 rank 10、12、13、14、23）。
+> 此前表头写的 “Physics 23 / Mathematics 7” 与本表逐行数据矛盾，已更正。
 
 ## 总体分布
 
 | 维度 | 分布 |
 |---|---:|
 | Solution 仓库总数 | 30 |
-| Physics | 23 |
-| Mathematics | 7 |
+| Physics | 25 |
+| Mathematics | 5 |
 | 最高分 | 84 |
 | 最低分 | 76 |
 | Magazine 文章已发布 | 27 |

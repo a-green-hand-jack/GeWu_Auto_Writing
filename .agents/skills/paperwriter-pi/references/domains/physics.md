@@ -4,6 +4,14 @@ Load this during planning, drafting, and review when the assessed domain is
 `physics`. It describes what a referee expects; it relaxes no rule in
 `constitution.md`.
 
+**Template.** A physics manuscript uses the official APS PRX entrypoint
+`templates/prx-official/apstemplate.tex` with
+`\documentclass[aps,prx,reprint,groupedaddress]{revtex4-2}`. Do not substitute
+`article`, `amsart`, PRE, PRL, or `pre-generic` unless the user selected another
+venue. Keep `placeins` and the `\FloatBarrier` before `\bibliography`, and
+label the reference list with `\section*{References}` (the APS class prints a
+separator rule but no heading word).
+
 ## What the reader needs
 
 A physics referee reconstructs the work and then checks it. They need, in order:

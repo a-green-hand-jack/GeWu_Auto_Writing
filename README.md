@@ -76,7 +76,7 @@ paperwriter-pi-runs/<TIMESTAMP>/
 见 `.agents/memory/paper_writing_policy.md`：
 
 - **已产出的论文不做事后修复，直接从 `SOURCE_ROOT` 重跑**；发现缺陷就修 skill 与门禁，然后重跑；
-- 正式手稿固定 PRX 模板（`\documentclass[aps,prx,reprint,groupedaddress]{revtex4-2}`），使用 `article`/`amsart` 的历史产出视为 legacy。
+- **模板按领域路由**：物理（25 篇）用 PRX 模板（`\documentclass[aps,prx,reprint,groupedaddress]{revtex4-2}`），数学（5 篇）用 `amsart` + `amsplain`；排版是项目声明的属性，模型只负责从证据判断领域，不负责自由选择格式。
 
 每个任务必须明确：
 
@@ -108,7 +108,7 @@ WORKSPACE/
 在已产出的 30 篇 PRX 论文上做过像素级与文本层排查，发现并已写入 `workflows/preflight.md` 的缺陷类型：
 
 - 模板自带的 `placeins` / `\FloatBarrier` 被丢弃（30/30），导致整幅 `table*` 与参考文献挤在同一页；
-- APS PRX 类只画粗细渐变的分隔线而不印 “REFERENCES” 标题词，入口文件必须自己补 `\section*{References}`；
+- APS PRX 类只画粗细渐变的分隔线而不印 “REFERENCES” 标题词，入口文件必须自己补 `\section*{References}`（数学篇用 amsart，自带该标题）；
 - 参考文献条目里写入内部流程描述（Crossref 校验日期、“not independently verified in the preparation environment”），这类内容属于 `research/literature.md`；
 - 参考文献过少时应作为覆盖度问题显式记录，而不是当作版式问题或静默通过。
 
