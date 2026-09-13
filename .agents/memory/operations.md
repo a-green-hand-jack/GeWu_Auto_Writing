@@ -24,6 +24,26 @@
 
 `RUN` 参数可用完整路径、名字片段（如 `math5`、`top30`）或留空表示最新。本地通过 `tools/gwb <cmd>` 经 ssh 调用（`GEWU_BATCH_HOST` 可改主机）。
 
+## 规则 4：模型视觉能力（已实测，2026-09-13）
+
+**GravArc Router 下没有任何可用视觉模型，`deepseek-v4.1-flash` 实际是纯文本。**
+
+实测证据（本机，用随机验证图 `/tmp/vision_probe2.png`：随机形状 + 随机 5 位数字）：
+
+| 实验 | 结果 |
+|---|---|
+| 不改配置，`gravarc-router/deepseek-v4.1-flash` 用 `read` 读图 | pi 直接丢弃图像：`[Current model does not support images. The image will be omitted from this request.]` |
+| 临时把该模型声明改为 `input: ["text","image"]` 后再试 | pi 会附带图像，但模型仍答不出图中形状/数字（只说"图像内容不可访问"）——说明上游路由本身不提供可用图像内容，不只是配置声明问题 |
+| 对照组 `apex/gpt-5.6-sol`（声明支持图像） | 正确答出 "A green circle"，证明探针方法有效 |
+| `apex-deepseek/deepseek-v4-flash-vision-exp`（目录里声明支持图像的 DeepSeek 视觉变体） | `503 model_not_found`：该 channel 当前不可用 |
+
+结论与做法：
+
+- 用 GravArc Router 跑批量时，**视觉门禁一律如实记为 blocked**，不得从编译退出码或文本层推断视觉通过；
+- 配置里 `gravarc-router` 的所有模型都声明为 `input: ["text"]`，与实测行为一致；
+- 若需要真正的逐页视觉验收，用已验证可读图的 `apex/gpt-5.6-sol`（或其他 `apex` 视觉模型）对渲染后的页面图做第二遍检查；注意**ECS 上没有 poppler**（无 `pdftoppm`），需先安装渲染工具或在本机渲染后再送检；
+- 修改模型声明做实验后必须恢复原文件并校验哈希（本次已恢复并比对 sha256 一致）。
+
 ## 规则 3：踩过的坑（务必避免）
 
 - **传输脚本**：用 `ssh host 'cat > FILE' < local_file`。不要把 heredoc 传输与 `&` 后台链写在同一行，否则 heredoc 的 stdin 被吞，远端文件变成 0 字节（已实际踩过，导致 5 个数学任务以 exit 127 瞬间失败）。
