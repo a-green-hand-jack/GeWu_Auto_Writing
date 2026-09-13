@@ -168,6 +168,58 @@ you did not compute or invent error bars. Each table/figure has exactly one
 home section where it is analysed in detail; elsewhere it is cited for the
 cross-section takeaway only.
 
+## 7b. Bounded verification
+
+Independent checks are how this pipeline earns trust, but an unbounded check is
+worse than no check: it consumes the run, produces no evidence, and hides the
+manuscript's real state. Three rules, all observed to fail in practice.
+
+**Keep every check inside the workspace.** A verification script lives at
+`research/checks/<name>.py` (or `.jl`/`.sh`) and writes its output next to
+itself, for example `research/checks/<name>.out`. Never write a script or its
+output to `/tmp`, to the home directory, or anywhere outside `WORKSPACE`: such a
+run loses its provenance, cannot be audited later, and is invisible to any
+supervisor watching the workspace for progress. A check whose script is missing
+from `research/` did not happen.
+
+**Bound every run before you run it.** For each check, state in the script's
+header comment (and in `research/validation.md`) the exact finite coverage, a
+cost estimate, and a hard cap — wall-clock seconds, maximum case size, maximum
+iterations. Enforce the cap in the code and print it:
+
+```python
+# coverage: all N <= 12 for each of 3 couplings; cap: 600 s, N_max 12
+deadline = time.time() + 600
+for N in range(1, N_MAX + 1):
+    if time.time() > deadline:
+        print(f"CAP REACHED at N={N}; coverage partial"); break
+```
+
+Run it under a wall-clock guard too (`timeout 600 python3 research/checks/x.py`).
+A check with an unbounded loop (`while True`, "run until it converges") is a
+defect, not diligence; give it a bound and report the coverage actually reached.
+
+**Pilot, then scale.** Run the smallest case first. If it does not finish in
+seconds, do not scale it up — shrink the claim's checked range instead.
+
+**Two failures is a strategy change, not a third patch.** If the same check
+fails, hangs, or needs a third edit to the same line, stop editing it. Options,
+in order: reduce the coverage to what completes; replace the computation with an
+analytic argument or a smaller exact certificate; or mark the dependent claim
+conditional and say so in the manuscript. Repeatedly patching and re-running one
+script is the failure mode this rule exists to prevent.
+
+**Reserve the budget.** At least a third of the run belongs to drafting,
+compilation, preflight and review. A single check may not consume the run: if it
+has run for more than roughly 15 minutes of wall-clock without producing a
+result, apply the previous rule.
+
+When a check cannot complete within its cap, record in `research/validation.md`
+exactly what was verified, what was not, and the coverage reached; weaken or
+condition any claim that depends on the unchecked part, and continue with the
+manuscript. A paper with an honest partial check is publishable; a run that
+spends its budget looping is not.
+
 ## 8. Assemble
 
 Before assembly, run one anti-AI-tone pass over the finished prose using

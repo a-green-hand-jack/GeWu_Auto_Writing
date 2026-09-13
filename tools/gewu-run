@@ -14,11 +14,12 @@
 #
 # Usage:
 #   gewu-run --task-dir DIR [--model ID] [--provider P] [--timeout 7200]
-#            [--stall 1200] [--retries 1] [--skill PATH] [--thinking high]
+#            [--stall 1200] [--no-progress 3600] [--retries 1]
+#            [--skill PATH] [--thinking high]
 set -uo pipefail
 
 TASK_DIR=""; MODEL="deepseek-v4.1-flash"; PROVIDER="gravarc-router"; TIMEOUT=7200
-STALL=1200; RETRIES=1; THINKING=high
+STALL=1200; RETRIES=1; THINKING=high; NO_PROGRESS=3600
 SKILL="${GEWU_SKILL:-$HOME/GeWu_Auto_Writing/.agents/skills/paperwriter-pi/SKILL.md}"
 
 while [ $# -gt 0 ]; do
@@ -28,6 +29,7 @@ while [ $# -gt 0 ]; do
     --provider) PROVIDER="$2"; shift 2 ;;
     --timeout)  TIMEOUT="$2"; shift 2 ;;
     --stall)    STALL="$2"; shift 2 ;;
+    --no-progress) NO_PROGRESS="$2"; shift 2 ;;
     --retries)  RETRIES="$2"; shift 2 ;;
     --skill)    SKILL="$2"; shift 2 ;;
     --thinking) THINKING="$2"; shift 2 ;;
@@ -42,6 +44,28 @@ export PATH="$HOME/.local/bin:$HOME/texlive/2026/bin/x86_64-linux:$PATH"
 command -v pi >/dev/null 2>&1 || { echo "gewu-run: pi not on PATH" >&2; exit 1; }
 mkdir -p "$TASK_DIR/workspace"
 
+
+# CPU ticks of the pi process and its descendants (3 levels). A long legitimate
+# computation changes no files but burns CPU; a provider stall burns none. Using
+# both signals keeps the watchdog from killing honest work.
+cpu_ticks() {
+  local root="$1" total=0 p c g
+  for p in "$root" $(pgrep -P "$root" 2>/dev/null); do
+    if [ -r "/proc/$p/stat" ]; then
+      total=$(( total + $(awk '{print $14+$15}' "/proc/$p/stat" 2>/dev/null || echo 0) ))
+    fi
+    for c in $(pgrep -P "$p" 2>/dev/null); do
+      if [ -r "/proc/$c/stat" ]; then
+        total=$(( total + $(awk '{print $14+$15}' "/proc/$c/stat" 2>/dev/null || echo 0) ))
+      fi
+      for g in $(pgrep -P "$c" 2>/dev/null); do
+        [ -r "/proc/$g/stat" ] && total=$(( total + $(awk '{print $14+$15}' "/proc/$g/stat" 2>/dev/null || echo 0) ))
+      done
+    done
+  done
+  echo "$total"
+}
+
 NAME="$(basename "$TASK_DIR")"
 MAX_ATTEMPTS=$(( RETRIES + 1 ))
 attempt=0
@@ -51,7 +75,7 @@ date -u +%Y-%m-%dT%H:%M:%SZ > "$TASK_DIR/started-at"
 
 while : ; do
   attempt=$(( attempt + 1 ))
-  rm -f "$TASK_DIR/stall-detected" "$TASK_DIR/exit-code" "$TASK_DIR/finished-at"
+  rm -f "$TASK_DIR/stall-detected" "$TASK_DIR/no-progress-detected" "$TASK_DIR/exit-code" "$TASK_DIR/finished-at"
 
   cd "$TASK_DIR" || exit 1
   timeout "$TIMEOUT" pi \
@@ -78,17 +102,42 @@ while : ; do
   # the new attempt dead on its first check (that bug killed attempts 2-3 in
   # the first retry run within minutes).
   attempt_start=$(date +%s)
+  progress_base=$attempt_start
+  last_cpu=$(cpu_ticks "$PI_PID")
+  export last_cpu attempt_start progress_base
   (
     while kill -0 "$PI_PID" 2>/dev/null; do
       sleep 60
       newest=$(find "$TASK_DIR/workspace" -type f -printf '%T@\n' 2>/dev/null | sort -n | tail -1 | cut -d. -f1)
       now=$(date +%s)
+      # liveness: file written this attempt, or CPU consumed since last check
+      cpu=$(cpu_ticks "$PI_PID")
+      if [ "${cpu:-0}" -gt "$(( ${last_cpu:-0} + 50 ))" ]; then
+        last_cpu=$cpu
+        attempt_start=$now
+      fi
       if [ -z "$newest" ] || [ "$newest" -lt "$attempt_start" ]; then
         baseline=$attempt_start
       else
         baseline=$newest
       fi
       idle=$(( now - baseline ))
+      # A second, slower clock that CPU activity must not reset: the skill
+      # requires check scripts to write their output inside the workspace, so an
+      # hour without a single file change is a defect even on a busy core.
+      if [ -n "$newest" ] && [ "$newest" -gt "${progress_base:-$attempt_start}" ]; then
+        progress_base=$newest
+      fi
+      no_prog=$(( now - ${progress_base:-$attempt_start} ))
+      if [ "$no_prog" -gt "$NO_PROGRESS" ]; then
+        echo "no progress: no workspace file change for ${no_prog}s (limit ${NO_PROGRESS}s) although the process was alive" > "$TASK_DIR/no-progress-detected"
+        pkill -TERM -P "$PI_PID" 2>/dev/null
+        kill -TERM "$PI_PID" 2>/dev/null
+        sleep 5
+        pkill -KILL -P "$PI_PID" 2>/dev/null
+        kill -KILL "$PI_PID" 2>/dev/null
+        break
+      fi
       if [ "$idle" -gt "$STALL" ]; then
         echo "stalled: no workspace change for ${idle}s (limit ${STALL}s)" > "$TASK_DIR/stall-detected"
         pkill -TERM -P "$PI_PID" 2>/dev/null
@@ -105,11 +154,12 @@ while : ; do
   wait "$PI_PID"; RC=$?
   wait "$WATCH_PID" 2>/dev/null
 
-  if [ -f "$TASK_DIR/stall-detected" ] || [ "$RC" -ne 0 ]; then
+  if [ -f "$TASK_DIR/stall-detected" ] || [ -f "$TASK_DIR/no-progress-detected" ] || [ "$RC" -ne 0 ]; then
     mv -f "$TASK_DIR/run.log" "$TASK_DIR/run.log.attempt${attempt}" 2>/dev/null
     if [ "$attempt" -lt "$MAX_ATTEMPTS" ]; then
       reason="exit $RC"
       [ -f "$TASK_DIR/stall-detected" ] && reason="provider stall"
+      [ -f "$TASK_DIR/no-progress-detected" ] && reason="no progress for over ${NO_PROGRESS}s"
       echo "gewu-run: $NAME attempt $attempt failed ($reason); retrying in 30s" >&2
       sleep 30
       continue
@@ -120,7 +170,7 @@ done
 
 echo "$RC" > "$TASK_DIR/exit-code"
 date -u +%Y-%m-%dT%H:%M:%SZ > "$TASK_DIR/finished-at"
-if [ -f "$TASK_DIR/stall-detected" ]; then
+if [ -f "$TASK_DIR/stall-detected" ] || [ -f "$TASK_DIR/no-progress-detected" ]; then
   echo "gewu-run: $NAME STOPPED BY WATCHDOG after $attempt attempt(s) (exit $RC)" >&2
 else
   echo "gewu-run: $NAME exit $RC after $attempt attempt(s)" >&2

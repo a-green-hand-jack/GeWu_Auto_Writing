@@ -116,6 +116,14 @@ derivations, and explicitly scoped bounds.
 
 ## Numerical and finite-size work
 
+Every computation you run is bounded and recorded: keep the script and its
+output under `research/checks/` inside the workspace (never `/tmp` or the home
+directory), state the finite coverage and a hard cap in the script, wrap it in a
+wall-clock guard, and print the coverage actually reached. A check that needs a
+third patch, or that has run for more than ~15 minutes without a result, is
+replaced by a smaller exact check, an analytic argument, or a claim marked
+conditional — see `workflows/production.md` §7b. Do not spend the run looping.
+
 When the evidence is computational, the protocol is part of the result:
 
 - system sizes, parameters, discretization, tolerances, and the convergence

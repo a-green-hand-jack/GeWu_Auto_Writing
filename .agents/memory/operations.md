@@ -92,3 +92,15 @@ gewu-run --task-dir DIR --timeout 10800 --stall 1500 --retries 2
 - 批量的 `timeout 14400` 只兜住"永远不返回"，stall 看门狗才能及早释放卡死任务。
 
 **provider 卡死是反复发生的故障**（首批 30 篇出现 5 次：`19`、`26`、`13`、`24` 各一次，另一次在首批重跑）。观察到卡死时 CPU 时间几乎不增长、workspace 长时间无新文件；对策就是看门狗 + 自动重试，不要靠人工发现。
+
+## 规则 6：两类"卡住"要分开处理（2026-09-13）
+
+**A. provider 挂起**：进程活着但 CPU 几乎不增长、无文件写入。→ `--stall` 看门狗 + 自动重试。
+
+**B. 无界自检循环**：进程**满核烧 CPU** 但长时间没有任何文件产出。实测案例：`07-sun-aklt-transfer-matrix-spectrum` 连续 65 分钟无写入、单核满载，查进程树发现 agent 在 `cd /tmp` 里反复 `sed` 修 `verify_op.py` 再重跑——脚本写在 `/tmp`，所以 workspace 里看不到任何进展。CPU 存活规则会（正确地）不杀它，于是任务烧掉全局预算。
+
+对策分两层：
+
+- **skill 层（根治）**：检查脚本必须放在 `research/checks/` 并就近输出；每个检查必须在代码里写明"覆盖范围 + 硬上限（秒/规模/迭代）"并有 `timeout` 外壳；先跑最小规模再放大；同一检查两次失败就换策略（缩小范围/解析替代/把结论标为 conditional）；单个检查不得占用超过约 15 分钟，且必须为起草/编译/审阅留出至少 1/3 预算。见 `production.md` §7b。
+- **工具层（兜底）**：`gewu-run --no-progress 3600`——即使 CPU 在烧，workspace 超过 N 秒无任何文件变化也判为异常、终止并重试，标记 `no-progress-detected`（与 `stall-detected` 区分）。
+

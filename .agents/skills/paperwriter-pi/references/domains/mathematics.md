@@ -79,6 +79,12 @@ For a certificate/enumeration paper: define the exactly covered set, describe th
 checker and its independent verification, report the coverage precisely, and
 separate what is proven for that finite set from what remains conjectural.
 
+Keep checkers inside the workspace (`research/checks/`) with their output, state
+the exactly covered set and a hard cap in the code, and never leave a search
+unbounded: if the enumeration does not finish within its cap, report the range
+actually covered and mark the general statement conjectural. The debug and
+budget rules in `workflows/production.md` §7b apply here too.
+
 Apply the smallest pattern set that matches the paper type:
 
 - **Theory**: definitions, proof strategy, theorem/lemma chain, complete proof,

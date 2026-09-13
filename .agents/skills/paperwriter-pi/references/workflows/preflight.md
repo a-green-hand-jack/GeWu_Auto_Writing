@@ -198,6 +198,23 @@ page, and the final two pages:
 If the model cannot read images, or rendering is unavailable, record visual
 inspection as blocked. Never infer visual success from a compiler exit code.
 
+## 10b. Verification-script gate
+
+```bash
+# checks must live in the workspace, not in temporary space
+grep -rnE '/tmp/|\$HOME|~/[a-z]' paper/../research/checks/ 2>/dev/null | head
+find research/checks -maxdepth 1 -name '*.py' -o -maxdepth 1 -name '*.sh' | wc -l
+# unbounded loops and missing guards
+grep -rnE 'while +True|while +1:|until .*converge' research/checks/ 2>/dev/null | head
+grep -rLnE 'timeout|deadline|MAX|CAP' research/checks/*.py 2>/dev/null | head
+```
+
+Every check script belongs under `research/checks/` with its output beside it.
+Flag any script that lives in temporary space, contains an unbounded loop, or
+states no coverage and no cap. `research/validation.md` must record, per check,
+the coverage reached and whether it completed or hit its cap; a claim that rests
+on a capped or absent check is marked conditional in the manuscript.
+
 ## 11. Proofread pass
 
 Load `references/skills-imported/proofreading/SKILL.md` and run its six checks
