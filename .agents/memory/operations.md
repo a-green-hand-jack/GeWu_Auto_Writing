@@ -24,25 +24,41 @@
 
 `RUN` 参数可用完整路径、名字片段（如 `math5`、`top30`）或留空表示最新。本地通过 `tools/gwb <cmd>` 经 ssh 调用（`GEWU_BATCH_HOST` 可改主机）。
 
-## 规则 3：模型视觉能力（已实测，2026-09-13）
+## 规则 3：视觉能力与页面渲染（2026-09-13 更新）
 
-**GravArc Router 下没有任何可用视觉模型，`deepseek-v4.1-flash` 实际是纯文本。**
+### GravArc Router 的模型清单与视觉模型
 
-实测证据（本机，用随机验证图 `/tmp/vision_probe2.png`：随机形状 + 随机 5 位数字）：
+路由器自己的清单**无需认证**即可读取，这是权威来源（`pi --list-models` 只反映本地目录，会漂移）：
 
-| 实验 | 结果 |
-|---|---|
-| 不改配置，`gravarc-router/deepseek-v4.1-flash` 用 `read` 读图 | pi 直接丢弃图像：`[Current model does not support images. The image will be omitted from this request.]` |
-| 临时把该模型声明改为 `input: ["text","image"]` 后再试 | pi 会附带图像，但模型仍答不出图中形状/数字（只说"图像内容不可访问"）——说明上游路由本身不提供可用图像内容，不只是配置声明问题 |
-| 对照组 `apex/gpt-5.6-sol`（声明支持图像） | 正确答出 "A green circle"，证明探针方法有效 |
-| `apex-deepseek/deepseek-v4-flash-vision-exp`（目录里声明支持图像的 DeepSeek 视觉变体） | `503 model_not_found`：该 channel 当前不可用 |
+```bash
+curl -sS https://api.epicllmrouter.top/v1/models -o /tmp/router_models.json   # 当前 57 个模型
+```
 
-结论与做法：
+清单里带视觉语义的条目：
 
-- 用 GravArc Router 跑批量时，**视觉门禁一律如实记为 blocked**，不得从编译退出码或文本层推断视觉通过；
-- 配置里 `gravarc-router` 的所有模型都声明为 `input: ["text"]`，与实测行为一致；
-- 若需要真正的逐页视觉验收，用已验证可读图的 `apex/gpt-5.6-sol`（或其他 `apex` 视觉模型）对渲染后的页面图做第二遍检查；注意**ECS 上没有 poppler**（无 `pdftoppm`），需先安装渲染工具或在本机渲染后再送检；
-- 修改模型声明做实验后必须恢复原文件并校验哈希（本次已恢复并比对 sha256 一致）。
+- `moonshot-v1-8k/32k/128k-vision-preview`（kimi，名字里就写 vision）
+- `gpt-5`/`gpt-5.2`/`gpt-5.4`/`gpt-5.5`/`gpt-5.6-sol|luna|terra`/`gpt-6-astra`（GPT-5 系通常多模态，但名字不含 vision）
+- `claude-*`（Anthropic 系通常多模态）
+- `gpt-image-2`、`chatgpt-image-latest` 是**图像生成**，不是图像理解
+
+**但当前账号下这些渠道全部不可用**：用纯文本请求逐个验证，`moonshot-v1-*-vision-preview`、`gpt-5.6-sol`、`claude-sonnet-4-6`、`claude-haiku-4-5` 一律 `503`（连纯文本都 503 → 是渠道缺失，不是不接受图像）。对照 `deepseek-v4.1-flash` 纯文本正常。所以"清单里有"不等于"能用"。
+
+### 现在可用的视觉路径
+
+`apex/gpt-5.6-sol` —— 本地目录里已配置、声明 `input: ["text","image"]`，**已实测可读图**（正确识别随机形状+随机 5 位数字的验证图），并已成功读真实论文页面并给出具体版面观察。这是当前唯一验证可用的视觉模型。
+
+### ECS 页面渲染（已安装）
+
+ECS 是 Ubuntu 24.04，**无免密 sudo**、docker 不可用、poppler 未装。已安装：
+
+- `pip3 install --user --break-system-packages pypdfium2`（venv 不可用：缺 ensurepip）；
+- `tools/pdf-pages`（仓库版本化；ECS 装到 `~/GeWu_Auto_Writing/bin/pdf-pages` 并软链 `~/.local/bin/`）：用 PDFium 渲染，无需系统 poppler，支持 `--dpi`、`--pages 1-5`。
+
+已实测：渲染真实论文 PDF → 取回本地 → `apex/gpt-5.6-sol` 逐页给出具体观察。**视觉门禁因此可执行**；用 GravArc Router 跑批量时仍需按模型实际能力判断，不得从编译退出码推断视觉通过。
+
+### 实验纪律
+
+修改模型声明做实验后必须恢复并校验哈希（本次两次实验后均已恢复，sha256 一致）。
 
 ## 规则 4：踩过的坑（务必避免）
 

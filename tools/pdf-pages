@@ -1,0 +1,69 @@
+#!/usr/bin/env python3
+"""pdf-pages — render PDF pages to PNG images without a system Poppler.
+
+Uses pypdfium2 (bundled PDFium) so it works on hosts with no poppler-utils and
+no root. Repeated-operation CLI for the visual-review gate.
+
+Usage:
+    pdf-pages PDF OUTDIR [--dpi 120] [--pages 1-5|3,7] [--prefix page]
+
+Prints one line per rendered page: the image path. Exit code 1 if unavailable.
+"""
+import argparse
+import os
+import sys
+
+
+def parse_pages(spec, count):
+    if not spec:
+        return list(range(count))
+    wanted = []
+    for token in spec.split(","):
+        token = token.strip()
+        if not token:
+            continue
+        if "-" in token:
+            start, end = token.split("-", 1)
+            wanted.extend(range(int(start) - 1, int(end)))
+        else:
+            wanted.append(int(token) - 1)
+    return [i for i in wanted if 0 <= i < count]
+
+
+def main():
+    ap = argparse.ArgumentParser(prog="pdf-pages")
+    ap.add_argument("pdf")
+    ap.add_argument("outdir")
+    ap.add_argument("--dpi", type=float, default=120.0)
+    ap.add_argument("--pages", default=None, help="e.g. 1-5 or 3,7 (1-based)")
+    ap.add_argument("--prefix", default="page")
+    args = ap.parse_args()
+
+    if not os.path.isfile(args.pdf):
+        print(f"pdf-pages: no such file: {args.pdf}", file=sys.stderr)
+        return 1
+    try:
+        import pypdfium2 as pdfium
+    except ImportError:
+        print("pdf-pages: pypdfium2 not installed (pip install --user pypdfium2)", file=sys.stderr)
+        return 1
+
+    doc = pdfium.PdfDocument(args.pdf)
+    count = len(doc)
+    selected = parse_pages(args.pages, count)
+    os.makedirs(args.outdir, exist_ok=True)
+
+    for i in selected:
+        page = doc[i]
+        bitmap = page.render(scale=args.dpi / 72.0)
+        image = bitmap.to_pil()
+        path = os.path.join(args.outdir, f"{args.prefix}-{i + 1:04d}.png")
+        image.save(path)
+        print(path)
+
+    print(f"pdf-pages: pages={count} rendered={len(selected)} dpi={args.dpi:g} out={args.outdir}", file=sys.stderr)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
