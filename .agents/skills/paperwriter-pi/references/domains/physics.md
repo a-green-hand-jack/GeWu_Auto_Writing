@@ -17,9 +17,35 @@ problems, counterexamples to mathematical conjectures — belong to
 `templates/prx-official/apstemplate.tex` with
 `\documentclass[aps,prx,reprint,groupedaddress]{revtex4-2}`. Do not substitute
 `article`, `amsart`, PRE, PRL, or `pre-generic` unless the user selected another
-venue. Keep `placeins` and the `\FloatBarrier` before `\bibliography`, and
-label the reference list with `\section*{References}` (the APS class prints a
-separator rule but no heading word).
+venue.
+
+Keep `placeins` and the `\FloatBarrier` before the bibliography, and build
+the reference block with the APS separator device plus an explicit centred
+heading. REVTeX's APS mode draws its separator rule but prints no heading word,
+and a bare `\section*{References}` puts the heading inside one column, which is
+not how an APS page looks. Use exactly:
+
+```latex
+\FloatBarrier
+\makeatletter
+\renewcommand{\bibsection}{%
+  \par
+  \onecolumngrid
+  \vspace{19\p@}%
+  \bib@device{\textwidth}{245.5\p@}%
+  \vspace{3\p@}%
+  \begin{center}{\bfseries REFERENCES}\end{center}%
+  \vspace{4\p@}%
+  \twocolumngrid
+  \nobreak
+}
+\makeatother
+\bibliography{references}
+```
+
+`\makeatletter`/`\makeatother` are required because `\p@` and `\bib@device`
+are internal control sequences. Verified by compiling a produced manuscript:
+full-text-width centred REFERENCES, better column balance, entries intact.
 
 ## What the reader needs
 

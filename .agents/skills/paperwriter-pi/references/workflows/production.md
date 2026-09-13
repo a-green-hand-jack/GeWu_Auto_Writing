@@ -93,7 +93,8 @@ Write `research/plan.md` before any prose:
 
 ## 5. Draft
 
-Load the domain guide, then write complete sections in this order:
+Load the domain guide and `references/skills-imported/scientific-writing.md`
+(argument-first section structure), then write complete sections in this order:
 
 1. technical core — model/problem, assumptions, definitions, derivation or
    method, with the boundary of what it establishes;
@@ -103,7 +104,7 @@ Load the domain guide, then write complete sections in this order:
    related work is organised by theme and positions this paper, not a list;
 4. discussion, limitations, conclusion — at least two real, specific
    limitations and what they prevent;
-5. abstract — last, from the finished paper (constitution §6, domain guide).
+5. abstract — last, from the finished paper (constitution §7, domain guide).
 
 Completeness bar: a section is done when it carries substantive paragraphs,
 equations, or tables with evidence links. Restating a README, narrating file
@@ -133,11 +134,29 @@ content was never inspected cannot support a technical claim. Inaccessible key
 references are unresolved items, not silent gaps. A search that found nothing
 supports only "we did not locate", never "first".
 
+**Engage the literature that exists.** Every citation must support a claim, so
+never pad with decorative or unread entries; equally, a thin bibliography is a
+coverage defect, not a virtue. A research article that positions itself in its
+field normally reaches at least ~20 references in physics and ~12 in
+mathematics. Below those floors, record in `research/literature.md` the queries
+actually run, the specific prior works that should have been relevant, and why
+they are absent.
+
+Work the topic, not just the source repository: (1) start from the source's own
+references and the names it uses; (2) search the topic's key terms and the
+author names it cites, forward and backward (arXiv export API, Crossref,
+publisher and author pages); (3) for each specific result the manuscript relies
+on or improves, find the work that established or previously improved it and
+cite it at the point of use; (4) check every `first`, `novel`, `only`, or
+`unlike previous work` claim against what the search actually returned, and
+weaken the claim if the search contradicts it. A related-work section states
+what the closest prior results established, under which hypotheses, and exactly
+how this paper differs — it is not a citation list.
+
 BibTeX hygiene (these break compilation): escape `_`, `&`, `%`, `#` and
 unbalanced braces in every field; never put a raw code path or identifier in a
 bibliography field — cite source files in prose with `\texttt{...}` and a
-locator instead; re-read `references.bib` before compiling. Citations support
-claims; there is no quota.
+locator instead; re-read `references.bib` before compiling.
 
 ## 7. Figures and tables
 
@@ -150,6 +169,11 @@ home section where it is analysed in detail; elsewhere it is cited for the
 cross-section takeaway only.
 
 ## 8. Assemble
+
+Before assembly, run one anti-AI-tone pass over the finished prose using
+`references/skills-imported/anti-ai-tone.md`: apply only its listed patterns,
+never change a claim, number, citation, or the structure, and leave unmatched
+text untouched.
 
 Build `paper/main.tex` from the entrypoint declared for the assessed domain:
 input every planned section,
@@ -190,7 +214,10 @@ source draft and record compilation as blocked; never claim a compiled paper.
 
 If Poppler (`pdftoppm`) or equivalent is available, render every page. If the
 active model can read images, inspect every rendered page against
-`references/domains/layout.md` and record concrete per-page observations in
+`references/domains/layout.md` and the page-level contract in
+`references/skills-imported/visual-inspection.md` (float proximity, clipping and
+widows, single-character lines, paragraph-tail density, over-paragraphing,
+figure legibility), and record concrete per-page observations in
 `research/validation.md`. A text-only model, missing render tools, or a failed
 image read means visual inspection is recorded as blocked — never inferred
 from the compiler exit code or the source text. Any changed PDF bytes require

@@ -50,6 +50,13 @@ one workflow, one domain file, then the gates.
    domain's framework "for the derivations"**: each domain file already carries
    the derivation hygiene it needs.
 
+**`references/skills-imported/`** — adapted skills from the ResearchWorld_paper
+project that this bundle uses at specific stages: `scientific-writing.md` while
+drafting, `anti-ai-tone.md` before assembly, `proofreading/SKILL.md` and
+`visual-inspection.md` before delivery. See its `README.md` for what each adds
+and the boundaries they inherit (they may change language and organization,
+never a claim, number, citation, or result).
+
 Gates, run at the end:
 
 - **`references/workflows/preflight.md`** — template conformance, the
@@ -104,11 +111,14 @@ If the user selected no venue for a domain with no entry above, use a neutral
 single-column expository format, record the choice and its reason in
 `research/assessment.md`, and keep it uniform across that domain's papers.
 
-Two PRX-specific details are easy to lose and were lost in every earlier run:
-keep the preamble's `placeins` package and the `\FloatBarrier` immediately
-before `\bibliography`, and label the reference list (`\section*{References}`),
-since the APS class prints only its separator rule and no heading word. amsart
-prints its own `References` heading and needs `amsplain`.
+Two PRX-specific details are easy to lose and were lost in every earlier run.
+First, keep the preamble's `placeins` package and the `\FloatBarrier`
+immediately before `\bibliography`. Second, build the reference block with the
+APS separator device plus an explicit centred heading — REVTeX's APS mode prints
+a rule but no heading word, and a bare `\section*{References}` confines the
+heading to one column, which is not how an APS page looks. The exact block is in
+`references/domains/physics.md`. amsart prints its own `References` heading and
+needs `amsplain`.
 
 ## Writing protocol
 

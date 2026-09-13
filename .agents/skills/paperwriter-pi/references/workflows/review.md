@@ -28,6 +28,20 @@ Then load the domain review checklist in `references/domains/<domain>.md` and
 apply it in addition to the shared dimensions above. When rendered pages
 exist, also apply `references/domains/layout.md` page by page.
 
+## Loaded checks for this stage
+
+- `references/skills-imported/visual-inspection.md` — the page-level layout
+  contract applied whenever rendered pages exist.
+- `references/skills-imported/proofreading/SKILL.md` — the six systematic
+  proofread checks (abbreviations, math notation, introduction structure,
+  grammar/style, figures and tables, statistics).
+- `references/skills-imported/anti-ai-tone.md` — the white-list rewrite rules
+  for machine-drafting tells; information-conserving, structure-preserving.
+
+A stage that edits must not also certify the same text: after any non-trivial
+prose change, run at least one independent pass from a different category and
+report its result.
+
 ## Visual review
 
 Only claim a page-level observation after actually reading the rendered image

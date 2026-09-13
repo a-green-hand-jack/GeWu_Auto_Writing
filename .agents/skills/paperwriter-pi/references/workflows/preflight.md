@@ -124,12 +124,17 @@ comm -13 /tmp/entries.txt /tmp/cited.txt   # citations with no entry
   reference entry; they are internal records and belong in
   `research/literature.md`. A bibliography note may state a scientific caveat
   (for example that a work is a preprint), never the drafting process.
-- **Coverage is stated, not implied.** Count the entries. A short list is a
-  coverage finding: if the paper cites fewer than eight content-verified
-  references, `research/literature.md` must record why (genuinely isolated
-  result, no accessible prior work, and what searches were run). Never pad with
-  uncited or unread entries, and never attribute a technical result to a source
-  whose content was not inspected.
+- **Coverage is stated, not implied, and thin coverage is a defect.** Count the
+  entries and the distinct works cited. A research article that engages its
+  field normally reaches at least ~20 references in physics and ~12 in
+  mathematics; below that the manuscript is almost always under-positioned.
+  If the count is below those floors, `research/literature.md` must record the
+  searches actually run, the specific prior works that should have been
+  relevant, and why they are absent. Never pad with uncited, unread, or
+  decorative entries — every entry must be cited and every citation must
+  support a claim — but do not treat a short list as acceptable by default
+  either. Check that the related-work discussion positions this paper against
+  at least five concrete prior results by name, not as a citation list.
 
 ## 8. Float and reference-region gate
 
@@ -143,11 +148,16 @@ labeled block.
 - No figure or table appears after the bibliography, and no float shares a page
   with the start of the reference list in a way that leaves the references
   squeezed into a fragment of a page.
-- The reference list is labeled. With the PRX entrypoint the APS class prints
-  only its separator rule and no heading word, so the entrypoint must supply
-  the label (for example `\section*{References}` before `\bibliography`); a
-  bare rule above `[1]` is a presentation defect, not a style choice. amsart
-  prints its own `References` heading. Require some label in either case.
+- The reference list is labeled **and the label spans the text width**. For the
+  PRX entrypoint the class prints a separator rule but no heading word, and a
+  bare `\section*{References}` centres the heading inside a single column — a
+  defect a rendered-page check catches immediately. Require the construction in
+  `references/domains/physics.md` (separator device plus a centred heading
+  between `\onecolumngrid` and `\twocolumngrid`), and confirm on the rendered
+  last page that the word REFERENCES is centred across the full text width and
+  that both columns are balanced at the reference block.
+- For amsart, the class prints its own `References` heading; confirm on the
+  rendered page that it exists.
 - Check for full-width rules on the reference page (a `table*`/`figure*` sharing
   the page): render the page and look, or render and analyze pixel rows.
 
@@ -188,7 +198,15 @@ page, and the final two pages:
 If the model cannot read images, or rendering is unavailable, record visual
 inspection as blocked. Never infer visual success from a compiler exit code.
 
-## 11. Final report
+## 11. Proofread pass
+
+Load `references/skills-imported/proofreading/SKILL.md` and run its six checks
+against the LaTeX sources (abbreviations, math notation, introduction structure,
+grammar/style, figures and tables, statistics). Report line-level findings. A
+proofread that changes wording must not also certify the same text; re-run the
+affected consistency checks afterwards.
+
+## 12. Final report
 
 Record in `research/validation.md`: the commands actually run and their
 results, the files and pages inspected, the bibliography size and coverage
