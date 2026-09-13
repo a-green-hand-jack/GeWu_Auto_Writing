@@ -2,13 +2,17 @@
 % REVTeX class and bibliography styles must be supplied by the user's TeX installation.
 \documentclass[aps,pre,reprint]{revtex4-2}
 \usepackage{amsmath,amssymb,graphicx}
+\usepackage[hidelinks]{hyperref}
 \begin{document}
-\title{Draft title}
-\author{Author information pending}
+% Formal-publication house template: no table of contents unless requested.
+\title{Reader-facing scientific title}
+\author{Author names to be supplied by the submitting authors}
 \begin{abstract}
 % Write the evidence-bounded abstract after drafting the technical core.
 \end{abstract}
 \maketitle
-% Add planned section files with \input; do not invent results or references.
+% Add planned section files with \input; do not expose internal repository
+% paths, filenames, scripts, provider names, run IDs, or platform links.
+% Keep source locators in research/provenance.md.
 \bibliography{references}
 \end{document}
