@@ -81,4 +81,14 @@ ECS 是 Ubuntu 24.04，**无免密 sudo**、docker 不可用、poppler 未装。
 gewu-run --task-dir DIR --timeout 10800 --stall 1200   # 20 分钟无写入即判卡死并终止
 ```
 
-它写与 launcher 相同的 `pid/started-at/run.log/exit-code/finished-at`，额外写 `stall-detected`。批量的 `timeout 14400` 只兜住"永远不返回"，单独的 stall 看门狗才能及早释放卡死任务。
+它写与 launcher 相同的 `pid/started-at/run.log/exit-code/finished-at`，额外写 `stall-detected`，并在失败时自动重试：
+
+```bash
+gewu-run --task-dir DIR --timeout 10800 --stall 1500 --retries 2
+```
+
+- `--stall`：多少秒无写入判卡死（默认 1200）；
+- `--retries`：失败（卡死或非零退出）后的额外尝试次数（默认 1）；每次尝试的日志存为 `run.log.attemptN`，**workspace 保留**，所以重试是"续写"而不是从零开始；
+- 批量的 `timeout 14400` 只兜住"永远不返回"，stall 看门狗才能及早释放卡死任务。
+
+**provider 卡死是反复发生的故障**（首批 30 篇出现 5 次：`19`、`26`、`13`、`24` 各一次，另一次在首批重跑）。观察到卡死时 CPU 时间几乎不增长、workspace 长时间无新文件；对策就是看门狗 + 自动重试，不要靠人工发现。

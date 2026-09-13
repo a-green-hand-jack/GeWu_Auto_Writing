@@ -1,21 +1,24 @@
 #!/usr/bin/env bash
-# gewu-run — run ONE paper-writing task headlessly with a stall watchdog.
+# gewu-run — run ONE paper-writing task headlessly, with a stall watchdog and
+# automatic retries.
 #
-# Writes the same per-task contract the batch launchers use:
+# Per-task contract (same as the batch launchers):
 #   DIR/pid, DIR/started-at, DIR/run.log, DIR/exit-code, DIR/finished-at
-# and additionally DIR/stall-detected when the watchdog fires.
+# plus DIR/stall-detected when the watchdog fires.
 #
-# The watchdog exists because a stalled HTTP request to the model provider keeps
-# pi alive with almost no CPU while producing no files. Observed twice in the
-# first batch: two tasks idled ~75 minutes with 3-4 seconds of CPU time.
+# Why the watchdog: a stalled request to the model provider keeps pi alive with
+# almost no CPU and no file writes. Observed five times in the first batches
+# (75 minutes wasted in one case). The watchdog kills a task whose workspace
+# stops changing, and --retries re-runs it; the workspace is kept, so the task
+# resumes from the files it already wrote instead of starting over.
 #
 # Usage:
 #   gewu-run --task-dir DIR [--model ID] [--provider P] [--timeout 7200]
-#            [--stall 1200] [--skill PATH] [--thinking high]
+#            [--stall 1200] [--retries 1] [--skill PATH] [--thinking high]
 set -uo pipefail
 
 TASK_DIR=""; MODEL="deepseek-v4.1-flash"; PROVIDER="gravarc-router"; TIMEOUT=7200
-STALL=1200; THINKING=high
+STALL=1200; RETRIES=1; THINKING=high
 SKILL="${GEWU_SKILL:-$HOME/GeWu_Auto_Writing/.agents/skills/paperwriter-pi/SKILL.md}"
 
 while [ $# -gt 0 ]; do
@@ -25,6 +28,7 @@ while [ $# -gt 0 ]; do
     --provider) PROVIDER="$2"; shift 2 ;;
     --timeout)  TIMEOUT="$2"; shift 2 ;;
     --stall)    STALL="$2"; shift 2 ;;
+    --retries)  RETRIES="$2"; shift 2 ;;
     --skill)    SKILL="$2"; shift 2 ;;
     --thinking) THINKING="$2"; shift 2 ;;
     *) echo "gewu-run: unknown argument '$1'" >&2; exit 2 ;;
@@ -38,61 +42,82 @@ export PATH="$HOME/.local/bin:$HOME/texlive/2026/bin/x86_64-linux:$PATH"
 command -v pi >/dev/null 2>&1 || { echo "gewu-run: pi not on PATH" >&2; exit 1; }
 mkdir -p "$TASK_DIR/workspace"
 
-echo $$ > "$TASK_DIR/pid"
+NAME="$(basename "$TASK_DIR")"
+MAX_ATTEMPTS=$(( RETRIES + 1 ))
+attempt=0
+RC=0
+
 date -u +%Y-%m-%dT%H:%M:%SZ > "$TASK_DIR/started-at"
-rm -f "$TASK_DIR/stall-detected" "$TASK_DIR/exit-code" "$TASK_DIR/finished-at"
 
-cd "$TASK_DIR" || exit 1
-timeout "$TIMEOUT" pi \
-  --print \
-  --no-session \
-  --provider "$PROVIDER" \
-  --model "$MODEL" \
-  --thinking "$THINKING" \
-  --no-context-files \
-  --no-approve \
-  --no-extensions \
-  --no-skills \
-  --no-prompt-templates \
-  --no-themes \
-  --tools read,write,edit,bash,grep,find,ls \
-  --skill "$SKILL" \
-  "@$TASK_DIR/task.md" > "$TASK_DIR/run.log" 2>&1 &
-PI_PID=$!
+while : ; do
+  attempt=$(( attempt + 1 ))
+  rm -f "$TASK_DIR/stall-detected" "$TASK_DIR/exit-code" "$TASK_DIR/finished-at"
 
-# Watchdog: kill the run when the workspace stops changing for $STALL seconds.
-(
-  while kill -0 "$PI_PID" 2>/dev/null; do
-    sleep 60
-    newest=$(find "$TASK_DIR/workspace" -type f -printf '%T@\n' 2>/dev/null | sort -n | tail -1 | cut -d. -f1)
-    now=$(date +%s)
-    if [ -z "$newest" ]; then
-      start=$(date -u -d "$(cat "$TASK_DIR/started-at")" +%s 2>/dev/null || echo "$now")
-      idle=$(( now - start ))
-    else
-      idle=$(( now - newest ))
+  cd "$TASK_DIR" || exit 1
+  timeout "$TIMEOUT" pi \
+    --print \
+    --no-session \
+    --provider "$PROVIDER" \
+    --model "$MODEL" \
+    --thinking "$THINKING" \
+    --no-context-files \
+    --no-approve \
+    --no-extensions \
+    --no-skills \
+    --no-prompt-templates \
+    --no-themes \
+    --tools read,write,edit,bash,grep,find,ls \
+    --skill "$SKILL" \
+    "@$TASK_DIR/task.md" > "$TASK_DIR/run.log" 2>&1 &
+  PI_PID=$!
+  echo "$PI_PID" > "$TASK_DIR/pid"
+
+  # Watchdog: stop the attempt when the workspace stops changing.
+  (
+    while kill -0 "$PI_PID" 2>/dev/null; do
+      sleep 60
+      newest=$(find "$TASK_DIR/workspace" -type f -printf '%T@\n' 2>/dev/null | sort -n | tail -1 | cut -d. -f1)
+      now=$(date +%s)
+      if [ -z "$newest" ]; then
+        start=$(date -u -d "$(cat "$TASK_DIR/started-at")" +%s 2>/dev/null || echo "$now")
+        idle=$(( now - start ))
+      else
+        idle=$(( now - newest ))
+      fi
+      if [ "$idle" -gt "$STALL" ]; then
+        echo "stalled: no workspace change for ${idle}s (limit ${STALL}s)" > "$TASK_DIR/stall-detected"
+        pkill -TERM -P "$PI_PID" 2>/dev/null
+        kill -TERM "$PI_PID" 2>/dev/null
+        sleep 5
+        pkill -KILL -P "$PI_PID" 2>/dev/null
+        kill -KILL "$PI_PID" 2>/dev/null
+        break
+      fi
+    done
+  ) &
+  WATCH_PID=$!
+
+  wait "$PI_PID"; RC=$?
+  wait "$WATCH_PID" 2>/dev/null
+
+  if [ -f "$TASK_DIR/stall-detected" ] || [ "$RC" -ne 0 ]; then
+    mv -f "$TASK_DIR/run.log" "$TASK_DIR/run.log.attempt${attempt}" 2>/dev/null
+    if [ "$attempt" -lt "$MAX_ATTEMPTS" ]; then
+      reason="exit $RC"
+      [ -f "$TASK_DIR/stall-detected" ] && reason="provider stall"
+      echo "gewu-run: $NAME attempt $attempt failed ($reason); retrying in 30s" >&2
+      sleep 30
+      continue
     fi
-    if [ "$idle" -gt "$STALL" ]; then
-      echo "stalled: no workspace change for ${idle}s (limit ${STALL}s)" > "$TASK_DIR/stall-detected"
-      pkill -TERM -P "$PI_PID" 2>/dev/null
-      kill -TERM "$PI_PID" 2>/dev/null
-      sleep 5
-      pkill -KILL -P "$PI_PID" 2>/dev/null
-      kill -KILL "$PI_PID" 2>/dev/null
-      break
-    fi
-  done
-) &
-WATCH_PID=$!
-
-wait "$PI_PID"; RC=$?
-wait "$WATCH_PID" 2>/dev/null
+  fi
+  break
+done
 
 echo "$RC" > "$TASK_DIR/exit-code"
 date -u +%Y-%m-%dT%H:%M:%SZ > "$TASK_DIR/finished-at"
 if [ -f "$TASK_DIR/stall-detected" ]; then
-  echo "gewu-run: $(basename "$TASK_DIR") STOPPED BY WATCHDOG (exit $RC)" >&2
+  echo "gewu-run: $NAME STOPPED BY WATCHDOG after $attempt attempt(s) (exit $RC)" >&2
 else
-  echo "gewu-run: $(basename "$TASK_DIR") exit $RC" >&2
+  echo "gewu-run: $NAME exit $RC after $attempt attempt(s)" >&2
 fi
 exit $RC
