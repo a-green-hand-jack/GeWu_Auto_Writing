@@ -4,6 +4,15 @@ Load this during planning, drafting, and review when the assessed domain is
 `physics`. It describes what a referee expects; it relaxes no rule in
 `constitution.md`.
 
+**Which problems belong here.** Physics is about physical systems and physical
+questions: Hamiltonians and equations of motion, spin chains, statistical-
+mechanics models, entanglement and quantum information of physical states,
+transport, thermodynamics, measurement statistics. A physical model solved by
+graph-theoretic or combinatorial means is still physics. Purely mathematical
+objects — graphs, designs, matchings, enumeration, extremal or colouring
+problems, counterexamples to mathematical conjectures — belong to
+`mathematics`, however they are proved and however few theorems they use.
+
 **Template.** A physics manuscript uses the official APS PRX entrypoint
 `templates/prx-official/apstemplate.tex` with
 `\documentclass[aps,prx,reprint,groupedaddress]{revtex4-2}`. Do not substitute

@@ -59,11 +59,12 @@ Write `research/assessment.md` as a short prose judgement, not a schema:
   nature of the paper (theory, computation, method, empirical, survey…), with
   a rationale grounded in the actual evidence, not directory names;
 - the strongest contribution the sources actually support, and its scope;
-- the domain route: load exactly one `references/domains/<domain>.md`. For
-  mixed collections, load the applicable subset and record the unresolved
-  classification as a limitation. Do not load a second domain's full writing
-  framework "for the derivations" — each domain file already carries the
-  derivation hygiene it needs;
+- the domain route, decided by the object of study and the question being
+  answered (see `SKILL.md`): mathematical structures and questions route to
+  `mathematics`, physical systems and questions to `physics`. Argument form —
+  proof, derivation, or computation — and evidence tier are not routing
+  criteria, and neither is the platform's category label. Record the rationale
+  and any residual ambiguity in `research/assessment.md`;
 - the template route for the assessed domain: physics uses the APS PRX
   entrypoint `templates/prx-official/apstemplate.tex` with
   `\documentclass[aps,prx,reprint,groupedaddress]{revtex4-2}`; mathematics uses

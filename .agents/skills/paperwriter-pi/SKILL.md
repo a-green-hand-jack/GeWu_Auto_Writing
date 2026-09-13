@@ -26,13 +26,29 @@ one workflow, one domain file, then the gates.
    Pi-native sequence. `references/knowledge/writing-craft.md` holds the
    writing rules that apply in every domain.
 3. **`references/domains/<domain>.md`** — exactly one domain file, chosen from
-   the evidence: `physics.md`, `mathematics.md`, `ai_ml.md`, or
-   `life_sciences.md`. Each carries the writing expectations and the review
-   checklist for that field. `references/domains/layout.md` is domain-neutral
+   the evidence. The domain is decided by **the object of study and the question
+   being answered**, never by the form of the argument:
+
+   | domain | belongs here |
+   |---|---|
+   | `mathematics` | mathematical structures and questions: graphs and hypergraphs, combinatorial designs, enumeration and counting, matching / extremal / colouring problems, algebraic, number-theoretic, geometric or topological objects, counterexamples to mathematical conjectures. Exact computation *about a mathematical object* (enumerating matchings, verifying a certificate for a graph-theoretic claim) is mathematics. |
+   | `physics` | physical systems and questions: Hamiltonians and equations of motion, spin chains, statistical-mechanics models, entanglement and quantum information of physical states, transport, thermodynamics, measurement statistics. |
+   | `life_sciences`, `ai_ml` | their own objects and questions. |
+
+   Argument form and evidence tier are **not** domain criteria. A graph-theory
+   result established by exhaustive computation is mathematics; a physical
+   result written as a theorem is physics. Whether a formal `Theorem`
+   environment is used is a presentation decision justified by the source's
+   evidence (see `workflows/preflight.md`), not a routing decision, and the
+   platform's own category label is not evidence either. When a work genuinely
+   sits between two domains (a statistical-mechanics model solved by
+   graph-theoretic means, an algebraic identity that is really a spin-chain
+   statement), name the object and the question in `research/assessment.md`,
+   route by which community's problem it answers, and record the residual
+   ambiguity as a limitation. `references/domains/layout.md` is domain-neutral
    and is applied whenever rendered pages exist. **Do not load a second
    domain's framework "for the derivations"**: each domain file already carries
-   the derivation hygiene it needs, and loading two structural templates at
-   once is what produces ordinary physical results dressed as theorems.
+   the derivation hygiene it needs.
 
 Gates, run at the end:
 

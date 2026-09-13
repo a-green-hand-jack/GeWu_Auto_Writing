@@ -71,6 +71,12 @@ manuscript; they belong in `research/provenance.md`.
 
 ## 5. Formal-environment gate
 
+This gate is about presentation and evidence, **not** about domain routing: a
+physics paper does not become a mathematics paper by using theorem
+environments, and a mathematics paper proved by finite computation may use none.
+Route the domain by the object and the question (see `SKILL.md`), and judge
+formal environments by the evidence alone.
+
 ```bash
 grep -RnE '\\begin\{(theorem|proposition|lemma|corollary|definition)\}' paper/
 ```

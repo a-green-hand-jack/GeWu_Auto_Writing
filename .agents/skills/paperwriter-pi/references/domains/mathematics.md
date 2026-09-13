@@ -4,6 +4,16 @@ Load this during planning, drafting, and review when the assessed domain is
 `mathematics`. It describes what a competent referee expects. It relaxes no
 rule in `constitution.md`.
 
+**Which problems belong here.** Mathematics is about mathematical objects and
+questions: graphs and hypergraphs, combinatorial designs, enumeration and
+counting, matching, extremal and colouring problems, algebraic, number-
+theoretic, geometric and topological objects, and counterexamples to
+mathematical conjectures. This holds however the result is established — a
+proof, a hand derivation, or an exhaustive finite computation with a verified
+certificate — and however few formal environments the paper uses. A physical
+system (a spin chain, a Potts or Hubbard model, an entanglement quantity of a
+physical state) stays `physics` even when the argument is a theorem.
+
 Physics theory papers do **not** load this file: `physics.md` carries the
 derivation hygiene that such a paper needs, and routing a physical argument
 through a mathematics paper's structural template is what produces ordinary
