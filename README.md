@@ -41,7 +41,7 @@
 pi \
   --no-session \
   --provider gravarc-router \
-  --model glm-5.3 \
+  --model deepseek-v4.1-flash \
   --thinking high \
   --no-context-files \
   --no-approve \
@@ -55,6 +55,28 @@ pi \
 ```
 
 30 路并行时，每个任务使用独立的 task prompt 和 workspace，由一次性 shell controller 启动并等待。controller 只负责并发、PID、开始/结束时间和退出码；论文内容由 Pi 通过原生 `read`、`write`、`edit` 和 `bash` 工具完成。
+
+默认模型为 `gravarc-router/deepseek-v4.1-flash`（纯文本输入、无图像能力）：因此每次运行的视觉检查按 skill 规则记为 `blocked`，不会假称通过。
+
+一次 Top 30 批量的目录约定：
+
+```text
+paperwriter-pi-runs/<TIMESTAMP>/
+├── task.md                      # 集合级任务说明（供人阅读）
+├── <NN-solution-name>/          # 30 个任务目录
+│   ├── task.md                  # 该任务的 prompt
+│   ├── run.log                  # Pi 完整输出
+│   ├── exit-code                # 退出码
+│   └── workspace/               # WORKSPACE，唯一可写目录
+└── controller.log               # 并发启动与汇总
+```
+
+## 写作策略约定
+
+见 `.agents/memory/paper_writing_policy.md`：
+
+- **已产出的论文不做事后修复，直接从 `SOURCE_ROOT` 重跑**；发现缺陷就修 skill 与门禁，然后重跑；
+- 正式手稿固定 PRX 模板（`\documentclass[aps,prx,reprint,groupedaddress]{revtex4-2}`），使用 `article`/`amsart` 的历史产出视为 legacy。
 
 每个任务必须明确：
 
