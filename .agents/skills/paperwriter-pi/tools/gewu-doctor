@@ -11,8 +11,12 @@
 #       change the exit code.
 set -uo pipefail
 
-QUIET=0; JSON=0
-for a in "$@"; do case "$a" in --quiet|-q) QUIET=1 ;; --json) JSON=1 ;; esac; done
+QUIET=0; JSON=0; PROBE=0
+for a in "$@"; do case "$a" in --quiet|-q) QUIET=1 ;; --json) JSON=1 ;; --probe-lkm) PROBE=1 ;; esac; done
+
+# Where this script lives. Defined here because the LKM probe below needs it, and
+# the skill-discovery section further down used to be the only place that set it.
+SELF_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 REQ_FAIL=0; OPT_MISS=0
 declare -a ROWS=()
@@ -68,22 +72,46 @@ else
   row required "pypdfium2" missing "python3 missing" "install python3, then pypdfium2"
 fi
 
-# --- LKM, the literature route (optional: only the review/history stages need it)
+# --- LKM, the literature route (required: the skill's own floors need it) -----
+# It was labelled optional until the inconsistency was pointed out: LKM is how the
+# skill retrieves literature, and its two floors -- at least half the references
+# content-level verified, at least 25 references -- are not reachable without it.
+# Measured: without LKM a round came in at 12-25 references with content-level as
+# low as 19%; with it, 25-42 references and 59% on average. Public APIs rate-limit
+# this kind of use to HTTP 429, which is what made the difference.
 if have bohr; then
   if bohr auth status -o json 2>/dev/null | grep -q '"logged_in": *true'; then
-    row optional "bohr CLI (LKM literature)" ok "authenticated" ""
+    row required "LKM access (bohr CLI)" ok "authenticated" ""
   else
-    row optional "bohr CLI (LKM literature)" warn "installed but not logged in" \
-        "bohr auth login    # BOHR_ACCESS_KEY also works"
+    row required "LKM access (bohr CLI)" warn "installed but not logged in" \
+        "bohr auth login   (BOHR_ACCESS_KEY also works)"
   fi
+elif [ -n "${BOHR_ACCESS_KEY:-}" ]; then
+  row required "LKM access (bohr CLI)" warn "no bohr on PATH, but BOHR_ACCESS_KEY is set" \
+      "install the Bohrium CLI: gewu-lit wraps it"
 else
-  row optional "bohr CLI (LKM literature)" missing "not on PATH: literature falls back to public APIs" \
-      "install the Bohrium CLI, then bohr auth login"
+  row required "LKM access (bohr CLI)" missing \
+      "not on PATH: literature retrieval, and both reference floors, depend on it" \
+      "install the Bohrium CLI (bohr), then: bohr auth login"
+fi
+
+if [ "$PROBE" = 1 ]; then
+  if have gewu-lit || [ -x "$SELF_DIR/gewu-lit" ]; then
+    GL="$(command -v gewu-lit || echo "$SELF_DIR/gewu-lit")"
+    # A scratch directory, so a probe never leaves a cache directory behind.
+    PROBE_DIR="$(mktemp -d)"
+    if ( cd "$PROBE_DIR" && "$GL" search "LKM reachability probe" --top-k 1 >/dev/null 2>&1 ); then
+      row required "LKM live probe" ok "one billed search succeeded" ""
+    else
+      row required "LKM live probe" missing "a real call failed: check auth and network" \
+          "bohr auth status; gewu-lit search \"test\" --top-k 1"
+    fi
+    rm -rf "$PROBE_DIR"
+  fi
 fi
 
 # --- the skill itself --------------------------------------------------------
 SKILL_FOUND=""
-SELF_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Walk up from a directory (bounded) looking for a checkout of the skill. Done for
 # both the current directory and the directory this script was run from, because

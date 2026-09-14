@@ -103,13 +103,17 @@ missing. Required:
 | TeX Live with `revtex4-2.cls` and `amsart.cls` | Physical Review X and Annals of Mathematics compile against them (`tlmgr install revtex amscls`) |
 | `bibtex`, `pdflatex` | the compile loop |
 | `python3` + `pypdfium2` | page rendering without a system Poppler; every visual gate depends on it (`python3 -m pip install --user --break-system-packages pypdfium2`) |
+| **`bohr` CLI, logged in** | **the literature route.** The skill's two reference floors — at least half the references content-level verified, at least 25 of them — are not reachable without LKM: a round without it came in at 12–25 references with content-level as low as 19%, because public APIs rate-limit this use to HTTP 429 |
 
 Optional:
 
 | need | effect if absent |
 |---|---|
-| `bohr` CLI, logged in, with an access key | LKM literature retrieval and content-level verification fall back to public APIs, which rate-limit hard (arXiv answers 429) |
 | system `pdftoppm` | `pdf-pages` uses pypdfium2 instead; either is fine |
+
+`gewu-doctor --probe-lkm` makes one real LKM call (billable, about CNY 0.05) to
+prove the route works end to end; the default run only checks that `bohr` is
+installed and authenticated, and never spends anything.
 
 The Nature Communications and ICLR styles travel with the skill because TeX Live
 does not carry them. See **Third-party files** below before you redistribute.

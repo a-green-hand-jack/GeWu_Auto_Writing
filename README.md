@@ -56,8 +56,9 @@ gewu-doctor
 | TeX Live 含 `revtex4-2.cls` 与 `amsart.cls` | PRX 与 Annals 用它编译（`tlmgr install revtex amscls`） |
 | `bibtex`、`pdflatex` | 编译循环 |
 | `python3` + `pypdfium2` | 渲染页面（无需系统 poppler）；**所有视觉门禁依赖它** |
+| **`bohr` CLI（Bohrium / LKM），已登录** | **文献检索的必经路径**。技能的两道文献下限（≥50% 内容级、≥25 条）在无 LKM 时实际达不到：实测无 LKM 的轮次只有 12–25 条、内容级低至 19%，而公共 API 会把这类使用限流成 429 |
 
-可选：`bohr` CLI（Bohrium 平台，提供 LKM 文献检索）。没有它，文献会回退到公共 API，而公共 API 限流很凶（arXiv 会返回 429）。
+想确认 LKM 真的能用（而不只是装了），加 `--probe-lkm`：它会**真发一次检索**（计费约 ¥0.05），默认关闭——`gewu-doctor` 平时不花钱。
 
 ---
 
@@ -117,7 +118,7 @@ gewu-batch handover --out ~/runs/<run-dir>-final <run-dir>
 
 ### 文献从哪来
 
-经 **LKM**（Bohrium 的大知识模型），由技能内的 `gewu-lit` 封装：`search` / `reasoning` / `graph` / `parse-local`，原始响应缓存在 `research/checks/literature_raw/`，`gewu-lit replay <file>` 可免费重读缓存，调用有预算上限（计费）。两条硬性下限：**至少一半参考文献达到内容级**（真读过全文或摘要），**至少 25 条**；每条 DOI/arXiv 标识符都必须能解析。
+经 **LKM**（Bohrium 的大知识模型，**必需项**），由技能内的 `gewu-lit` 封装：`search` / `reasoning` / `graph` / `parse-local`，原始响应缓存在 `research/checks/literature_raw/`，`gewu-lit replay <file>` 可免费重读缓存，调用有预算上限（计费）。两条硬性下限：**至少一半参考文献达到内容级**（真读过全文或摘要），**至少 25 条**；每条 DOI/arXiv 标识符都必须能解析。
 
 ---
 

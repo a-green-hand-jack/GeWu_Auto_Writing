@@ -70,11 +70,10 @@ Write `research/plan.md` before any prose:
 Engaging the field is the point: a paper that does not position itself among
 the prior results is a write-up, not a paper.
 
-**LKM is the primary route.** Bohrium's Large Knowledge Model is reachable from
-the host through the governed helper `gewu-lit` (in this skill's `tools/`), which
-wraps the `bohr`
-CLI, caches every raw response under `research/checks/literature_raw/`, and
-bounds each call. Use it in this order:
+**LKM is the route, and access to it is a prerequisite.** Bohrium's Large
+Knowledge Model is reached through the governed helper `gewu-lit` (in this
+skill's `tools/`), which wraps the `bohr` CLI, caches every raw response under
+`research/checks/literature_raw/`, and bounds each call. Use it in this order:
 
 ```bash
 gewu-lit search "<topic or claim>" --top-k 20      # papers, claims, reasoning chains
@@ -92,9 +91,15 @@ gewu-lit verify references.bib                     # resolve every DOI/arXiv, co
   topic's key terms, then follow citations in both directions.
 - For each result the manuscript relies on or improves, find the work that
   established it and cite it at the point of use.
-- Never place an API key in a URL or a file. If LKM or a publisher is
-  unreachable, record the blocked retrieval and continue with what you have; a
-  network failure is a missing check, never permission to invent a citation.
+- Never place an API key in a URL or a file. A single unreachable publisher
+  page is a missing check: record it and continue, because a network failure is
+  never permission to invent a citation.
+- **A machine with no LKM access is a blocked prerequisite, not a fallback.**
+  The two floors below assume LKM; without it they are not met in practice, and
+  the rounds that tried came in at 12-25 references with content-level as low as
+  19%. If `bohr` is absent or unauthenticated, say so in `research/validation.md`,
+  record the literature gate as blocked, and do not report the floors as
+  satisfied. `gewu-doctor` checks exactly this.
 
 **Record every reference in `research/literature.md` in one machine-readable
 table**, so the gate in `checks.md` §6 can count it:
