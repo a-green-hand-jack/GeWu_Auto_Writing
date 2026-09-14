@@ -6,10 +6,12 @@
 #   pi install git:github.com/<owner>/GeWu_Auto_Writing   # Pi users, via package.json
 #   ./install.sh                                          # everyone else, or to get the CLI
 #
-# This script is the second one. It copies the skill into a skills directory that
-# the target harness reads, copies the CLI into a bin directory on PATH, and
-# finishes by running the dependency check so a missing class file or renderer is
-# reported now rather than 40 minutes into a run.
+# This script is the second one. The skill is self-contained: the CLI it calls
+# lives in its own tools/ directory, so installing the skill installs the tooling
+# with it. This script puts the skill where a harness reads it, copies those tools
+# onto PATH so the names the skill uses resolve, and finishes by running the
+# dependency check so a missing class file or renderer is reported now rather than
+# 40 minutes into a run.
 #
 # Nothing else on the machine is touched, and every action is printed.
 set -uo pipefail
@@ -170,15 +172,15 @@ fi
 if [ "$WITH_CLI" = 1 ]; then
   run mkdir -p "$BIN"
   for t in $CLI; do
-    [ -f "$SRC/tools/$t" ] || { say "  !! missing tool $SRC/tools/$t"; continue; }
-    run cp -f "$SRC/tools/$t" "$BIN/$t"
+    [ -f "$SKILL_SRC/tools/$t" ] || { say "  !! missing tool $SKILL_SRC/tools/$t"; continue; }
+    run cp -f "$SKILL_SRC/tools/$t" "$BIN/$t"
     run chmod +x "$BIN/$t"
   done
 fi
 
 # The launchers are project-specific (they name a corpus and a domain map), so
 # they are shipped as examples rather than installed onto PATH.
-[ -d "$SRC/tools/launchers" ] && say "  examples left in $SRC/tools/launchers (see its README)"
+[ -f "$SKILL_SRC/tools/launch-generic.sh" ] && say "  launcher: $SKILL_SRC/tools/launch-generic.sh (run a batch; see INSTALL.md)"
 
 # --- PATH advice -------------------------------------------------------------
 case ":$PATH:" in
@@ -199,5 +201,5 @@ say "  2. run: gewu-doctor"
 if [ "$DOCTOR" = 1 ]; then
   say ""
   say "--- dependency check ---"
-  if [ "$DRY" = 1 ]; then say "(skipped in --dry-run)"; else "$SRC/tools/gewu-doctor" || true; fi
+  if [ "$DRY" = 1 ]; then say "(skipped in --dry-run)"; else "$SKILL_SRC/tools/gewu-doctor" || true; fi
 fi

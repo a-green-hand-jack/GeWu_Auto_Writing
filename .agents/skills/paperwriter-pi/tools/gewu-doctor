@@ -101,7 +101,7 @@ find_checkout() {
   return 1
 }
 
-for d in "$HOME/.agents/skills/paperwriter-pi" "$HOME/.pi/agent/skills/paperwriter-pi" \
+for d in "$SELF_DIR/.." "$HOME/.agents/skills/paperwriter-pi" "$HOME/.pi/agent/skills/paperwriter-pi" \
          "$HOME/.claude/skills/paperwriter-pi" "$HOME/.codex/skills/paperwriter-pi"; do
   [ -f "$d/SKILL.md" ] && { SKILL_FOUND="$(cd "$d" && pwd)"; break; }
 done
@@ -118,7 +118,9 @@ fi
 # --- the CLI -----------------------------------------------------------------
 CLI_MISSING=()
 for t in gewu-run gewu-batch gewu-revive gewu-verify gewu-lit pdf-pages; do
-  have "$t" || CLI_MISSING+=("$t")
+  # On PATH, or sitting beside this script inside the skill (which is where they
+  # live now, and which is enough for the skill's own calls).
+  have "$t" || [ -x "$SELF_DIR/$t" ] || CLI_MISSING+=("$t")
 done
 if [ ${#CLI_MISSING[@]} -eq 0 ]; then
   row required "CLI on PATH" ok "gewu-run gewu-batch gewu-revive gewu-verify gewu-lit pdf-pages" ""

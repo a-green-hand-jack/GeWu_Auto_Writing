@@ -15,7 +15,7 @@ pi install git:github.com/a-green-hand-jack/GeWu_Auto_Writing
 gewu-doctor                  # 缺什么、怎么补，逐条列出
 ```
 
-完整说明见 **[INSTALL.md](INSTALL.md)**：依赖清单、通用启动器 `tools/launchers/launch-generic.sh`（用 TSV 清单跑自己的语料）、第三方模板的来源与许可、以及卸载方式。
+完整说明见 **[INSTALL.md](INSTALL.md)**：依赖清单、通用启动器 `tools/launch-generic.sh`（技能内，用 TSV 清单跑自己的语料）、第三方模板的来源与许可、以及卸载方式。
 
 ## 目标
 
@@ -120,7 +120,7 @@ WORKSPACE/
 
 ## 运维 CLI
 
-`tools/gewu-batch` 是只读的批量运行检查器（在 ECS 上安装为 `gewu-batch`，本地用 `tools/gwb` 经 ssh 调用）：
+`gewu-batch` 是只读的批量运行检查器（源码现在技能内 `tools/`，安装后即 `gewu-batch`；本地用 `tools/gwb` 经 ssh 调用）：
 
 ```bash
 ./tools/gwb list                 # 所有 run 及 finished/running

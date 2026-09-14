@@ -17,7 +17,7 @@ RUN="$BASE/${TS}-round2-domain-routed"
 
 mkdir -p "$RUN"
 cp -r "$SKILL_SRC" "$RUN/skill"
-mkdir -p "$RUN/tool" && cp -f "$HOME/GeWu_Auto_Writing/bin/gewu-run" "$RUN/tool/gewu-run"
+mkdir -p "$RUN/tool" && cp -f "$HOME/GeWu_Auto_Writing/.agents/skills/paperwriter-pi/tools/gewu-run" "$RUN/tool/gewu-run"
 
 # Domain by the problem being solved, not by the platform label.
 #   mathematics: graph/combinatorics objects (manifest 10,12,13,14,23) + 27, whose

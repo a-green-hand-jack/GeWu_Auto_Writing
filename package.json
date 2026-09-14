@@ -23,16 +23,16 @@
     "package.json"
   ],
   "bin": {
-    "gewu-run": "tools/gewu-run",
-    "gewu-batch": "tools/gewu-batch",
-    "gewu-revive": "tools/gewu-revive",
-    "gewu-verify": "tools/gewu-verify",
-    "gewu-lit": "tools/gewu-lit",
-    "gewu-doctor": "tools/gewu-doctor",
-    "pdf-pages": "tools/pdf-pages"
+    "gewu-run": ".agents/skills/paperwriter-pi/tools/gewu-run",
+    "gewu-batch": ".agents/skills/paperwriter-pi/tools/gewu-batch",
+    "gewu-revive": ".agents/skills/paperwriter-pi/tools/gewu-revive",
+    "gewu-verify": ".agents/skills/paperwriter-pi/tools/gewu-verify",
+    "gewu-lit": ".agents/skills/paperwriter-pi/tools/gewu-lit",
+    "gewu-doctor": ".agents/skills/paperwriter-pi/tools/gewu-doctor",
+    "pdf-pages": ".agents/skills/paperwriter-pi/tools/pdf-pages"
   },
   "scripts": {
-    "doctor": "tools/gewu-doctor",
+    "doctor": ".agents/skills/paperwriter-pi/tools/gewu-doctor",
     "install-skill": "./install.sh"
   },
   "private": true,

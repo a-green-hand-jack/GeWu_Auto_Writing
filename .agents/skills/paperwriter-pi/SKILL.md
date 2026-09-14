@@ -42,8 +42,14 @@ Honesty is not one of the four because it is not negotiable: `constitution.md`
 | `references/checks.md` | after the draft compiles | the mechanical checks and the commands that run them |
 
 Load the always-on two, plus the two the current stage needs. Do not read the
-whole bundle to start writing. The tools `gewu-lit` (literature through LKM) and
-`pdf-pages` (rendering) live beside this bundle.
+whole bundle to start writing.
+
+**The CLI lives in `tools/` inside this skill** — `gewu-run`, `gewu-batch`,
+`gewu-revive`, `gewu-verify`, `gewu-lit`, `pdf-pages`, `gewu-doctor` and
+`launch-generic.sh`. The skill names those commands because they are what does
+the work; `install.sh` copies them onto PATH, and a harness that reads this skill
+directory can also call them by path. Everything else here is Markdown and
+templates.
 
 ## Domain and venue
 
@@ -71,7 +77,8 @@ licence terms.
 ## Literature
 
 Retrieval runs through **LKM** (Bohrium's Large Knowledge Model) by way of the
-governed helper `tools/gewu-lit`, because publisher and arXiv pages answer
+governed helper `gewu-lit` (in `tools/` beside this skill), because publisher
+and arXiv pages answer
 429/403 from the compute host and earlier rounds stalled at metadata. LKM
 supplies papers, claims, reasoning chains, citation graphs and parsed full text,
 which is what makes content-level verification achievable. `production.md` §5

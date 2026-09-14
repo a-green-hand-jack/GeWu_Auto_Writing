@@ -21,7 +21,7 @@ RUN="$BASE/${TS}-rerun07-bounded"
 
 mkdir -p "$RUN/$SLUG"
 cp -r "$SKILL_SRC" "$RUN/skill"
-mkdir -p "$RUN/tool" && cp -f "$HOME/GeWu_Auto_Writing/bin/gewu-run" "$RUN/tool/gewu-run"
+mkdir -p "$RUN/tool" && cp -f "$HOME/GeWu_Auto_Writing/.agents/skills/paperwriter-pi/tools/gewu-run" "$RUN/tool/gewu-run"
 
 # carry over the research material already gathered
 cp -r "$OLD/$SLUG/workspace" "$RUN/$SLUG/workspace"

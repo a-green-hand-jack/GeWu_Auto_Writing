@@ -24,7 +24,7 @@ RUN="$BASE/${TS}-round7-fixed"
 
 mkdir -p "$RUN"
 cp -r "$SKILL_SRC" "$RUN/skill"
-mkdir -p "$RUN/tool" && cp -f "$HOME/GeWu_Auto_Writing/bin/gewu-run" "$RUN/tool/gewu-run"
+mkdir -p "$RUN/tool" && cp -f "$HOME/GeWu_Auto_Writing/.agents/skills/paperwriter-pi/tools/gewu-run" "$RUN/tool/gewu-run"
 cp -f "$SOLROOT/AUTHORSHIP.json" "$RUN/AUTHORSHIP.json"
 
 MATH="10-solution-q6-hypercube-matching-internal 12-solution-p3535 13-solution-vgr42-k3-g7-lambda3-internal 14-solution-wegner-rectangle-counterexample 23-solution-p3234 27-pauling-gap-clique-and-bipartite"

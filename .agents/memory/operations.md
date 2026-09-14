@@ -10,7 +10,7 @@
 
 ## 规则 2：反复执行的命令沉淀为 CLI
 
-本项目已沉淀的 CLI（源码版本化在仓库 `tools/`，ECS 安装到 `~/GeWu_Auto_Writing/bin/gewu-batch` 并软链到 `~/.local/bin/gewu-batch`）：
+本项目已沉淀的 CLI（源码随技能版本化在 `.agents/skills/paperwriter-pi/tools/`，ECS 安装到 `~/.local/bin/`）：
 
 | 命令 | 用途 |
 |---|---|
@@ -52,7 +52,7 @@ curl -sS https://api.epicllmrouter.top/v1/models -o /tmp/router_models.json   # 
 ECS 是 Ubuntu 24.04，**无免密 sudo**、docker 不可用、poppler 未装。已安装：
 
 - `pip3 install --user --break-system-packages pypdfium2`（venv 不可用：缺 ensurepip）；
-- `tools/pdf-pages`（仓库版本化；ECS 装到 `~/GeWu_Auto_Writing/bin/pdf-pages` 并软链 `~/.local/bin/`）：用 PDFium 渲染，无需系统 poppler，支持 `--dpi`、`--pages 1-5`。
+- `pdf-pages`（随技能版本化在 `.agents/skills/paperwriter-pi/tools/`；安装后即 `pdf-pages`）：用 PDFium 渲染，无需系统 poppler，支持 `--dpi`、`--pages 1-5`。
 
 已实测：渲染真实论文 PDF → 取回本地 → `apex/gpt-5.6-sol` 逐页给出具体观察。**视觉门禁因此可执行**；用 GravArc Router 跑批量时仍需按模型实际能力判断，不得从编译退出码推断视觉通过。
 
@@ -75,7 +75,7 @@ ECS 是 Ubuntu 24.04，**无免密 sudo**、docker 不可用、poppler 未装。
 
 判断方法：比较进程的 `CPU TIME`（`ps -o etime,time`）与 workspace 最新文件时间。CPU 时间远小于墙上时间 + 文件长时间不更新 = 卡死，不是"在算"。
 
-处理：按环境失败处理（**不是**写作结果），停掉并整份重跑。启动任务用 `tools/gewu-run`：
+处理：按环境失败处理（**不是**写作结果），停掉并整份重跑。启动任务用 `gewu-run`（技能内 `tools/gewu-run`）：
 
 ```bash
 gewu-run --task-dir DIR --timeout 10800 --stall 1200   # 20 分钟无写入即判卡死并终止

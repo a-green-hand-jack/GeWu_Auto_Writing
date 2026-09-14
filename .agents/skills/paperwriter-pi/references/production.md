@@ -71,7 +71,8 @@ Engaging the field is the point: a paper that does not position itself among
 the prior results is a write-up, not a paper.
 
 **LKM is the primary route.** Bohrium's Large Knowledge Model is reachable from
-the host through the governed helper `tools/gewu-lit`, which wraps the `bohr`
+the host through the governed helper `gewu-lit` (in this skill's `tools/`), which
+wraps the `bohr`
 CLI, caches every raw response under `research/checks/literature_raw/`, and
 bounds each call. Use it in this order:
 

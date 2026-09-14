@@ -36,7 +36,7 @@ even though the install succeeded; accept the trust prompt or run with
 
 This gives you the skill. It does **not** put the CLI on your PATH — for that,
 run the installer below (or call the scripts by path, e.g.
-`<checkout>/tools/gewu-verify`).
+`<skill>/tools/gewu-verify`).
 
 ## 2. Any agent: run the installer
 
@@ -116,15 +116,23 @@ does not carry them. See **Third-party files** below before you redistribute.
 
 ## What is installed, and what is not
 
-Installed: the skill (6 Markdown files plus the four journal template
-directories) and the CLI — `gewu-run`, `gewu-batch`, `gewu-revive`,
-`gewu-verify`, `gewu-lit`, `pdf-pages`, `gewu-doctor`.
+Installed: the skill, which is self-contained — 6 Markdown files, the four
+journal template directories, **and the CLI in its own `tools/`** (`gewu-run`,
+`gewu-batch`, `gewu-revive`, `gewu-verify`, `gewu-lit`, `pdf-pages`,
+`gewu-doctor`, `launch-generic.sh`). The installer puts the skill where the
+harness reads it and copies those tools onto PATH, because the skill's
+instructions call them by name.
+
+That is the difference between the two install paths: `pi install` delivers the
+skill *including* its tools (they are ordinary files inside the skill directory),
+but Pi does not put them on your PATH; `./install.sh` does both.
 
 Not installed, because it is ours and not yours: the corpus the skill was first
 run over, the run directories of past batches, the authorship record, and the
-operator memory files. The example launchers in `tools/launchers/` are shipped as
-history, not onto your PATH: they name our corpus and our domain map. Use
-`tools/launchers/launch-generic.sh` instead.
+operator memory files. The fourteen launchers in the repository's
+`tools/launchers/` are our own batch history — they name our corpus and our domain
+map, they are not part of the skill, and they are not installed. The reusable
+launcher is `tools/launch-generic.sh` inside the skill.
 
 ## Quickstart
 
@@ -141,10 +149,12 @@ Then:
 
 ```bash
 # 1. what will be done, without launching anything
-tools/launchers/launch-generic.sh --manifest entries.tsv --out ~/runs --dry-run
+~/.agents/skills/paperwriter-pi/tools/launch-generic.sh \
+    --manifest entries.tsv --out ~/runs --dry-run
 
 # 2. run it (freezes the skill and the runner into the run directory)
-tools/launchers/launch-generic.sh --manifest entries.tsv --out ~/runs --name mybatch
+~/.agents/skills/paperwriter-pi/tools/launch-generic.sh \
+    --manifest entries.tsv --out ~/runs --name mybatch
 
 # 3. watch it
 export GEWU_BATCH_BASE=~/runs
@@ -184,15 +194,19 @@ package.json                  Pi package manifest: the skill, for pi install
     SKILL.md                  role, the four requirements, routing, file map
     references/               constitution, production, templates, writing, checks
     templates/                the four journal templates
-tools/                        the CLI
-    gewu-run                  one task, with watchdogs and retries
+    tools/                    the CLI, so the skill is self-contained
+        gewu-run              one task, with watchdogs and retries
+tools/                        our own tooling, not part of the skill
+    gwb                       ssh wrapper for our compute host
+    launchers/                launch-generic.sh moved into the skill; the rest is
+                              our batch history
     gewu-batch                list, watch, gate, report, collect a batch
-    gewu-revive               restart a task the provider killed
-    gewu-verify               the mechanical gates, in one command
-    gewu-lit                  literature through LKM, with caching and budgets
-    pdf-pages                 render PDF pages to PNG
-    gewu-doctor               dependency check
-    launchers/                launch-generic.sh + the history of our own batches
+        gewu-revive           restart a task the provider killed
+        gewu-verify           the mechanical gates, in one command
+        gewu-lit              literature through LKM, with caching and budgets
+        pdf-pages             render PDF pages to PNG
+        gewu-doctor           dependency check
+        launch-generic.sh     run a batch over your own manifest
 ```
 
 ## Uninstall

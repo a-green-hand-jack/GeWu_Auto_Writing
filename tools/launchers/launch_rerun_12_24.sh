@@ -19,7 +19,7 @@ RUN="$BASE/${TS}-rerun-12-24"
 
 mkdir -p "$RUN"
 cp -r "$SKILL_SRC" "$RUN/skill"
-mkdir -p "$RUN/tool" && cp -f "$HOME/GeWu_Auto_Writing/bin/gewu-run" "$RUN/tool/gewu-run"
+mkdir -p "$RUN/tool" && cp -f "$HOME/GeWu_Auto_Writing/.agents/skills/paperwriter-pi/tools/gewu-run" "$RUN/tool/gewu-run"
 cp -f "$SOLROOT/AUTHORSHIP.json" "$RUN/AUTHORSHIP.json"
 
 make_task() {

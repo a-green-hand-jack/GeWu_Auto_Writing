@@ -41,8 +41,11 @@
 #   --no-health-check   skip the pre-launch provider probe (not recommended)
 set -uo pipefail
 
+# This launcher ships inside the skill, at <skill>/tools/, so the skill it should
+# freeze is the one it lives in and the runner is its own sibling. No checkout is
+# assumed: after ./install.sh, or after pi install, this is the only location.
 SRC="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO="$(cd "$SRC/../.." && pwd)"
+SKILL_DIR_DEFAULT="$(cd "$SRC/.." && pwd)"
 
 MANIFEST=""; OUT="$PWD/paperwriter-runs"; NAME="generic"
 SKILL="${GEWU_SKILL:-}"
@@ -77,14 +80,16 @@ done
 [ -n "$MANIFEST" ] || { echo "launch-generic.sh: --manifest is required" >&2; exit 2; }
 [ -f "$MANIFEST" ] || { echo "launch-generic.sh: no manifest at $MANIFEST" >&2; exit 2; }
 
-# Locate the skill: an explicit --skill, then the shared install locations, then
-# this checkout.
+# Locate the skill: an explicit --skill, then the skill this launcher lives in,
+# then any installed copy.
 if [ -z "$SKILL" ]; then
-  for c in "$HOME/.agents/skills/paperwriter-pi/SKILL.md" \
+  # Its own skill first, then any installed copy, so a launcher run out of a
+  # checkout and one run out of ~/.agents/skills behave the same.
+  for c in "$SKILL_DIR_DEFAULT/SKILL.md" \
+           "$HOME/.agents/skills/paperwriter-pi/SKILL.md" \
            "$HOME/.pi/agent/skills/paperwriter-pi/SKILL.md" \
            "$HOME/.claude/skills/paperwriter-pi/SKILL.md" \
-           "$HOME/.codex/skills/paperwriter-pi/SKILL.md" \
-           "$REPO/.agents/skills/paperwriter-pi/SKILL.md"; do
+           "$HOME/.codex/skills/paperwriter-pi/SKILL.md"; do
     [ -f "$c" ] && { SKILL="$c"; break; }
   done
 fi
@@ -92,7 +97,7 @@ fi
   echo "launch-generic.sh: no skill found — run ./install.sh, or pass --skill PATH" >&2; exit 2; }
 SKILL_DIR="$(cd "$(dirname "$SKILL")" && pwd)"
 
-RUNNER="${GEWU_RUNNER:-$(command -v gewu-run || true)}"
+RUNNER="${GEWU_RUNNER:-$(command -v gewu-run || echo "$SRC/gewu-run")}"
 [ -n "$RUNNER" ] && [ -x "$RUNNER" ] || {
   echo "launch-generic.sh: gewu-run not found — run ./install.sh --with-cli, or set GEWU_RUNNER" >&2; exit 2; }
 
