@@ -166,7 +166,24 @@ assembly: fix the machine-drafting tells, change no claim, number, or citation.
 Build `paper/main.tex` from the entrypoint for the assessed domain
 (`templates.md`), input every planned section in plan order, remove
 instructional placeholder text, keep required license notices, and use
-`hyperref` with `hidelinks`. Each section is a separate safe-named `.tex` file.
+`hyperref` with `hidelinks`.
+
+Four things about this file that a delivered round got wrong:
+
+- **`\appendix` is required as soon as any section file is appendix material.**
+  A file named `appendix_*.tex` that is `\input` without `\appendix` prints as
+  a numbered *body* section, so verification protocols and long derivations end
+  up in the body and the paper reads as if it has no appendices at all. Two
+  papers did exactly that, one of them with four such files.
+- **Appendices come after the conclusion and before the bibliography**, and the
+  bibliography is the last thing in the paper. Three papers put
+  `\bibliography` before `\appendix`.
+- **Every appendix is referred to from the body** at the point it is needed.
+  One paper had seven titled appendices and no reference to any of them.
+- **A limitations statement is required**: a `Limitations` section, or limitations
+  as a prose subsection of the discussion. It may be short, it may not be
+  absent — scope sentences scattered through the conclusion are not a
+  limitations statement. Each section is a separate safe-named `.tex` file.
 Front matter order and the reference block follow `templates.md` §2–§4 exactly —
 those constructions were verified by render, and getting them wrong is how
 abstracts end up above titles and reference pages end up unlabelled.

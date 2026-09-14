@@ -165,6 +165,22 @@ title  = {Hard squares at activity $z=-1$},
 author = {Doe, Jane and Roe, Richard},
 ```
 
+- **Appendices occupy the region between the conclusion and the bibliography.**
+  Put `\appendix` before `\input`ing the appendix files, then the reference
+  block, so the bibliography stays the last thing in the paper:
+
+```latex
+\input{sections/conclusion}
+\appendix
+\input{sections/appendix_a}
+\FloatBarrier
+\clearpage
+\bibliography{references}
+```
+
+  Without `\appendix` those files print as numbered body sections. Verified by
+  render: two papers shipped that way, one with four appendix files reading as
+  body sections 9–12.
 - Never put a file path, repository name, or internal identifier in a
   bibliography field. Cite a source file in prose with `\texttt{...}` plus a
   locator instead.

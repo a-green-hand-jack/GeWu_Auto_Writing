@@ -44,6 +44,25 @@ its content, is referred to from the body at the place it is needed, and holds
 detail rather than a load-bearing step of the argument.
 
 ```bash
+# appendix material without \appendix prints as a numbered body section
+ls paper/sections/*appendix* 2>/dev/null | head
+grep -n '\\appendix' paper/main.tex
+# order: appendices before the bibliography, which is last
+grep -n '\\appendix\|\\bibliography{' paper/main.tex
+# every appendix referred to from the body
+for f in paper/sections/*appendix*; do
+  stem=$(basename "$f" .tex)
+  grep -qE "ref\{|Appendix" paper/sections/*.tex || echo "UNREFERENCED: $stem"
+done
+# a limitations statement exists (section or prose subsection)
+grep -rliE 'limitation|\\section\*?\{[^}]*(limit|discussion|scope)' paper/sections/*.tex | head
+```
+
+Defects: at least one `appendix*` file exists but `main.tex` has no `\appendix`;
+`\bibliography` appears before `\appendix`; an appendix no body file refers to;
+no limitations section and no limitations prose anywhere.
+
+```bash
 grep -rnE '\\appendix|^\\section' paper/sections/*appendix*.tex | head
 grep -rnoE 'Appendix~?[A-Z]|appendix [A-Z]' paper/sections/*.tex | wc -l
 ```
