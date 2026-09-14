@@ -1,0 +1,383 @@
+#!/usr/bin/env python3
+"""gewu-verify — the mechanical gates of references/checks.md, in one run.
+
+Replaces the ad-hoc shells and the subagent that used to do this, so verification
+is reproducible and comparable across rounds.
+
+Usage:
+    gewu-verify RUN_DIR [--json OUT] [--no-resolve] [--render DIR] [--only SLUG]
+
+RUN_DIR is a paperwriter run directory (…/<slug>/workspace) or a delivery bundle
+(directory of PDFs). Sources are checked when they exist; PDF-only checks run
+either way.
+
+It reports facts and the specific failures of the gates it can decide
+mechanically. It never claims a page looks right: rendering only produces the
+images, and naming which pages to look at is the reader's job.
+"""
+import argparse, glob, json, os, re, subprocess, sys
+
+VOCAB = re.compile(
+    r"Solution[ _-]?[0-9]+|top[ _-]?30|\bfunnel\b|black[- ]?box|evidence tier|"
+    r"verification tier|source[- ]?bound|platform rank", re.I)
+PROCESS = re.compile(
+    r"\b(harness|provider|prompt|run[-_ ]?id|commit|hash|sandbox|"
+    r"pi harness|gravarc|glm-5|deepseek|openai|anthropic)\b", re.I)
+PATHS = re.compile(r"/home/|/Users/|[A-Za-z]:\\\\|\.\./")
+SCOPE_OK = {"full-text", "abstract", "metadata-only"}
+SCOPE_META = re.compile(r"(?i)metadata|title-level|content-known|well-known|canonical|bibliographic")
+SCOPE_FULL = re.compile(r"(?i)full[- ]?text|full text|read in full")
+SCOPE_ABS = re.compile(r"(?i)\babstract\b")
+
+
+def strip_comments(t):
+    r"""Drop LaTeX comments: a \maketitle noted in a comment is not a real one,
+    and a name in a comment does not reach the manuscript."""
+    out = []
+    for line in t.splitlines():
+        i, keep = 0, ""
+        while i < len(line):
+            c = line[i]
+            if c == "\\" and i + 1 < len(line):
+                keep += line[i:i + 2]; i += 2; continue
+            if c == "%":
+                break
+            keep += c; i += 1
+        out.append(keep)
+    return "\n".join(out)
+
+
+def plain(v):
+    """Reduce a LaTeX-ish author field to the text a reader sees, so that
+    \\begin{CJK}{UTF8}{gbsn}玮琦 蒋\\end{CJK} compares equal to 玮琦 蒋."""
+    v = re.sub(r"\\begin\{[^}]*\}(?:\{[^}]*\})*", " ", v)
+    v = re.sub(r"\\end\{[^}]*\}", " ", v)
+    v = re.sub(r"\\[A-Za-z@]+\*?", " ", v)
+    v = v.replace("{", " ").replace("}", " ")
+    return re.sub(r"\s+", " ", v).strip()
+
+
+def read(p, limit=None):
+    try:
+        with open(p, errors="ignore") as f:
+            return f.read(limit) if limit else f.read()
+    except Exception:
+        return ""
+
+
+def entries(ws):
+    """The task's paper files: (entrypoint, ordered [(title, path)] , issues)."""
+    ents = sorted(glob.glob(os.path.join(ws, "paper", "*.tex")))
+    issue = []
+    if not ents:
+        return None, [], ["no paper/*.tex entrypoint"]
+    ent = ents[0]
+    base = os.path.dirname(ent)
+    ordered, missing, nosection = [], [], []
+    # Back matter legitimately carries no \section: an abstract environment, an
+    # acknowledgments paragraph, a production note. Only body section files are
+    # expected to have one, and the first version flagged thirteen back-matter
+    # files in a round that had no real defect of this kind.
+    backmatter = re.compile(r"(?i)abstract|ack|prodnote|production|repro|supplement|data|"
+                            r"appendix|check|validation")
+    for m in re.finditer(r"\\input\{([^}]*)\}|\\section\*?\{([^}]*)\}", read(ent)):
+        if m.group(1):
+            f = m.group(1)
+            fp = os.path.join(base, f if f.endswith(".tex") else f + ".tex")
+            if not os.path.exists(fp):
+                missing.append(f); continue
+            s = read(fp)
+            mm = re.search(r"\\section\*?\{([^}]*)\}", s)
+            if mm:
+                ordered.append((re.sub(r"\\label\{[^}]*\}", "", mm.group(1)).strip(), fp))
+            elif not backmatter.search(os.path.basename(fp)) and not backmatter.search(f):
+                nosection.append(f)
+        else:
+            ordered.append((m.group(2), ent))
+    if missing: issue.append("missing input: " + ", ".join(missing))
+    if nosection: issue.append("no \\section in: " + ", ".join(nosection))
+    return ent, ordered, issue
+
+
+def venue_of(ent_text):
+    if re.search(r"revtex4-2", ent_text): return "prx"
+    if re.search(r"\\documentclass(\[[^\]]*\])?\{amsart\}", ent_text): return "amsart"
+    if re.search(r"\\documentclass(\[[^\]]]*)?\{nature\}", ent_text): return "nature"
+    if re.search(r"iclr\d+_conference", ent_text): return "iclr"
+    if re.search(r"\\documentclass(\[[^\]]*\])?\{article\}", ent_text): return "article"
+    return "unknown"
+
+
+def front_matter(ent, venue, ents):
+    # Comments first: two PRX papers mention \maketitle in a header comment, and
+    # splitting on the raw text cut there and reported a defect that did not exist.
+    t = strip_comments(read(ent))
+    pre = t.split("\\maketitle")[0] if "\\maketitle" in t else t
+    ab_before = "\\begin{abstract}" in pre
+    if venue in ("prx", "amsart"):
+        return (ab_before, "abstract before \\maketitle" if ab_before
+                else "abstract NOT before \\maketitle (defect for this venue)")
+    if venue == "nature":
+        order = [t.find("\\maketitle"), t.find("affiliations"), t.find("\\begin{abstract}")]
+        ok = order[0] != -1 and order[0] < order[2] and (order[1] == -1 or order[0] < order[1] <= order[2])
+        title = re.search(r"\\title\{(.*?)\}", t, re.S)
+        n = len(re.sub(r"\\[a-zA-Z]+", "", title.group(1))) if title else 0
+        return (ok, f"nature order ok={ok}, title {n} chars" + ("" if n <= 90 else " -> OVER 90"))
+    if venue == "iclr":
+        anon = "iclrfinalcopy" not in t
+        return (True, "ICLR anonymous copy" if anon else "ICLR final copy with author block")
+    if venue == "article":
+        # Standard article order is \maketitle then the abstract environment.
+        return (True, "article class: abstract after \\maketitle (standard)")
+    return (ab_before, "abstract before \\maketitle" if ab_before else "abstract after \\maketitle")
+
+
+def reference_region(ent, ws):
+    t = strip_comments(read(ent))
+    out = []
+    biblio = t.find("\\bibliography{")
+    app = t.find("\\appendix")
+    fb = "\\FloatBarrier" in t; cp = "\\clearpage" in t
+    out.append(("floatbarrier+clearpage", fb and cp, f"FloatBarrier={fb} clearpage={cp}"))
+    appx = glob.glob(os.path.join(ws, "paper", "sections", "*appendix*"))
+    if appx and app < 0:
+        out.append(("appendix marker", False,
+                    f"{len(appx)} appendix file(s) but no \\appendix -> they print as body sections"))
+    elif appx:
+        out.append(("appendix marker", app < biblio if biblio >= 0 else True,
+                    "\\appendix before bibliography" if biblio >= 0 and app < biblio
+                    else "appendix after bibliography"))
+    if appx:
+        body = "".join(read(f) for f in glob.glob(os.path.join(ws, "paper", "sections", "*.tex"))
+                       if "appendix" not in os.path.basename(f))
+        names = [os.path.basename(f)[:-4] for f in appx]
+        unref = [n for n in names if n not in body and
+                 re.sub(r"[_a-z0-9]+", "", n.lower()) not in body.lower()]
+        if unref and not re.search(r"(?i)appendix", body):
+            out.append(("appendices referenced", False, "no body file mentions an appendix"))
+        else:
+            out.append(("appendices referenced", not unref,
+                        f"unreferenced: {unref}" if unref else "referenced"))
+    bbl = glob.glob(os.path.join(ws, "paper", "*.bbl")) + glob.glob(os.path.join(ws, "paper", "sections", "*.bbl"))
+    if bbl:
+        # amsplain ships \providecommand{\bysame}{...}; only real uses matter,
+        # and a bare count reported that definition as a defect.
+        n = 0
+        for line in read(bbl[0]).splitlines():
+            if "bysame" not in line: continue
+            if re.search(r"\\(provide|new|renew)command\{\\bysame\}", line): continue
+            n += len(re.findall(r"\\bysame\b", line))
+        out.append(("bysame", n == 0, f"{n} use(s)"))
+    return out
+
+
+def proofs(ws):
+    files = glob.glob(os.path.join(ws, "paper", "**", "*.tex"), recursive=True)
+    hand = [f for f in files if re.search(r"(re)?newenvironment\{proof\}", read(f))]
+    itsh = [f for f in files if re.search(r"itshape|\\em", read(f)) and
+            re.search(r"newenvironment\{proof\}", read(f))]
+    amsthm = any("amsthm" in read(f) for f in files if f.endswith("main.tex"))
+    nproof = sum(read(f).count("\\begin{proof}") for f in files)
+    qed = sum(read(f).count("\\qedhere") for f in files)
+    out = []
+    if nproof:
+        out.append(("proof env", not hand,
+                    "amsthm only" if not hand else f"hand-rolled in {[os.path.basename(f) for f in hand]}"))
+        out.append(("proof body upright", not itsh,
+                    "no italic proof body" if not itsh else "italic proof body (defect)"))
+        out.append(("amsthm loaded", amsthm, "amsthm present" if amsthm else "amsthm NOT loaded"))
+        out.append(("qedhere", True, f"{nproof} proofs, {qed} \\qedhere use(s) -- review display endings"))
+    return out
+
+
+def literature(ws):
+    p = os.path.join(ws, "research", "literature.md")
+    if not os.path.isfile(p):
+        return {"present": False, "note": "no research/literature.md"}
+    rows = [l for l in read(p).splitlines() if l.strip().startswith("|")]
+    rows = [r for r in rows if not set(r.strip()) <= set("|-: \n")]
+    ft = ab = md = other = 0
+    bad_scope = []
+    for r in rows:
+        cells = [c.strip() for c in r.strip().strip("|").split("|")]
+        if len(cells) < 4: continue
+        scope = " ".join(cells[2:4]) if len(cells) >= 5 else " ".join(cells[1:])
+        if SCOPE_FULL.search(scope): ft += 1
+        elif SCOPE_ABS.search(scope): ab += 1
+        elif SCOPE_META.search(scope): md += 1
+        else:
+            other += 1; bad_scope.append(cells[0][:20])
+    tot = ft + ab + md + other
+    return {"present": True, "rows": tot, "full_text": ft, "abstract": ab,
+            "metadata_only": md, "unclassified": other, "bad_scope_rows": bad_scope[:5],
+            "content_level_pct": round(100 * (ft + ab) / tot) if tot else 0,
+            "meets_half": tot > 0 and (ft + ab) * 2 >= tot,
+            "meets_25": tot >= 25}
+
+
+def prose_shape(ws):
+    worst = []
+    for f in glob.glob(os.path.join(ws, "paper", "sections", "*.tex")):
+        lines = [l for l in read(f).splitlines() if l.strip()]
+        items = read(f).count("\\item")
+        if lines and items * 100 / len(lines) > 45:
+            worst.append((os.path.basename(f), items, len(lines)))
+    return worst
+
+
+def firewall(ws):
+    # Comment-free: a name in a comment does not reach the manuscript.
+    t = "".join(strip_comments(read(f)) for f in glob.glob(os.path.join(ws, "paper", "**", "*.tex"), recursive=True))
+    hits = []
+    for name, pat in (("internal-vocabulary", VOCAB), ("process-word", PROCESS), ("path", PATHS)):
+        for m in set(x.group(0) for x in pat.finditer(t)):
+            hits.append((name, m))
+    return hits
+
+
+def repo_citation(ws):
+    bib = glob.glob(os.path.join(ws, "paper", "*.bib"))
+    bbl = glob.glob(os.path.join(ws, "paper", "*.bbl"))
+    blob = "".join(read(f) for f in bib + bbl)
+    cited = bool(re.search(r"(?i)gewu|solution|github\.com/|gitlab", blob))
+    return cited, ("repository appears in the bibliography" if cited
+                   else "no source-repository citation found in .bib/.bbl")
+
+
+def authors(ws, record):
+    vals = []
+    src = "".join(read(f) for f in glob.glob(os.path.join(ws, "paper", "**", "*.tex"), recursive=True))
+    # Resolve the author macros a paper may define (\author{\authorname}).
+    macros = {}
+    for m in re.finditer(r"\\(?:newcommand|renewcommand|DeclareRobustCommand|def)\*?\s*\{\\([A-Za-z@]+)\}\s*(?:\[[^]]*\])?\{(.*?)\}", src, re.S):
+        macros[m.group(1)] = m.group(2)
+    for m in re.finditer(r"\\(?:author|collaboration)\{(.*?)\}", src, re.S):
+        text = m.group(1)
+        for _ in range(3):
+            text = re.sub(r"\\([A-Za-z@]+)",
+                          lambda x: macros.get(x.group(1), x.group(0)), text)
+        # "A, B and C", "A \and B", "A,\nand B" -- split on the separator, not on
+        # a space-padded " and ", which missed the newline form and produced a
+        # value literally starting with "and".
+        for v in re.split(r";|,|\\and\b|\band\b", text):
+            v = plain(v)
+            if v and v.lower() != "and": vals.append(v)
+    if not record:
+        return vals, "no AUTHORSHIP.json to compare"
+    # Every string anywhere in the record is a whitelisted display form. The first
+    # version only took values under a "display"/"owner" key, which missed
+    # collaborating_authors_display -- a plain list of strings -- and reported
+    # real collaborators as inventions.
+    known = set()
+    def walk(o):
+        if isinstance(o, dict):
+            for v in o.values(): walk(v)
+        elif isinstance(o, list):
+            for x in o: walk(x)
+        elif isinstance(o, str):
+            known.add(re.sub(r"\s+", " ", o).strip())
+            known.add(plain(o))
+    walk(record)
+    unknown = [v for v in vals if v not in known and not re.fullmatch(r"[A-Za-z ]+", v)]
+    return vals, ("all matching the record" if not unknown else f"NOT in record: {unknown[:4]}")
+
+
+def pdf_facts(pdf):
+    try:
+        import pypdfium2 as pdfium
+    except Exception:
+        return None
+    try:
+        doc = pdfium.PdfDocument(pdf)
+    except Exception as e:
+        return {"error": str(e)}
+    pages = len(doc)
+    app_start = None
+    for i in range(pages):
+        t = doc[i].get_textpage().get_text_range()
+        if re.search(r"(?m)^\s*(APPENDIX|Appendix)\s+[A-Z]", t):
+            app_start = i + 1; break
+    return {"pages": pages, "appendix_starts": app_start,
+            "body_pages": (app_start - 1) if app_start else pages,
+            "appendix_pages": (pages - app_start + 1) if app_start else 0}
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("run")
+    ap.add_argument("--json", dest="out")
+    ap.add_argument("--only", default=None)
+    args = ap.parse_args()
+
+    run = os.path.abspath(args.run.rstrip("/"))
+    tasks = []
+    if os.path.isdir(os.path.join(run, "paper")) or glob.glob(os.path.join(run, "*.tex")):
+        tasks = [("(single)", run)]           # a bare workspace
+    else:
+        for d in sorted(glob.glob(os.path.join(run, "*"))):
+            if os.path.isdir(os.path.join(d, "workspace")):
+                tasks.append((os.path.basename(d), os.path.join(d, "workspace")))
+        if not tasks:                          # a bundle of PDFs
+            tasks = [("(bundle)", run)]
+    record = None
+    rp = os.path.join(run, "AUTHORSHIP.json")
+    if os.path.isfile(rp):
+        try: record = json.load(open(rp))
+        except Exception: pass
+
+    report, fails = {}, {}
+    for name, ws in tasks:
+        if args.only and args.only not in name: continue
+        row = {"checks": [], "pdf": None}
+        ent, ordered, issue = entries(ws)
+        if ent:
+            t = read(ent); venue = venue_of(t)
+            row["venue"] = venue
+            row["sections"] = [x[0] for x in ordered]
+            row["checks"].append(("planned sections resolve", not issue, "; ".join(issue) or "ok"))
+            ok, note = front_matter(ent, venue, ordered)
+            row["checks"].append(("front matter", ok, note))
+            row["checks"] += reference_region(ent, ws)
+            row["checks"] += proofs(ws)
+            hits = firewall(ws)
+            row["checks"].append(("firewall", not hits, str(hits[:4]) if hits else "clean"))
+            cited, note = repo_citation(ws)
+            row["checks"].append(("source repo cited", cited, note))
+            vals, note = authors(ws, record)
+            row["checks"].append(("author line", "NOT in record" not in note, note))
+            worst = prose_shape(ws)
+            row["checks"].append(("prose shape", not worst, str(worst) if worst else "no list-dominated section"))
+            row["literature"] = literature(ws)
+        pdfs = glob.glob(os.path.join(ws, "paper", "main.pdf")) + glob.glob(os.path.join(ws, "*.pdf"))
+        if pdfs:
+            row["pdf"] = pdf_facts(pdfs[0])
+        report[name] = row
+        bad = [c for c in row["checks"] if not c[1]]
+        if bad: fails[name] = [c[2] for c in bad]
+
+    print(f"run: {run}")
+    print(f"tasks: {len(report)}")
+    for name, row in report.items():
+        bad = [c for c in row["checks"] if not c[1]]
+        mark = "OK  " if not bad else "FAIL"
+        lit = row.get("literature") or {}
+        litstr = ""
+        if lit.get("present"):
+            litstr = f" | lit {lit['rows']}refs {lit['content_level_pct']}% content-level"
+            if not lit.get("meets_half"): litstr += " <50%!"
+            if not lit.get("meets_25"): litstr += " <25!"
+        elif lit:
+            litstr = " | lit: " + lit.get("note", "missing")
+        p = row.get("pdf") or {}
+        pstr = f" | {p.get('pages','?')}p body={p.get('body_pages','?')} appx={p.get('appendix_pages','?')}" if p else ""
+        print(f"  [{mark}] {name[:44]:44s}{litstr}{pstr}")
+        for c in bad:
+            print(f"          - {c[0]}: {c[2]}")
+    print(f"\nfailing tasks: {len(fails)}")
+    if args.out:
+        json.dump(report, open(args.out, "w"), indent=1)
+        print("json:", args.out)
+
+
+if __name__ == "__main__":
+    main()
