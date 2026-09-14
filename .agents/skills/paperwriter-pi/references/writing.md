@@ -1,5 +1,13 @@
 # Writing
 
+<!-- prx-profile:start -->
+For a selected PRX / Physical Review X manuscript, use
+[the PRX profile](venues/prx.md) where these craft defaults conflict with the
+paper's PRX structure or presentation. Keep the scientific reasoning,
+notation/evidence and source constraints. For other selected venues, including
+PRX Quantum, do not load this override; the guidance below is unchanged.
+<!-- prx-profile:end -->
+
 Requirement 2. A paper is read, not processed: the reader should finish the
 introduction knowing what is claimed and why it matters, and finish the paper
 believing they could have followed the argument themselves. Everything here

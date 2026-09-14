@@ -1,5 +1,13 @@
 # Templates and typography
 
+<!-- prx-profile:start -->
+For selected PRX / Physical Review X, use the native APS assembly in
+[the PRX profile](venues/prx.md) instead of the custom bibliography block in
+§2. This override does not change mathematics, neutral-format or other
+explicit venue profiles. Retain the constitution, front-matter correctness,
+real compilation checks and actual page inspection.
+<!-- prx-profile:end -->
+
 Requirement 1 (follow the template) and requirement 4 (no layout problems) live
 here. Everything in this file was verified by compiling a produced manuscript
 and looking at the rendered pages; the comments say what was verified, so a

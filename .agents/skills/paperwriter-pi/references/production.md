@@ -1,5 +1,14 @@
 # Production
 
+<!-- prx-profile:start -->
+If the selected journal is PRX / Physical Review X, load
+[the PRX profile](venues/prx.md) for drafting, scoped revision and assembly.
+First record any use of the existing unspecified-venue physics default;
+an explicit non-PRX venue never activates the override. Preserve the
+constitution and compatible workflow mechanics. Other venues use this
+procedure unchanged.
+<!-- prx-profile:end -->
+
 The full-draft procedure, using only Pi's native `read`, `write`, `edit`,
 `bash`, `grep`, `find`, `ls`. One run: read, plan, write, check, compile,
 review, report. Persist progress as files — after any interruption, resume by

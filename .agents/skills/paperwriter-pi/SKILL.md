@@ -68,6 +68,22 @@ record the residual ambiguity as a limitation. If the user selected a venue,
 verify its current template and licence yourself; never invent page limits,
 years, or licence terms.
 
+<!-- prx-profile:start -->
+## Selected PRX profile
+
+When the selected journal is exactly **PRX / Physical Review X**, read
+[references/venues/prx.md](references/venues/prx.md) before planning, drafting,
+assembly or review. The existing no-explicit-venue physics default selects
+PRX only after that resolution is recorded in `research/assessment.md`.
+An explicit different journal or neutral-format request wins: PRE, PRB, PRL,
+PRX Quantum and other venues do not activate this profile.
+
+For PRX, the profile replaces conflicting presentation/craft defaults in
+`writing.md`, `templates.md`, `production.md` and `checks.md`. Constitution,
+evidence, source safety and truthful reporting remain higher authority.
+For all other venues, skip the profile and keep the existing workflow.
+<!-- prx-profile:end -->
+
 ## Input and output contract
 
 The task must provide `SOURCE_ROOT` (the read-only source repository or

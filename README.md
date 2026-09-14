@@ -159,3 +159,16 @@ WORKSPACE/
 - 生成的 `paperwriter-*-runs/` 默认被忽略，避免把大型临时产物和运行日志提交进 Git；
 - `gewu-top30/` 的子仓库不作为外层仓库内容重复 vendoring；
 - 提交前检查 `git status`，确认没有凭据、临时输出或不相关文件。
+
+### PRX-specific writing profile
+
+When the selected journal is exactly PRX / Physical Review X, the
+[PRX profile](.agents/skills/paperwriter-pi/references/venues/prx.md) replaces
+conflicting presentation defaults with flexible scientific organization and
+native APS bibliography/layout behavior. Explicit PRE, PRB, PRL, PRX Quantum,
+and other venues retain their existing guidance. Scientific evidence, source
+safety, authorship and truthful reporting requirements remain in force.
+
+See [scope and validation](tests/README.prx-profile.md) for the paired editorial
+scenarios and template checks. Real-manuscript before/after evaluation is still
+pending; these checks do not establish submission readiness.
