@@ -14,6 +14,7 @@ SKILL_SRC="$HOME/GeWu_Auto_Writing/.agents/skills/paperwriter-pi"
 OVERVIEW="$HOME/GeWu_Auto_Writing/GEWU_TOP30_OVERVIEW.md"
 MANIFEST="$HOME/GeWu_Auto_Writing/gewu-top30/MANIFEST.json"
 TS=$(date -u +%Y%m%dT%H%M%SZ)
+export GEWU_BATCH_BASE="$BASE"   # gewu-batch resolves run names under this base
 RUN="$BASE/${TS}-rerun4-domain-fix"
 mkdir -p "$RUN/workspace-root"
 cp -r "$SKILL_SRC" "$RUN/skill"

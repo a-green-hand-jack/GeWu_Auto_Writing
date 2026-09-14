@@ -5,6 +5,7 @@ set -uo pipefail
 
 TS="$(date -u +%Y%m%dT%H%M%SZ)"
 BASE="$HOME/GeWu_Auto_Writing/paperwriter-pi-runs"
+export GEWU_BATCH_BASE="$BASE"   # gewu-batch resolves run names under this base
 RUN="$BASE/${TS}-math5-amsart-deepseek-v41-flash"
 SOLROOT="$HOME/GeWu_Auto_Writing/gewu-top30"
 SKILL="$HOME/GeWu_Auto_Writing/.agents/skills/paperwriter-pi/SKILL.md"

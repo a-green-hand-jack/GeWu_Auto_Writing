@@ -1,0 +1,136 @@
+#!/usr/bin/env bash
+# gewu-doctor — report whether this machine can actually run the paperwriter
+# pipeline, and what exactly to install when it cannot.
+#
+# Written because the pipeline has real dependencies that fail late and
+# confusingly: a missing revtex class surfaces as a compile error 40 minutes into
+# a run, and a missing pypdfium2 silently disables every rendered-page check.
+#
+# Usage: gewu-doctor [--quiet] [--json]
+# Exit: 0 if every required item is present, 1 otherwise. Optional items never
+#       change the exit code.
+set -uo pipefail
+
+QUIET=0; JSON=0
+for a in "$@"; do case "$a" in --quiet|-q) QUIET=1 ;; --json) JSON=1 ;; esac; done
+
+REQ_FAIL=0; OPT_MISS=0
+declare -a ROWS=()
+
+row() { # row <level> <name> <status> <detail> <fix>
+  ROWS+=("$1|$2|$3|$4|$5")
+  [ "$1" = "required" ] && [ "$3" != "ok" ] && REQ_FAIL=$((REQ_FAIL+1))
+  [ "$1" = "optional" ] && [ "$3" != "ok" ] && OPT_MISS=$((OPT_MISS+1))
+  return 0
+}
+
+have() { command -v "$1" >/dev/null 2>&1; }
+
+# --- the agent harness -------------------------------------------------------
+if have pi; then
+  row required "pi (agent harness)" ok "$(pi --version 2>/dev/null | head -1)" ""
+else
+  row required "pi (agent harness)" missing "not on PATH" \
+      "npm i -g @earendil-works/pi-coding-agent   # or see the pi quickstart"
+fi
+
+# --- a TeX installation with the two classes the skill compiles against -------
+if have pdflatex || have latexmk; then
+  row required "TeX engines" ok "$(pdflatex --version 2>/dev/null | head -1 | cut -c1-40)" ""
+else
+  row required "TeX engines" missing "no pdflatex on PATH" \
+      "install TeX Live (tlmgr install revtex amscls) or use the pipeline's bundled prefix"
+fi
+for cls in revtex4-2.cls amsart.cls; do
+  if have kpsewhich && kpsewhich "$cls" >/dev/null 2>&1; then
+    row required "class $cls" ok "$(kpsewhich "$cls")" ""
+  else
+    row required "class $cls" missing "kpsewhich cannot find it" \
+        "tlmgr install $( [ "$cls" = revtex4-2.cls ] && echo revtex || echo amscls )"
+  fi
+done
+
+# --- BibTeX -----------------------------------------------------------------
+have bibtex && row required "bibtex" ok "$(command -v bibtex)" "" \
+             || row required "bibtex" missing "not on PATH" "install it with TeX Live"
+
+# --- python + pypdfium2: every rendered-page check depends on these ----------
+if have python3; then
+  row required "python3" ok "$(python3 --version 2>&1)" ""
+  if python3 -c "import pypdfium2" >/dev/null 2>&1; then
+    row required "pypdfium2" ok "renderer available (no system poppler needed)" ""
+  else
+    row required "pypdfium2" missing "import fails: no PDF rendering, so no visual gate" \
+        "python3 -m pip install --user --break-system-packages pypdfium2"
+  fi
+else
+  row required "python3" missing "not on PATH" "install python3"
+  row required "pypdfium2" missing "python3 missing" "install python3, then pypdfium2"
+fi
+
+# --- LKM, the literature route (optional: only the review/history stages need it)
+if have bohr; then
+  if bohr auth status -o json 2>/dev/null | grep -q '"logged_in": *true'; then
+    row optional "bohr CLI (LKM literature)" ok "authenticated" ""
+  else
+    row optional "bohr CLI (LKM literature)" warn "installed but not logged in" \
+        "bohr auth login    # BOHR_ACCESS_KEY also works"
+  fi
+else
+  row optional "bohr CLI (LKM literature)" missing "not on PATH: literature falls back to public APIs" \
+      "install the Bohrium CLI, then bohr auth login"
+fi
+
+# --- the skill itself --------------------------------------------------------
+SKILL_FOUND=""
+for d in "$HOME/.agents/skills/paperwriter-pi" "$HOME/.pi/agent/skills/paperwriter-pi" \
+         "$HOME/.claude/skills/paperwriter-pi" "$HOME/.codex/skills/paperwriter-pi" \
+         "$(pwd)/.agents/skills/paperwriter-pi" "$(pwd)/.pi/skills/paperwriter-pi"; do
+  [ -f "$d/SKILL.md" ] && { SKILL_FOUND="$d"; break; }
+done
+if [ -n "$SKILL_FOUND" ]; then
+  row required "paperwriter-pi skill" ok "$SKILL_FOUND" ""
+else
+  row required "paperwriter-pi skill" missing "not in any known skills directory" \
+      "./install.sh    # from the repository root"
+fi
+
+# --- the CLI -----------------------------------------------------------------
+CLI_MISSING=()
+for t in gewu-run gewu-batch gewu-revive gewu-verify gewu-lit pdf-pages; do
+  have "$t" || CLI_MISSING+=("$t")
+done
+if [ ${#CLI_MISSING[@]} -eq 0 ]; then
+  row required "CLI on PATH" ok "gewu-run gewu-batch gewu-revive gewu-verify gewu-lit pdf-pages" ""
+else
+  row required "CLI on PATH" missing "${CLI_MISSING[*]}" "./install.sh --with-cli"
+fi
+
+# --- output ------------------------------------------------------------------
+if [ "$JSON" = 1 ]; then
+  printf '{"required_failures":%d,"optional_missing":%d,"rows":[' "$REQ_FAIL" "$OPT_MISS"
+  first=1
+  for r in "${ROWS[@]}"; do
+    IFS='|' read -r l n s d f <<< "$r"
+    [ $first -eq 0 ] && printf ','; first=0
+    printf '{"level":"%s","name":"%s","status":"%s","detail":"%s","fix":"%s"}' \
+      "$l" "$n" "$s" "${d//\"/}" "${f//\"/}"
+  done
+  printf ']}\n'
+else
+  [ "$QUIET" = 0 ] && printf '%-9s %-28s %-8s %s\n' LEVEL ITEM STATUS DETAIL
+  for r in "${ROWS[@]}"; do
+    IFS='|' read -r l n s d f <<< "$r"
+    case "$s" in ok) mark=ok ;; warn) mark=warn ;; *) mark=MISSING ;; esac
+    [ "$QUIET" = 1 ] && [ "$s" = ok ] && continue
+    printf '%-9s %-28s %-8s %s\n' "$l" "$n" "$mark" "$d"
+    [ -n "$f" ] && [ "$s" != ok ] && printf '%-9s %-28s %-8s   fix: %s\n' "" "" "" "$f"
+  done
+  echo
+  if [ "$REQ_FAIL" -gt 0 ]; then
+    echo "gewu-doctor: $REQ_FAIL required item(s) missing — the pipeline will not run correctly."
+  else
+    echo "gewu-doctor: all required items present$([ $OPT_MISS -gt 0 ] && echo " ($OPT_MISS optional missing)")."
+  fi
+fi
+[ "$REQ_FAIL" -eq 0 ]

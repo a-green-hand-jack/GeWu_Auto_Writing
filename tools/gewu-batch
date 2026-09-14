@@ -17,7 +17,7 @@
 # RUN may be a full path, a glob fragment (e.g. 'math5'), or empty for the newest run.
 set -uo pipefail
 
-BASE="${GEWU_BATCH_BASE:-$HOME/GeWu_Auto_Writing/paperwriter-pi-runs}"
+BASE="${GEWU_BATCH_BASE:-${GEWU_RUNS:-$HOME/paperwriter-runs}}"
 
 die() { echo "gewu-batch: $*" >&2; exit 1; }
 

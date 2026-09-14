@@ -12,6 +12,7 @@ SKILL_SRC="$HOME/GeWu_Auto_Writing/.agents/skills/paperwriter-pi"
 OVERVIEW="$HOME/GeWu_Auto_Writing/GEWU_TOP30_OVERVIEW.md"
 MANIFEST="$SOLROOT/MANIFEST.json"
 TS=$(date -u +%Y%m%dT%H%M%SZ)
+export GEWU_BATCH_BASE="$BASE"   # gewu-batch resolves run names under this base
 RUN="$BASE/${TS}-round2-domain-routed"
 
 mkdir -p "$RUN"

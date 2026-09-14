@@ -2,6 +2,21 @@
 
 这是一个面向 GeWu Solution 集合的、source-bound 学术写作工作区。项目把写作规则和参考资料整理成当前仓库内的 Pi skill，并使用原生 Pi headless 进程完成论文草稿生成。
 
+## 给别人用（一键安装）
+
+这个仓库现在同时是一个可安装的包：skill 与 CLI 可以被别的 agent 直接使用。
+
+```bash
+# Pi 用户：一条命令拿到 skill（package.json 里已声明）
+pi install git:github.com/a-green-hand-jack/GeWu_Auto_Writing
+
+# 其它 harness：装 skill + CLI，并跑依赖自检
+./install.sh                 # 或 --target claude|codex|pi|dir:PATH
+gewu-doctor                  # 缺什么、怎么补，逐条列出
+```
+
+完整说明见 **[INSTALL.md](INSTALL.md)**：依赖清单、通用启动器 `tools/launchers/launch-generic.sh`（用 TSV 清单跑自己的语料）、第三方模板的来源与许可、以及卸载方式。
+
 ## 目标
 
 - 将 GeWu Solution 仓库作为**只读研究输入**；

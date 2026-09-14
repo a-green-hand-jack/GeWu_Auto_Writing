@@ -1,0 +1,38 @@
+{
+  "name": "gewu-paperwriter",
+  "version": "1.0.0",
+  "description": "Source-bound academic writing: turn a code/Solution repository into a complete, honest manuscript, with LKM literature retrieval, per-journal templates, and mechanical pre-delivery checks.",
+  "keywords": [
+    "pi-package",
+    "academic-writing",
+    "latex",
+    "research",
+    "paper"
+  ],
+  "pi": {
+    "skills": [
+      ".agents/skills/paperwriter-pi"
+    ]
+  },
+  "files": [
+    ".agents/skills/paperwriter-pi",
+    "tools",
+    "install.sh",
+    "INSTALL.md"
+  ],
+  "bin": {
+    "gewu-run": "tools/gewu-run",
+    "gewu-batch": "tools/gewu-batch",
+    "gewu-revive": "tools/gewu-revive",
+    "gewu-verify": "tools/gewu-verify",
+    "gewu-lit": "tools/gewu-lit",
+    "gewu-doctor": "tools/gewu-doctor",
+    "pdf-pages": "tools/pdf-pages"
+  },
+  "scripts": {
+    "doctor": "tools/gewu-doctor",
+    "install-skill": "./install.sh"
+  },
+  "private": true,
+  "_note": "Skills and CLI for source-bound academic writing. The vendored journal templates carry their own terms; see INSTALL.md."
+}

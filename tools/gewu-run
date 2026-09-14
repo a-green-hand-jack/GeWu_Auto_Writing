@@ -20,7 +20,17 @@ set -uo pipefail
 
 TASK_DIR=""; MODEL="glm-5.3"; PROVIDER="gravarc-router"; TIMEOUT=7200   # GLM is the writing model; deepseek is retired
 STALL=1200; RETRIES=1; THINKING=high; NO_PROGRESS=3600
-SKILL="${GEWU_SKILL:-$HOME/GeWu_Auto_Writing/.agents/skills/paperwriter-pi/SKILL.md}"
+# Default skill: the first install location that has one. A run normally passes
+# --skill explicitly (the launcher freezes its own copy into the run directory).
+if [ -z "${GEWU_SKILL:-}" ]; then
+  for _c in "$HOME/.agents/skills/paperwriter-pi/SKILL.md" \
+            "$HOME/.pi/agent/skills/paperwriter-pi/SKILL.md" \
+            "$HOME/.claude/skills/paperwriter-pi/SKILL.md" \
+            "$HOME/.codex/skills/paperwriter-pi/SKILL.md"; do
+    [ -f "$_c" ] && { GEWU_SKILL="$_c"; break; }
+  done
+fi
+SKILL="${GEWU_SKILL:-}"
 
 while [ $# -gt 0 ]; do
   case "$1" in

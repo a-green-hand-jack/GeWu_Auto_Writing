@@ -15,7 +15,7 @@ set -uo pipefail
 RUN="${1:?usage: gewu-revive RUN_DIR [MAX_REVIVALS]}"; RUN="${RUN%/}"
 MAX_REVIVE="${2:-3}"
 SKILL="$RUN/skill/SKILL.md"
-RUNNER="$HOME/GeWu_Auto_Writing/bin/gewu-run"
+RUNNER="${GEWU_RUNNER:-$(command -v gewu-run || echo "$HOME/.local/bin/gewu-run")}"
 MODEL="${GEWU_MODEL:-glm-5.3}"
 
 [ -d "$RUN" ] || { echo "gewu-revive: no such run dir: $RUN" >&2; exit 2; }

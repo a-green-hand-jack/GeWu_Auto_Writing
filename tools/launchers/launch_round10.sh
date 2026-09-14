@@ -31,6 +31,7 @@ MANIFEST="$SOLROOT/MANIFEST.json"
 export GEWU_LIT_BUDGET="${GEWU_LIT_BUDGET:-150}"   # billable LKM calls per task
 MODEL="glm-5.3"   # writing model for this round (probed available on the router)
 TS=$(date -u +%Y%m%dT%H%M%SZ)
+export GEWU_BATCH_BASE="$BASE"   # gewu-batch resolves run names under this base
 RUN="$BASE/${TS}-round10-final"
 
 mkdir -p "$RUN"

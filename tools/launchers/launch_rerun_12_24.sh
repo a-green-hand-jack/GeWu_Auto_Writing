@@ -14,6 +14,7 @@ BASE="$HOME/GeWu_Auto_Writing/paperwriter-pi-runs"
 SOLROOT="$HOME/GeWu_Auto_Writing/gewu-top30"
 SKILL_SRC="$HOME/GeWu_Auto_Writing/.agents/skills/paperwriter-pi"
 TS=$(date -u +%Y%m%dT%H%M%SZ)
+export GEWU_BATCH_BASE="$BASE"   # gewu-batch resolves run names under this base
 RUN="$BASE/${TS}-rerun-12-24"
 
 mkdir -p "$RUN"

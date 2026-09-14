@@ -16,6 +16,7 @@ OLD="$BASE/20260913T221413Z-round2-domain-routed"
 SLUG="07-sun-aklt-transfer-matrix-spectrum"
 SKILL_SRC="$HOME/GeWu_Auto_Writing/.agents/skills/paperwriter-pi"
 TS=$(date -u +%Y%m%dT%H%M%SZ)
+export GEWU_BATCH_BASE="$BASE"   # gewu-batch resolves run names under this base
 RUN="$BASE/${TS}-rerun07-bounded"
 
 mkdir -p "$RUN/$SLUG"
