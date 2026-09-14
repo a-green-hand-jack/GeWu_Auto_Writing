@@ -14,7 +14,16 @@
 # Nothing else on the machine is touched, and every action is printed.
 set -uo pipefail
 
-SRC="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Where is this script, and is a checkout sitting beside it? Piped in from the
+# network there is no BASH_SOURCE at all, and $0 is just "bash", so dirname would
+# resolve to the caller's current directory -- which meant a piped install could
+# silently take its payload from whatever directory the user happened to be in.
+SELF="${BASH_SOURCE[0]:-}"
+if [ -n "$SELF" ] && [ -f "$SELF" ]; then
+  SRC="$(cd "$(dirname "$SELF")" && pwd)"
+else
+  SRC=""
+fi
 SKILL_NAME="paperwriter-pi"
 SKILL_SRC="$SRC/.agents/skills/$SKILL_NAME"
 CLI="gewu-run gewu-batch gewu-revive gewu-verify gewu-lit pdf-pages gewu-doctor"
@@ -92,7 +101,7 @@ fetch_payload() {
   return 0
 }
 
-if [ ! -d "$SKILL_SRC" ]; then
+if [ -z "$SRC" ] || [ ! -d "$SKILL_SRC" ]; then
   if [ "$DRY" = 1 ] && [ -z "$SOURCE_URL" ]; then
     say "no checkout beside this script; would fetch $REPO_SLUG@$REF"
     FETCHED="/tmp/gewu-dry-run-payload"
@@ -102,7 +111,7 @@ if [ ! -d "$SKILL_SRC" ]; then
   SRC="$FETCHED"
   SKILL_SRC="$SRC/.agents/skills/$SKILL_NAME"
 fi
-[ -d "$SKILL_SRC" ] || { echo "install.sh: no skill at $SKILL_SRC" >&2; exit 2; }
+[ -n "$SRC" ] && [ -d "$SKILL_SRC" ] || { echo "install.sh: no skill found (looked in ${SRC:-an empty source})" >&2; exit 2; }
 
 # --- where does the skill go -------------------------------------------------
 resolve_target() {
