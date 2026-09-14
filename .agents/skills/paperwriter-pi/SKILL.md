@@ -111,6 +111,17 @@ If the user selected no venue for a domain with no entry above, use a neutral
 single-column expository format, record the choice and its reason in
 `research/assessment.md`, and keep it uniform across that domain's papers.
 
+For the neutral single-column `article` format (a domain with no selected
+venue), centre the reference heading too, so all three templates agree:
+
+```latex
+\renewcommand{\refname}{\vspace{-2.2em}\begin{center}\textbf{REFERENCES}\end{center}\vspace{-0.6em}}
+```
+
+and precede the bibliography with `\FloatBarrier` then `\clearpage` as in the
+other templates. Verified: 0 LaTeX errors, heading centred across the text
+block.
+
 Two PRX-specific details are easy to lose and were lost in every earlier run.
 First, keep the preamble's `placeins` package and the `\FloatBarrier`
 immediately before `\bibliography`. Second, build the reference block with the

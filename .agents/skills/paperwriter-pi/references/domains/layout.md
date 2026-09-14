@@ -77,8 +77,10 @@ LaTeX source and obvious in the rendering.
   table or figure sharing that page leaves booktabs rules above or beside the
   references, which read as unexplained underlines. No line in the reference
   region may consist only of a dash: a repeated-author marker is a defect.
-  The heading must be present and, for the APS/PRX entrypoint, centred across
-  the full text width rather than inside one column.
+  The heading must be present and centred in **every** template — across the
+  full text width for the APS/PRX entrypoint, and horizontally centred for
+  amsart and for the neutral single-column article format (a left-aligned
+  heading is a defect there, even though the class default produces one).
 
 ## The reference region
 
