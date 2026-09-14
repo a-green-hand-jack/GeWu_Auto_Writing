@@ -61,7 +61,9 @@ Write `research/plan.md` before any prose:
 - the notation ledger: every symbol, acronym, and named construct, with its
   plain definition, units or domain/codomain, and first planned use;
 - a disposition for every technical fact: `body`, `appendix`, or
-  `research-only`. An omission is a stated decision, never a silent drop;
+  `research-only`, defaulting to `appendix` whenever a reader needs it only to
+  *check* the argument rather than to follow it (`writing.md` §3). An omission
+  is a stated decision, never a silent drop;
 - which display items and references are justified, and by what. A figure only
   to meet a quota is a defect; if none is justified, say so in one line.
 
@@ -158,7 +160,7 @@ An honest partial check is publishable; a run that loops is not.
 
 ## 9. Assemble
 
-Run one language pass over the finished prose (`writing.md` §8) before
+Run one language pass over the finished prose (`writing.md` §9) before
 assembly: fix the machine-drafting tells, change no claim, number, or citation.
 
 Build `paper/main.tex` from the entrypoint for the assessed domain

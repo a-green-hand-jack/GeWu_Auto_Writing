@@ -59,7 +59,36 @@ subsection; it may not drop it.
 - *Conclusion*: what is now established, at what scope, and what is honestly
   open.
 
-## 3. Depth calibration
+## 3. Body and appendix
+
+The body carries the argument; the appendix carries the evidence that would slow
+a reader down. A referee should be able to follow the paper end to end without
+opening an appendix — and every appendix exists because the body points to it at
+the moment it is needed.
+
+**The body keeps:** the question; the model or problem statement; the strategy
+and the load-bearing steps of the argument; the result with its scope; the
+interpretation; the limitations. **Everything else moves out.**
+
+**An appendix carries:** full derivations whose results the body quotes; lengthy
+but routine algebra and case analyses; parameter, convergence, and coverage
+tables; numerical protocols; long verification output; imported statements used
+once; and the worked detail behind a step whose *idea* the body already
+explains.
+
+- Move detail, never delete it. These venues have no page limit: an overloaded
+  body is a relocation problem, not a cutting problem.
+- Every appendix has a title naming its content, and the body refers to it where
+  it is needed ("the full case analysis is in Appendix B").
+- An appendix never conceals a missing central argument. If the load-bearing
+  step lives only in an appendix, the body's argument is incomplete and the
+  paper reads as an announcement.
+- The test for a paragraph: does the reader need it to **follow** the argument,
+  or only to **check** it? Following stays in the body; checking goes to an
+  appendix. A body of 12–20 pages is normal for one result; if the draft runs
+  much longer, the excess is almost always detail that belongs in appendices.
+
+## 4. Depth calibration
 
 The dominant defect is a thin middle: statement, jump, result.
 
@@ -88,7 +117,7 @@ say so.
 Put the difficulty where it is. Never hide the hard step inside "it is easy to
 see": say why a routine step is routine, and give a crux its own lemma.
 
-## 4. Definitions and notation
+## 5. Definitions and notation
 
 - Every symbol, acronym, coined term, and named construct is defined before its
   first argumentative use, including in the abstract.
@@ -109,7 +138,7 @@ see": say why a routine step is routine, and give a crux its own lemma.
   use `\text{}` for words inside math; take `\mathbb` only for number sets;
   check that every `\ref` resolves and that the accent sits on the right letter.
 
-## 5. The abstract
+## 6. The abstract
 
 Continuous prose, written last from the finished paper. It states the question,
 the approach, the principal result with its scope, and what it does not claim —
@@ -122,7 +151,7 @@ nothing else.
   strengthens them is a correctness defect, not a style choice.
 - No inventory, no counts of checks, no process, no provenance disclaimer.
 
-## 6. Related work
+## 7. Related work
 
 Good related work answers three questions about the closest prior results: what
 they established, under which hypotheses, and exactly how this paper differs —
@@ -134,7 +163,7 @@ Cite where the claim is. A citation attached to a sentence it does not support
 is worse than no citation; if you did not read the passage, do not characterize
 the paper. If a key prior work is inaccessible, record it as unresolved.
 
-## 7. Figures, tables, and numbers
+## 8. Figures, tables, and numbers
 
 - A display item earns its place by carrying information prose cannot. State in
   the caption what the reader should see: axes with units, what varies, what
@@ -151,7 +180,7 @@ the paper. If a key prior work is inaccessible, record it as unresolved.
 - Each display item is analysed in one home section and cited elsewhere for its
   takeaway only.
 
-## 8. Language
+## 9. Language
 
 Write in the scholarly register of the venue: plain, specific, and confident
 about what the evidence shows. Prefer the active voice with a real subject — if
@@ -184,7 +213,7 @@ them:
 This pass may change wording and rhythm. It may never change a claim, a number,
 a citation, or the structure of the argument.
 
-## 9. What never belongs in the manuscript
+## 10. What never belongs in the manuscript
 
 GeWu's internal vocabulary, platform and host names, repository and file names,
 paths, hashes, run identifiers, model and agent names, and row counts. The
@@ -192,7 +221,7 @@ author line carries a person's name, not a database label. The full list and the
 replacements are in `constitution.md` §4; the one permitted exception is the
 production note in §7 there.
 
-## 10. Self-check before assembly
+## 11. Self-check before assembly
 
 Read the draft as a reader, then answer:
 

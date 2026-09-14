@@ -39,6 +39,15 @@ Defects: a first section that is not an Introduction; a title joining two roles
 with "and" (`Introduction and model`); a missing or `\section`-less section
 file; a title naming a process (`Build report`) instead of a scientific role.
 
+Also check the appendices (`writing.md` §3): every appendix has a title naming
+its content, is referred to from the body at the place it is needed, and holds
+detail rather than a load-bearing step of the argument.
+
+```bash
+grep -rnE '\\appendix|^\\section' paper/sections/*appendix*.tex | head
+grep -rnoE 'Appendix~?[A-Z]|appendix [A-Z]' paper/sections/*.tex | wc -l
+```
+
 ## 2. Firewall and author line
 
 ```bash
@@ -172,7 +181,7 @@ or citation:
   consistent and defined; introduction structure as `writing.md` prescribes;
   grammar and tense; figures and tables referenced and explained; statistics
   stated with their test.
-- **Machine-drafting tells** (`writing.md` §8) — the triadic lists, "not only…
+- **Machine-drafting tells** (`writing.md` §9) — the triadic lists, "not only…
   but also", empty intensifiers, "it is worth noting", uniform sentence rhythm,
   and em-dash weather that make a text read as generated.
 
