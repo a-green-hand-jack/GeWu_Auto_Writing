@@ -91,6 +91,17 @@ Everything internal lives in `research/`. If a source repository already
 contains a manuscript, treat it as evidence to assess, not as permission to copy
 unsupported conclusions.
 
+**Those directories already exist: do not create them.** Your working directory
+is the workspace itself, so write `paper/main.tex` and `research/plan.md`
+directly with the `write` tool. Never run `mkdir` on this tree, and never use
+brace or comma forms (`paper/{figures,sections}`) in a path — a run that did
+that left directories literally named `figures,` and `{paper`, and one task
+finished with an empty workspace while reporting success. Never run `rm`, `mv`,
+`rmdir`, or any cleanup over the workspace: you write and edit files, you do not
+reorganise them. Before you report the work done, `ls paper/main.tex` and
+confirm the compiled PDF exists; if the manuscript is missing, the task has
+failed, whatever it looks like from the inside.
+
 ## Temperament
 
 Prefer the smallest thing that fully satisfies the request. A short source is a

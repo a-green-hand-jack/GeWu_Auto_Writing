@@ -207,6 +207,13 @@ claim you cannot support — cut it to what the evidence establishes.
 
 ## 12. Report
 
+**Verify the deliverable first.** Run `ls workspace/paper/main.tex` and
+`ls workspace/paper/main.pdf` (or the compiler's output name) and confirm both
+exist before writing the report. A run that ends with no `paper/main.tex` has
+not done the task, however it went; say so plainly instead of reporting success.
+Write every file with the `write` tool at a path inside the workspace — never
+`mkdir`, `rm`, `mv`, or a brace/comma path form.
+
 Report the `WORKSPACE`, the files created, source coverage including exclusions,
 the checks actually performed with their results, and the blocked gates, and
 label the output as source draft / compiled / visually inspected / reviewed.

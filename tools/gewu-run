@@ -85,6 +85,10 @@ while : ; do
   rm -f "$TASK_DIR/stall-detected" "$TASK_DIR/no-progress-detected" "$TASK_DIR/exit-code" "$TASK_DIR/finished-at"
 
   cd "$TASK_DIR" || exit 1
+  # pi inherits this shell's working directory. Without this cd it was the TASK
+  # directory, so every relative path an agent wrote escaped WORKSPACE: four
+  # tasks left artefacts outside it and no run-level check could see them.
+  cd "$TASK_DIR/workspace" || { echo "gewu-run: cannot enter $TASK_DIR/workspace" >&2; exit 3; }
   timeout "$TIMEOUT" pi \
     --print \
     --no-session \
@@ -160,6 +164,13 @@ while : ; do
 
   wait "$PI_PID"; RC=$?
   wait "$WATCH_PID" 2>/dev/null
+
+  # A run that ends without a manuscript has not done the task, whatever its
+  # exit code says. One task reported success with a completely empty workspace.
+  if [ "$RC" -eq 0 ] && [ ! -f "$TASK_DIR/workspace/paper/main.tex" ]; then
+    RC=9
+    echo "no manuscript at workspace/paper/main.tex: treating exit 0 as failure" >&2
+  fi
 
   if [ -f "$TASK_DIR/stall-detected" ] || [ -f "$TASK_DIR/no-progress-detected" ] || [ "$RC" -ne 0 ]; then
     mv -f "$TASK_DIR/run.log" "$TASK_DIR/run.log.attempt${attempt}" 2>/dev/null
