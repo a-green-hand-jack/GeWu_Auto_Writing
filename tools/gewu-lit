@@ -215,7 +215,22 @@ for chunk in re.split(r"(?m)^@", txt)[1:]:
         return re.sub(r"\s+", " ", m.group(1)).strip() if m else ""
     ents.append(dict(key=key.group(1).strip(), title=field("title"),
                      doi=field("doi"), eprint=field("eprint")))
-def norm(s): return re.sub(r"[^a-z0-9 ]", " ", s.lower())
+def plain_title(s):
+    # Normalise the LaTeX a bibliography legitimately contains, so that
+    # {\"U}ber eine {V}ariante compares equal to "Über eine Variante" and
+    # Piercing {A}xis-{P}arallel Boxes to Piercing Axis-Parallel Boxes. Without
+    # this the comparator reported four correct entries as title mismatches.
+    s = re.sub(r"\\[a-zA-Z]+\{([a-zA-Z])\}", r"\1", s)      # \"u -> u
+    s = re.sub(r"\\[a-zA-Z]+", " ", s)                        # remaining commands
+    s = s.replace("{", " ").replace("}", " ").replace("$", " ")
+    s = (s.replace("ü", "u").replace("ö", "o").replace("ä", "a")
+           .replace("é", "e").replace("è", "e").replace("á", "a")
+           .replace("í", "i").replace("ó", "o").replace("ú", "u")
+           .replace("ß", "ss").replace("ø", "o").replace("å", "a"))
+    return s
+
+
+def norm(s): return re.sub(r"[^a-z0-9 ]", " ", plain_title(s).lower())
 def overlap(a, b):
     ta, tb = set(norm(a).split()), set(norm(b).split())
     return len(ta & tb) / max(1, len(ta)) if ta else 0
@@ -226,36 +241,75 @@ def get(url, to=20):
     except Exception as e:
         return "ERR " + str(e)
 ok = bad = noid = 0
+net = 0          # blocked by this host's network, not a defect in the manuscript
 problems = []
 cache = {}
 for e in ents:
     if e["doi"]:
         d = e["doi"].strip().rstrip(".")
         j = get("https://api.crossref.org/works/" + urllib.parse.quote(d))
+        t = ""
         if j.startswith("ERR"):
-            bad += 1; problems.append(("unresolved DOI", e["key"], d, j[:60])); time.sleep(1); continue
-        try: t = json.loads(j)["message"].get("title", [""])[0]
-        except Exception:
-            bad += 1; problems.append(("bad Crossref payload", e["key"], d, "")); continue
+            # Dagstuhl (DROPS), Zenodo, Dryad and others register with DataCite, not
+            # Crossref, so a Crossref 404 is not evidence that the DOI is wrong.
+            j2 = get("https://api.datacite.org/dois/" + urllib.parse.quote(d))
+            if not j2.startswith("ERR"):
+                try:
+                    t = json.loads(j2)["data"]["attributes"]["titles"][0]["title"]
+                except Exception:
+                    t = ""
+            if not t:
+                if re.search(r"429|Too Many|timed out|timeout|503", j):
+                    net += 1
+                    problems.append(("network-blocked DOI lookup (not a defect)", e["key"], d, j[:40]))
+                else:
+                    bad += 1
+                    problems.append(("unresolved DOI (Crossref and DataCite 404)", e["key"], d, j[:60]))
+                time.sleep(1); continue
+        if not t:
+            try: t = json.loads(j)["message"].get("title", [""])[0]
+            except Exception:
+                bad += 1; problems.append(("bad Crossref payload", e["key"], d, "")); continue
         s = overlap(e["title"], t)
         if s >= 0.4: ok += 1
         else: bad += 1; problems.append(("title mismatch", e["key"], d, f"bib='{e['title'][:50]}' registry='{t[:50]}'"))
         time.sleep(0.5)
     elif e["eprint"]:
         a = e["eprint"].strip()
-        j = get("http://export.arxiv.org/api/query?id_list=" + urllib.parse.quote(a))
-        if j.startswith("ERR") or "<entry>" not in j:
-            bad += 1; problems.append(("unresolved arXiv id (or network block)", e["key"], a, j[:60]))
-        else:
-            m = re.search(r"<title>(.*?)</title>", j, re.S)
+        t = ""
+        # arXiv assigns DataCite DOIs (10.48550/arXiv.<id>), and DataCite answers
+        # where the arXiv API rate-limits this host to HTTP 429. Resolving the
+        # constructed DOI is both reachable and authoritative -- it returns the
+        # title, year and authors -- so the arXiv API is only a fallback.
+        dc = get("https://api.datacite.org/dois/10.48550%2FarXiv." + urllib.parse.quote(a))
+        if not dc.startswith("ERR"):
+            try: t = json.loads(dc)["data"]["attributes"]["titles"][0]["title"]
+            except Exception: t = ""
+        if not t:
+            j = get("http://export.arxiv.org/api/query?id_list=" + urllib.parse.quote(a))
+            if j.startswith("ERR") and "429" in j:
+                time.sleep(6)
+                j = get("http://export.arxiv.org/api/query?id_list=" + urllib.parse.quote(a))
+            if j.startswith("ERR") or "<entry>" not in j:
+                if re.search(r"429|Too Many|timed out|timeout", j):
+                    net += 1; problems.append(("network-blocked arXiv lookup (not a defect)", e["key"], a, j[:40]))
+                else:
+                    bad += 1; problems.append(("unresolved arXiv id", e["key"], a, j[:60]))
+                time.sleep(0.5)
+                continue
+            entry = j.split("<entry>", 1)[1]
+            m = re.search(r"<title>(.*?)</title>", entry, re.S)
             t = re.sub(r"\s+", " ", m.group(1)).strip() if m else ""
-            s = overlap(e["title"], t)
-            if s >= 0.4: ok += 1
-            else: bad += 1; problems.append(("title mismatch", e["key"], a, f"bib='{e['title'][:50]}' arxiv='{t[:50]}'"))
-        time.sleep(1.5)
+        s_ = overlap(e["title"], t)
+        if s_ >= 0.4: ok += 1
+        else:
+            bad += 1; problems.append(("title mismatch", e["key"], a,
+                                       f"bib='{e['title'][:50]}' registry='{t[:50]}'"))
+        time.sleep(0.3)
     else:
         noid += 1
-print(f"entries={len(ents)} resolved={ok} problematic={bad} no-identifier={noid}")
+print(f"entries={len(ents)} resolved={ok} problematic={bad} "
+      f"network-blocked={net} no-identifier={noid}")
 for p in problems: print("  -", " | ".join(str(x) for x in p))
 if raw:
     os.makedirs(raw, exist_ok=True)
