@@ -1,0 +1,78 @@
+% Entrypoint: Annals of Mathematics (mathematics).
+% Annals publishes no LaTeX class of its own; submissions follow the AMS
+% amsart conventions, which is what this file is. amsart is part of TeX Live
+% (amscls), so nothing here is vendored.
+\documentclass[11pt,reqno]{amsart}
+
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{lmodern}      % must precede microtype
+\usepackage{microtype}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{placeins}     % provides \FloatBarrier
+\usepackage[hidelinks]{hyperref}
+
+\bibliographystyle{amsplain}
+\raggedbottom
+
+% Theorem-like environments: amsthm's own, numbered within sections.
+% The proof environment comes from amsthm too -- do not hand-roll one, and
+% never set the proof body in italics (a delivered paper did, and the whole
+% proof read as an emphasised quotation).
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\title{TITLE}
+\author{AUTHOR}
+\subjclass[2020]{PRIMARY; SECONDARY}   % MSC codes
+\keywords{keyword; keyword; keyword}
+\date{}
+
+\begin{document}
+
+\begin{abstract}
+ABSTRACT: the question, the main result with its exact quantifiers, and the
+scope of what is established. Name the objects in words rather than symbols,
+and avoid formulae and computed values.
+\end{abstract}
+
+\maketitle
+
+\section{Introduction}
+% The problem, why it is natural, what was known, what this paper adds, and an
+% informal statement of the main result. A reader who stops here should be able
+% to state the theorem correctly.
+
+\section{Preliminaries}
+% Only the notation and imported results actually used later.
+
+\section{Main result and proof}
+% Statement with hypotheses spelled out, a proof-strategy paragraph saying what
+% the obstacle is and which idea removes it, then the proof in justified steps,
+% a worked instance, and sharpness.
+
+\section{Related work}
+% What the closest prior results established, under which hypotheses, and how
+% this paper differs.
+
+\section{Conclusion}
+% What is now known, what is genuinely open, and the boundaries of the evidence.
+
+% Appendices sit between the conclusion and the bibliography, and the
+% bibliography is the last thing in the paper.
+\appendix
+\input{sections/appendix_a}
+
+\FloatBarrier
+\clearpage
+\bibliography{references}
+
+\end{document}

@@ -1,32 +1,36 @@
 # Templates and typography
 
 Requirement 1 (follow the template) and requirement 4 (no layout problems) live
-here. Everything in this file was verified by compiling a produced manuscript
-and looking at the rendered pages; the comments say what was verified, so a
-future edit does not undo it.
+here. Every LaTeX construction below was verified by compiling a produced
+manuscript and looking at the rendered pages; the notes say what was verified, so
+a later edit does not undo it.
 
-## 1. Route the template by the assessed domain
+## 1. One venue per domain
 
-| assessed domain | entrypoint | document class |
-|---|---|---|
-| physics | run-provided `templates/prx-official/apstemplate.tex` | `\documentclass[aps,prx,reprint,groupedaddress]{revtex4-2}` |
-| mathematics | the amsart preamble in §3 | `\documentclass[11pt,reqno]{amsart}` |
-| life sciences / AI-ML / anything with no selected venue | the neutral preamble in §4 | `\documentclass[11pt]{article}` |
+The venue is not a free choice, and it is not "a neutral format": each domain has
+its journal. `SKILL.md` fixes the domains; this table fixes the template.
 
-Routing is by the object of study and the question, not by the form of the
-argument: a graph-theoretic result proved by exhaustive computation is
-mathematics, a spin-chain result written as a theorem is physics. Record the
-route and its reason in `research/assessment.md`, and keep every paper in a
-domain group on the same class and preamble.
+| domain | journal | source | entrypoint |
+|---|---|---|---|
+| physics | Physical Review X (APS) | TeX Live `revtex4-2`, plus the vendored official APS entrypoint `templates/prx-official/apstemplate.tex` | `\documentclass[aps,prx,reprint,groupedaddress]{revtex4-2}` |
+| mathematics | Annals of Mathematics | TeX Live `amsart` (`amscls`); entrypoint `templates/annals-of-mathematics/main.tex` | `\documentclass[11pt,reqno]{amsart}` |
+| life sciences | Nature Communications | vendored `templates/nature-comms/` | `\documentclass{nature}` |
+| AI / machine learning | ICLR | vendored `templates/iclr-2026/` | `\documentclass{article}` + `\usepackage{iclr2026_conference,times}` |
 
-Never substitute a class because it is easier: no `article` for physics, no
-two-column physics format for mathematics. A physics paper must not use PRE,
-PRL, or a generic class unless the user asked for that venue.
+Where TeX Live already carries the class (`revtex4-2`, `amsart`), nothing is
+vendored beyond the entrypoint. Where it does not (Nature, ICLR), the style files
+travel with this bundle, and each of those directories carries a `README.md`
+stating exactly where they came from, including the caveat that the CTAN `nature`
+class is from 2004 and is not the current Nature Communications template.
 
-## 2. Physics — APS PRX (REVTeX 4.2)
+If the user names a different venue, verify that venue's current template and
+licence yourself and record the source in `research/assessment.md`. Never invent
+page limits, years, or licence terms, and never invent a format and call it the
+journal's.
 
-Preamble: keep it small and add packages only when used. The produced papers
-carry exactly this shape:
+## 2. Physics — Physical Review X
+
+Preamble, kept small; add packages only when used:
 
 ```latex
 \documentclass[aps,prx,reprint,groupedaddress]{revtex4-2}
@@ -34,7 +38,7 @@ carry exactly this shape:
 \usepackage{graphicx}
 \usepackage{microtype}
 \usepackage{needspace}
-\usepackage{placeins}          % provides \FloatBarrier — needed before \bibliography
+\usepackage{placeins}          % \FloatBarrier, needed before \bibliography
 \usepackage[hidelinks]{hyperref}
 \emergencystretch=2em
 ```
@@ -52,14 +56,12 @@ carry exactly this shape:
 \maketitle
 ```
 
-Bare prose before `\maketitle` — for example `\input` of a file that contains
-only abstract text — typesets that prose as body text *above* the title. Either
-write the environment in the entrypoint or make the included file wrap itself.
-Verified: manuscripts that got this wrong printed the abstract above the title.
+Bare prose before `\maketitle` — for instance `\input` of a file holding only
+abstract text — typesets above the title. Verified: manuscripts that got this
+wrong printed the abstract above the title.
 
-**Reference block.** REVTeX's APS mode draws its separator rule but prints no
-heading word, and a bare `\section*{References}` confines the heading to one
-column. Use exactly this construction:
+**Reference block.** APS mode draws a separator rule but prints no heading word,
+and a bare `\section*{References}` confines the heading to one column:
 
 ```latex
 \FloatBarrier
@@ -81,14 +83,16 @@ column. Use exactly this construction:
 ```
 
 `\makeatletter`/`\makeatother` are required because `\p@` and `\bib@device` are
-internal control sequences. The `\FloatBarrier` stops a pending float from
-moving past the bibliography; the `\clearpage` then gives the reference list a
-page of its own, because with the barrier alone a float can still land beside it
-and its rules read as stray underlines. Verified by render: full-text-width
-centred REFERENCES, reference list alone on the final page, both columns
-balanced.
+internal. `\FloatBarrier` stops a pending float from crossing the bibliography;
+`\clearpage` then gives the reference list a page of its own, because with the
+barrier alone a float can still land beside it and its rules read as stray
+underlines. Verified by render: full-text-width centred REFERENCES, reference
+list alone on the final page, columns balanced.
 
-## 3. Mathematics — amsart
+## 3. Mathematics — Annals of Mathematics
+
+`templates/annals-of-mathematics/main.tex` is the working entrypoint; it already
+has the packages in the right order, the theorem environments, and the spine.
 
 ```latex
 \documentclass[11pt,reqno]{amsart}
@@ -98,7 +102,7 @@ balanced.
 \usepackage[T1]{fontenc}
 \usepackage{graphicx}
 \usepackage{booktabs}
-\usepackage{placeins}     % provides \FloatBarrier
+\usepackage{placeins}
 \usepackage[hidelinks]{hyperref}
 \bibliographystyle{amsplain}
 \raggedbottom
@@ -106,18 +110,16 @@ balanced.
 
 - `lmodern` before `microtype`: with the default Computer Modern bitmap fonts,
   font expansion is an error rather than a warning.
-- Supply `\subjclass` (MSC) and `\keywords`.
-- Links active but black: no decorative colour, theorem boxes, or oversized
-  headings. `hyperref` always with `hidelinks`.
-- amsart prints its own `References` heading, so no manual label is needed —
-  but still put `\FloatBarrier` then `\clearpage` before `\bibliography`, for
-  the same reason as above. Verified by render: references alone on page 2.
+- `\subjclass` (MSC) and `\keywords` are required; `\date{}` suppresses the date.
+- **The abstract precedes `\maketitle`** in amsart.
+- amsart prints its own `References` heading, so no manual label is needed — but
+  still put `\FloatBarrier` then `\clearpage` before `\bibliography`.
 - **Expand `\bysame` after the first BibTeX run.** `amsplain.bst` replaces a
   repeated author list with `\bysame`, which typesets as a long dash readers see
-  as a stray underline. Run this inside the workspace, then recompile:
+  as a stray underline:
 
 ```python
-# research/checks/expand_bysame.py — expands the repeated-author dash
+# research/checks/expand_bysame.py -- expands the repeated-author dash
 import pathlib, re
 p = pathlib.Path("paper/main.bbl")
 parts = re.split(r"(\\bibitem\{[^}]*\})", p.read_text())
@@ -135,61 +137,83 @@ p.write_text("".join(out))
 print("remaining bysame:", p.read_text().count("\\bysame"))
 ```
 
-  Confirm the rendered reference page shows no line containing only a dash. If
-  the expansion fails for an entry, switch that manuscript to
-  `\bibliographystyle{plain}` (which repeats authors) and say so in
-  `research/validation.md`. Verified: 0 remaining `\bysame` after the pass.
+  Confirm the rendered reference page has no dash-only line. If the expansion
+  fails for an entry, switch that manuscript to `\bibliographystyle{plain}` and
+  say so in `research/validation.md`.
 
-## 4. Neutral single-column (no selected venue)
-
-```latex
-\documentclass[11pt]{article}
-\usepackage{amsmath,amssymb}
-\usepackage{graphicx}
-\usepackage{booktabs}
-\usepackage{placeins}
-\usepackage[hidelinks]{hyperref}
-\renewcommand{\refname}{\vspace{-2.2em}\begin{center}\textbf{REFERENCES}\end{center}\vspace{-0.6em}}
-```
-
-The `\refname` override exists because `article` prints a left-aligned
-`References` heading; the three templates must agree on a centred full-width
-heading. Precede `\bibliography` with `\FloatBarrier` then `\clearpage` as in
-§2. Verified: heading centred across the text block, 0 LaTeX errors.
-
-## 5. Bibliography hygiene
-
-```bibtex
-% escape in every field: _ & % # and unbalanced braces
-title  = {Hard squares at activity $z=-1$},
-author = {Doe, Jane and Roe, Richard},
-```
-
-- **Appendices occupy the region between the conclusion and the bibliography.**
-  Put `\appendix` before `\input`ing the appendix files, then the reference
-  block, so the bibliography stays the last thing in the paper:
+## 4. Life sciences — Nature Communications
 
 ```latex
-\input{sections/conclusion}
-\appendix
-\input{sections/appendix_a}
-\FloatBarrier
-\clearpage
-\bibliography{references}
+\documentclass{nature}
+\bibliographystyle{naturemag}
+...
+\title{...}                    % under 90 characters
+\author{...}
+\begin{document}
+\maketitle
+\begin{affiliations} ... \end{affiliations}
+\begin{abstract} ... \end{abstract}
 ```
 
-  Without `\appendix` those files print as numbered body sections. Verified by
-  render: two papers shipped that way, one with four appendix files reading as
-  body sections 9–12.
+Single column, one-paragraph abstract with no citations or formulae, numbered
+references. Read `templates/nature-comms/README.md` first: the class is the CTAN
+`nature` package of 2004, not the current Nature Communications template, and the
+README says what that means for honesty about the format.
+
+## 5. AI and machine learning — ICLR
+
+```latex
+\documentclass{article}
+\usepackage{iclr2026_conference,times}
+\input{math_commands.tex}
+\usepackage{hyperref}\usepackage{url}
+```
+
+`templates/iclr-2026/README.md` carries two things that differ from the other
+venues: submission is **anonymous** unless `\iclrfinalcopy` is set, and the venue
+enforces page limits and a required structure. Decide which copy you are
+producing and record it; do not ship a real author block under an anonymous-style
+submission.
+
+## 6. Theorem and proof environments
+
+Use `amsthm`. One delivered paper hand-rolled its own environment:
+
+```latex
+% WRONG -- this is the defect, do not reproduce it
+\newenvironment{proof}{\par\medskip\noindent\textit{Proof.}\ \itshape}%
+  {\nobreak\hfill$\square$\par\medskip}
+```
+
+`\itshape` has no argument, so it italicised the **entire proof body**; rendered,
+the proof read as an emphasised quotation rather than an argument, which is what
+"the proof environment is a mess" meant. Two other papers hand-rolled proof
+environments as well.
+
+- Load `amsthm` and declare environments with `\newtheorem` (`theorem`,
+  `proposition`, `lemma`, `corollary`, `definition`, `remark`), numbered within
+  sections unless the venue says otherwise.
+- Use amsthm's own `proof`: upright body, italic `Proof.` label, right-aligned
+  QED. Never define your own, and never italicise the body.
+- A proof ending in a display needs `\qedhere` inside the display, or the QED
+  square drops to a line of its own. In a two-column layout this is the most
+  visible defect there is.
+- A named variant (`\begin{proof}[Proof of Theorem 2]`) must still come from
+  amsthm; do not fake it with `\noindent\textit{...}`.
+- Theorem environments themselves stay reserved for theorem-grade evidence
+  (`checks.md` §7).
+
+## 7. Bibliography hygiene
+
+- Escape `_ & % #` and unbalanced braces in every field.
 - Never put a file path, repository name, or internal identifier in a
-  bibliography field. Cite a source file in prose with `\texttt{...}` plus a
-  locator instead.
+  bibliography field — except the source-repository citation, which is a
+  reference in its own right (`constitution.md` §7).
 - Never put process narration in an entry (retrieval dates, registry names,
-  "not independently verified"). A scientific caveat such as "preprint" is
-  fine; the drafting process is not.
+  "not independently verified"). A scientific caveat such as "preprint" is fine.
 - Every entry is cited and every citation supports a sentence.
 
-## 6. Compile
+## 8. Compile
 
 ```bash
 cd WORKSPACE/paper
@@ -199,14 +223,12 @@ pdflatex -interaction=nonstopmode main.tex && bibtex main \
 grep -nE 'Overfull|Underfull|undefined|Warning' main.log | head -40
 ```
 
-Read every warning location; repair in small batches; recompile after each
-batch. Fix overfull boxes wider than a few points locally:
-
-- break unbreakable tokens (hashes, URLs, `\texttt` identifiers) with `\-` or
-  `\allowbreak`;
-- long equations in a two-column layout go in `aligned`, `split`, or `multline`;
-- `\needspace` (already loaded) keeps a heading with its opening paragraph;
-- use a starred float only when a display genuinely needs full width.
+Read every warning location, repair in small batches, recompile after each. Fix
+overfull boxes wider than a few points locally: break unbreakable tokens
+(hashes, URLs, `\texttt` identifiers) with `\-` or `\allowbreak`; put long
+equations in `aligned`/`split`/`multline` in two-column layouts; use `\needspace`
+(already loaded) to keep a heading with its opening paragraph; reserve starred
+floats for displays that genuinely need full width.
 
 Never hide overflow warnings, relax margins, shrink text globally, or delete
 evidence to make a page fit. If TeX is unavailable, keep the complete source

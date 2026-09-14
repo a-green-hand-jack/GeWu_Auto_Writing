@@ -7,9 +7,9 @@ serves that, and it constrains no fact.
 
 ## 1. The frame
 
-- **One thread.** State the question in the introduction, answer it in the
-  results, and never open a topic you do not close. A reader who has not seen
-  the source material must be able to follow the argument end to end.
+- **One thread.** State the question where the format asks for it, answer it in
+  the results, and never open a topic you do not close. A reader who has not
+  seen the source material must be able to follow the argument end to end.
 - **Abstraction before machinery.** Say what is going on in words before the
   first equation, and give the intuition for a step before its formal
   derivation. Deriving first and explaining afterwards is what makes a correct
@@ -21,43 +21,51 @@ serves that, and it constrains no fact.
 - **Name quantities, not symbols**, when writing prose, especially in the title
   and abstract ("the ground-state energy of the finite chain", not `E_0(N)`).
 
-## 2. Sections
+## 2. Follow the journal's requirements
 
-Each section is its own `\section`, in the order recorded in `research/plan.md`.
-Titles name scientific roles, never process steps, and never join two roles with
-"and".
+**The template decides the structure.** Each venue has its own required sections,
+front matter, abstract rules, page budget and reference style, and `templates.md`
+§1 says which template each domain uses. Take the spine from the journal, not
+from this bundle: nothing here is a required section list.
 
-| | first | then | then | end with |
-|---|---|---|---|---|
-| **physics** | Introduction | Model (setting, conventions, conventions fixed once) | Method / derivation | Results · Discussion · Limitations · Conclusion · appendices |
-| **mathematics** | Introduction | Preliminaries (only what is used) | Main result and proof (then sharpness) | Related work · Conclusion · appendices |
-| **life sciences / other** | Introduction | the system and what was measured | results with uncertainty | Discussion · Limitations · Conclusion |
+What this file carries instead are **cautions** — the things that go wrong in
+manuscripts of each kind, whatever order the venue puts them in.
 
-The **Introduction is always the first section**, on its own. A manuscript whose
-first section is a model, a setting, or a notation list has no introduction and
-is a defect. A short paper may fold Limitations into the Discussion as a prose
-subsection; it may not drop it.
+*Physics and computational papers.* A referee reconstructs the work and then
+checks it. Give the model completely enough to be re-derived — degrees of
+freedom, state or ensemble, observables, units, normalization, boundary
+conditions, parameter regime — then the derivation, the result with its regime of
+validity, and the physical interpretation. The dominant defect is a thin middle:
+model, jump, result. A draft that reports a result without letting the reader
+rebuild the model is rejected regardless of correctness.
 
-- *Introduction*: the phenomenon or problem, why it is interesting, what was
-  known, what this paper adds, and an informal statement of the main result. A
-  reader who stops here should be able to state the claim correctly.
-- *Model / problem statement*: complete enough to re-derive — degrees of
-  freedom, state or ensemble, observables, units, normalization, boundary
-  conditions, parameter regime, and every approximation with what it excludes.
-- *Method / derivation*: followable steps, each approximation marked where it
-  enters and with its expected error.
-- *Results*: what was found, with uncertainty or exactness and the coverage
-  actually reached.
-- *Discussion*: the mechanism — why this coupling produces this scaling, which
-  competing effects balance, what would change the answer qualitatively. A
-  discussion that restates the results is the most common reason a correct
-  paper reads as weak.
-- *Limitations*: prose. Each limitation is a sentence saying what the evidence
-  does not establish and what that prevents. State the boundary as a fact about
-  scope ("the argument uses finiteness in Step 3; the infinite case is open"),
-  never as an apology.
-- *Conclusion*: what is now established, at what scope, and what is honestly
-  open.
+*Mathematics papers.* A referee asks three questions in order: what exactly is
+claimed (with quantifiers and hypotheses), why is it true, and where does it sit.
+Most weak drafts fail the second by compressing the argument and the third by
+omitting positioning. A lemma the main result depends on is **proved, not
+announced**: the objects it quantifies over are defined, the construction it
+relies on is laid out, each step justified. Naming a mechanism and stating its
+conclusion is an assertion, and a referee will read the main theorem as
+conditional on it. If it cannot be brought to that standard, weaken the result to
+what is established and say so.
+
+*Life-sciences and machine-learning papers.* The venue's own structure rules
+dominate, and both expect the protocol or experimental design to be stated
+before results, uncertainty to be quantified, and the comparison to a stated
+baseline. Follow the author guide rather than a generic skeleton.
+
+Across all of them: put the difficulty where it is. Never hide a hard step inside
+"it is easy to see" — say why a routine step is routine, and give a crux its own
+lemma or subsection.
+
+**Limitations.** State the boundaries of what you established, somewhere the
+reader will meet them — usually at the end of the discussion, and it can be a
+short paragraph or a subsection. A separate `Limitations` section is **not**
+required, and a section that merely lists a few hedges is worse than two honest
+sentences in the discussion. Each limitation says what the evidence does not
+establish and what that prevents. State the boundary as a fact about scope ("the
+argument uses finiteness in Step 3; the infinite case is open"), never as an
+apology.
 
 ## 3. Body and appendix
 
@@ -68,90 +76,82 @@ the moment it is needed.
 
 **The body keeps:** the question; the model or problem statement; the strategy
 and the load-bearing steps of the argument; the result with its scope; the
-interpretation; the limitations. **Everything else moves out.**
+interpretation; the boundaries. **Everything else moves out.**
 
 **An appendix carries:** full derivations whose results the body quotes; lengthy
-but routine algebra and case analyses; parameter, convergence, and coverage
+but routine algebra and case analyses; parameter, convergence and coverage
 tables; numerical protocols; long verification output; imported statements used
-once; and the worked detail behind a step whose *idea* the body already
-explains.
+once; and the worked detail behind a step whose *idea* the body already explains.
 
 - Move detail, never delete it. These venues have no page limit: an overloaded
   body is a relocation problem, not a cutting problem.
 - Every appendix has a title naming its content, and the body refers to it where
   it is needed ("the full case analysis is in Appendix B").
 - An appendix never conceals a missing central argument. If the load-bearing
-  step lives only in an appendix, the body's argument is incomplete and the
-  paper reads as an announcement.
+  step lives only in an appendix, the body's argument is incomplete.
 - The test for a paragraph: does the reader need it to **follow** the argument,
   or only to **check** it? Following stays in the body; checking goes to an
-  appendix. A body of 12–20 pages is normal for one result; if the draft runs
-  much longer, the excess is almost always detail that belongs in appendices.
+  appendix.
+- `\appendix` must actually be emitted before those files are `\input`
+  (`templates.md` §6, `production.md` §8); a delivered round shipped four
+  appendix files that printed as numbered body sections.
 
 ## 4. Depth calibration
 
 The dominant defect is a thin middle: statement, jump, result.
 
-For a physics or computational result, a complete treatment normally contains
-the model statement displayed with every symbol defined and units given; the
+For a physics or computational result, a complete treatment normally contains the
+model statement displayed with every symbol defined and units given; the
 assumptions and their physical meaning, not just their names; the derivation in
-steps; **limit checks presented to the reader** rather than merely performed
-(non-interacting, high/low temperature, single site, fully aligned, known
-exact cases); dimensional analysis wherever a prefactor or scaling is claimed;
-the interpretation; and the regime of validity with its failure modes.
+steps with each approximation marked where it enters and its expected error;
+**limit checks presented to the reader** rather than merely performed
+(non-interacting, high/low temperature, single site, fully aligned, known exact
+cases); dimensional analysis wherever a prefactor or scaling is claimed; the
+mechanism, not a restatement of the formula in words; and the regime of validity
+with its failure modes.
 
-For a mathematical result: the statement displayed with hypotheses spelled out;
-a **proof-strategy paragraph** saying what the obstacle is and which idea
-removes it — the highest-value paragraph in most papers and the one usually
-missing; the proof in justified steps; a worked instance small enough to check
-by hand; sharpness — is each hypothesis needed, what breaks without it; and the
-scope the result does not reach.
-
-A lemma the main result depends on is **proved, not announced**: the objects it
-quantifies over are defined, the construction it relies on is laid out, each
-step is justified. Naming a mechanism and stating its conclusion is an
-assertion, and a referee will read the main theorem as conditional on it. If it
-cannot be brought to that standard, weaken the result to what is established and
-say so.
-
-Put the difficulty where it is. Never hide the hard step inside "it is easy to
-see": say why a routine step is routine, and give a crux its own lemma.
+For a mathematical result: the statement displayed with hypotheses spelled out; a
+**proof-strategy paragraph** saying what the obstacle is and which idea removes
+it — the highest-value paragraph in most papers and the one usually missing; the
+proof in justified steps; a worked instance small enough to check by hand; and
+sharpness — is each hypothesis needed, what breaks without it.
 
 ## 5. Definitions and notation
 
-- Every symbol, acronym, coined term, and named construct is defined before its
+- Every symbol, acronym, coined term and named construct is defined before its
   first argumentative use, including in the abstract.
 - One concept keeps one name, one meaning, one notation — across statements,
-  proofs, examples, figures, captions, and appendices. Never reuse a symbol for
+  proofs, examples, figures, captions and appendices. Never reuse a symbol for
   an incompatible type.
 - Fix the conventions that can change the result — empty objects, loops and
   parallel edges, orientation, composition order, duals, normalization,
   coefficient field, index origin, signs, units, Fourier conventions — once, in
-  the model or preliminaries section, and never change them silently.
+  the model or preliminaries, and never change them silently.
 - Notation is a budget: reuse standard notation, and never introduce a symbol
   the paper does not use.
-- Distinguish universal, existential, conditional, finite, asymptotic, and
+- Distinguish universal, existential, conditional, finite, asymptotic and
   conjectural claims visibly. A finite-size or finite-coupling result is not a
   general one; every extrapolation is stated as an assumption with its
   justification.
 - Write formulas the way they are read. Use `\eqref` rather than "equation 3";
   use `\text{}` for words inside math; take `\mathbb` only for number sets;
-  check that every `\ref` resolves and that the accent sits on the right letter.
+  check that every `\ref` resolves and that accents sit on the right letter.
 
 ## 6. The abstract
 
-Continuous prose, written last from the finished paper. It states the question,
-the approach, the principal result with its scope, and what it does not claim —
-nothing else.
+Continuous prose, written last from the finished paper, within the length the
+venue sets. It states the question, the approach, the principal result with its
+scope, and what it does not claim — nothing else.
 
 - No formulas. Name the quantity and its role; the identity belongs in the body.
 - At most two or three numbers, and only where a number carries a claim.
-  Tolerances, grid sizes, fitted coefficients, and residuals belong in a table.
+  Tolerances, grid sizes, fitted coefficients and residuals belong in a table.
 - Keep the actual quantifiers of the result: an abstract that softens or
   strengthens them is a correctness defect, not a style choice.
 - No inventory, no counts of checks, no process, no provenance disclaimer.
+  Nature-family venues require a single paragraph with no citations.
 
-## 7. Related work
+## 7. Related work and citations
 
 Good related work answers three questions about the closest prior results: what
 they established, under which hypotheses, and exactly how this paper differs —
@@ -159,11 +159,12 @@ weaker hypotheses, larger class, shorter proof, a refutation, or an independent
 route. A list of citations does not do this, and neither does a paragraph of
 author names collected at the start.
 
-Cite where the claim is. A citation attached to a sentence it does not support
-is worse than no citation; if you did not read the passage, do not characterize
-the paper. If a key prior work is inaccessible, record it as unresolved.
+Cite where the claim is. A citation attached to a sentence it does not support is
+worse than no citation; if you did not read the content, you may use the entry
+for an attribution or historical statement only (`constitution.md` §3). Never
+characterize a paper you have not read, and do not manufacture a contrast.
 
-## 8. Figures, tables, and numbers
+## 8. Figures, tables and numbers
 
 - A display item earns its place by carrying information prose cannot. State in
   the caption what the reader should see: axes with units, what varies, what
@@ -172,8 +173,8 @@ the paper. If a key prior work is inaccessible, record it as unresolved.
 - Captions are self-contained, end in a period, and contain no script names,
   paths, hashes, run identifiers, or build diagnostics.
 - Tables use `booktabs` rules — no `\hline`, no vertical rules. Figures are
-  vector (PDF) with legible text at print scale and distinguishable lines
-  without colour.
+  vector with legible text at print scale and distinguishable lines without
+  colour.
 - Running prose is the worst place for numeric detail. Tabulate anything
   enumerable; keep in prose only the values a sentence turns on, each with its
   units, precision, and what produced it. A bare number is incomplete.
@@ -183,15 +184,15 @@ the paper. If a key prior work is inaccessible, record it as unresolved.
 ## 9. Language
 
 Write in the scholarly register of the venue: plain, specific, and confident
-about what the evidence shows. Prefer the active voice with a real subject — if
-a sentence's subject cannot perform its verb, rewrite it.
+about what the evidence shows. Prefer the active voice with a real subject — if a
+sentence's subject cannot perform its verb, rewrite it.
 
 - Cut borrowed-register filler: *very*, *a lot of*, *obviously*, *huge
   improvement*, *it is important to note*, *in order to*, *plays a key role*.
 - Define an abbreviation at first use, once, and use it consistently after.
 - Keep tense stable: what was done, in the past; what the paper shows, in the
   present.
-- Reserve *prove*, *guarantee*, *verify*, *show*, and *demonstrate* for what the
+- Reserve *prove*, *guarantee*, *verify*, *show* and *demonstrate* for what the
   evidence actually reaches (`constitution.md` §2).
 - Match the noun: *validate* needs data, *prove* needs a proof, *suggest*
   matches a trend.
@@ -216,22 +217,27 @@ a citation, or the structure of the argument.
 ## 10. What never belongs in the manuscript
 
 GeWu's internal vocabulary, platform and host names, repository and file names,
-paths, hashes, run identifiers, model and agent names, and row counts. The
-author line carries a person's name, not a database label. The full list and the
-replacements are in `constitution.md` §4; the one permitted exception is the
-production note in §7 there.
+paths, hashes, run identifiers, and any agent, model, provider or process word.
+The source repository appears in exactly one way: as a citation in the
+bibliography. The author line carries the authorship record's display form, not
+a database label invented by you. The full list and the replacements are in
+`constitution.md` §4 and §7.
 
 ## 11. Self-check before assembly
 
 Read the draft as a reader, then answer:
 
-- Can a reader who has never seen the sources state the main claim after the
-  introduction, and follow the argument to it?
-- Is every symbol, term, and acronym defined before use, once, with one meaning?
+- Does the manuscript meet the journal's requirements — sections, front matter,
+  abstract, reference style, length?
+- Can a reader who has never seen the sources state the main claim early, and
+  follow the argument to it?
+- Is every symbol, term and acronym defined before use, once, with one meaning?
 - Does every claim's verb match its evidence, and does every number carry units,
-  precision, and origin?
-- Does the discussion explain a mechanism rather than restate the results?
-- Are the limitations specific, in prose, and honest about what they prevent?
-- Is the abstract free of formulas, and faithful to the quantifiers of the
-  result?
+  precision and origin?
+- Do the boundaries appear where the reader will meet them, stated as facts
+  about scope?
+- Is the abstract faithful to the quantifiers of the result and free of
+  formulas, process and inventory?
+- Is the detail in the appendices rather than the body, with the body pointing
+  to it?
 - Is any sentence here only because it sounds good?

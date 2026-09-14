@@ -1,0 +1,32 @@
+{
+  "id": "iclr2026",
+  "venue_key": "iclr",
+  "year": 2026,
+  "adapted_at": "2026-09-03T11:50:29.404Z",
+  "source": {
+    "kind": "official-archive",
+    "archiveUrl": "https://github.com/ICLR/Master-Template/raw/a28d335b0d46a3c39b205704a65faf41c9748433/iclr2026.zip",
+    "sha256": "b6d63b29992e153f804bb6d170c57db156c011b5bedf96a9f31d58813b909acf",
+    "sourceRoot": "iclr2026",
+    "entrypoint": "iclr2026_conference.tex"
+  },
+  "source_url": "https://github.com/ICLR/Master-Template/raw/a28d335b0d46a3c39b205704a65faf41c9748433/iclr2026.zip",
+  "author_instructions_url": "https://iclr.cc/Conferences/2026/AuthorGuide",
+  "source_entrypoint": "iclr2026_conference.tex",
+  "provenance": "ICLR official Master-Template commit a28d335b0d46a3c39b205704a65faf41c9748433, verified 2026-09-03.",
+  "verified_at": "2026-09-03",
+  "license_status": "download-only",
+  "build": {
+    "engine": "pdflatex",
+    "bibliography": "bibtex"
+  },
+  "constraints": {
+    "anonymity": "double-blind",
+    "mainTextPages": 9,
+    "referencesCountTowardLimit": false,
+    "appendix": "main-pdf",
+    "ethics": "conditional",
+    "artifacts": "optional",
+    "notes": []
+  }
+}

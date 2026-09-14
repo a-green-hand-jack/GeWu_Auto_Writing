@@ -1,0 +1,294 @@
+#!/usr/bin/env bash
+# gewu-lit — literature retrieval for the paper pipeline, through LKM.
+#
+# Why: publisher and arXiv pages answer 429/403 from the compute host, so earlier
+# rounds stalled at bibliographic metadata and could not meet the rule that at
+# least half of the references be content-level verified. LKM (Bohrium's Large
+# Knowledge Model) answers with papers, claims, reasoning chains, citation
+# graphs and parsed full text.
+#
+# Billable: LKM calls are metered and require confirmation, which this wrapper
+# supplies with --yes. Every call is counted in the run's
+# research/checks/literature_calls.log and the run refuses to exceed
+# GEWU_LIT_BUDGET calls (default 80) without --force. `verify` uses public
+# resolution APIs and is not billed.
+#
+# Usage:
+#   gewu-lit search "<query>" [--top-k N] [--scopes abstract,claim]
+#   gewu-lit reasoning --query "<question>" [--top-k N]
+#   gewu-lit graph --paper-id <id>
+#   gewu-lit claim <claim-id>
+#   gewu-lit parse-local <file.pdf>          # questions/conclusions/reasoning
+#   gewu-lit text <file.pdf>                 # Uni-Parser layout/text/tables/formulas
+#   gewu-lit verify <references.bib>         # resolve every DOI/arXiv, compare title
+#   gewu-lit replay <cached.json> [search|reasoning|graph|other]
+#   gewu-lit usage
+#
+# Output: a compact human summary on stdout, and the raw JSON cached under
+# research/checks/literature_raw/ when run from inside a workspace.
+set -uo pipefail
+
+export PATH="/home/linuxbrew/.linuxbrew/bin:$PATH"
+BOHR="${BOHR:-bohr}"
+BUDGET="${GEWU_LIT_BUDGET:-80}"
+TIMEOUT="${GEWU_LIT_TIMEOUT:-180}"
+
+# The workspace is wherever research/ lives; never write outside it.
+WS=""
+d="$PWD"
+while [ "$d" != "/" ]; do
+  [ -d "$d/research" ] && { WS="$d"; break; }
+  d="$(dirname "$d")"
+done
+if [ -z "$WS" ]; then
+  WS="$PWD"; echo "gewu-lit: no research/ directory found; caching under $PWD/.gewu-lit" >&2
+  RAW_OVERRIDE=1
+fi
+RAW="${RAW_OVERRIDE:+$WS/.gewu-lit/raw}${RAW_OVERRIDE:-$WS/research/checks/literature_raw}"
+CALLS="${RAW_OVERRIDE:+$WS/.gewu-lit/calls.log}${RAW_OVERRIDE:-$WS/research/checks/literature_calls.log}"
+
+die() { echo "gewu-lit: $*" >&2; exit 2; }
+need_bohr() { command -v "$BOHR" >/dev/null 2>&1 || die "bohr CLI not on PATH (looked for '$BOHR')"; }
+
+count_calls() { [ -n "$CALLS" ] && [ -f "$CALLS" ] && wc -l < "$CALLS" || echo 0; }
+
+# Billable call: counts against the budget, caches the raw response.
+billable() {   # billable <label> <args...>  -> prints the path of the cached JSON
+  local label="$1"; shift
+  local n; n="$(count_calls)"
+  if [ "$n" -ge "$BUDGET" ] && [ "${FORCE:-0}" != "1" ]; then
+    die "call budget reached ($n/$BUDGET). Re-run with --force if the extra spend is intended, or raise GEWU_LIT_BUDGET."
+  fi
+  mkdir -p "$(dirname "$CALLS")"
+  echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) $label" >> "$CALLS"
+  local out
+  out="$(timeout "$TIMEOUT" "$BOHR" "$@" --yes -o json 2>&1)" || {
+    printf '%s\n' "$out" | head -20 >&2
+    die "bohr $* failed"
+  }
+  mkdir -p "$RAW"
+  local slug f
+  slug="$(printf '%s' "$label" | tr -c 'a-zA-Z0-9._-' '-')"
+  f="$RAW/$slug.$(date -u +%Y%m%dT%H%M%SZ).json"
+  printf '%s\n' "$out" > "$f"
+  printf '%s\n' "$f"
+}
+
+# Summarise LKM JSON into a readable list, using python for the parsing.
+summarize() {  # summarize <json-file> <mode>
+  python3 - "$1" "$2" <<'PY'
+import json, sys
+raw = open(sys.argv[1], errors="ignore").read()
+mode = sys.argv[2]
+try:
+    d = json.loads(raw)
+except Exception:
+    print(raw[:2000]); sys.exit(0)
+if not d.get("ok", True):
+    print("LKM error:", json.dumps(d.get("error", {}))[:400]); sys.exit(0)
+data = d.get("data", {})
+def show(p):
+    pid = p.get("id") or p.get("paper_id") or ""
+    t = p.get("en_title") or p.get("title") or p.get("zh_title") or ""
+    au = (p.get("authors") or "")[:70]
+    yr = (p.get("cover_date_start") or p.get("publication_date") or "")[:10]
+    doi = p.get("doi") or ""
+    ab = (p.get("en_abstract") or p.get("abstract") or "").replace("\n", " ")
+    print(f"- {t}")
+    print(f"    id={pid}  doi={doi}  {yr}  {au}")
+    if ab:
+        print(f"    abstract: {ab[:280]}{'...' if len(ab) > 280 else ''}")
+if mode == "search":
+    papers = data.get("papers") or {}
+    if isinstance(papers, dict):
+        for p in papers.values(): show(p)
+    else:
+        for p in papers: show(p)
+    for key in ("claims", "premises", "conclusions", "questions", "reasoning_chains"):
+        items = data.get(key) or []
+        if items:
+            print(f"\n{key}:")
+            for it in (items if isinstance(items, list) else items.values()):
+                if isinstance(it, dict):
+                    txt = it.get("text") or it.get("content") or it.get("claim") or ""
+                    print(f"  - [{it.get('id','')}] {str(txt)[:220]}")
+elif mode == "reasoning":
+    chains = data.get("reasoning_chains") or data.get("chains") or data.get("results") or []
+    if isinstance(chains, dict): chains = list(chains.values())
+    for c in chains[:15]:
+        if not isinstance(c, dict): print("-", str(c)[:200]); continue
+        print(f"- chain {c.get('id','')} score={c.get('score','')}")
+        for step in (c.get("steps") or c.get("claims") or [])[:6]:
+            if isinstance(step, dict):
+                print(f"    {str(step.get('text') or step.get('content') or '')[:180]}")
+elif mode == "graph":
+    print(json.dumps(data, ensure_ascii=False)[:3000])
+else:
+    print(json.dumps(data, ensure_ascii=False)[:3000])
+PY
+}
+
+cmd_search() {
+  local q="$1"; shift || true
+  local topk=10 scopes="" force=""
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      --top-k) topk="$2"; shift 2 ;;
+      --scopes) scopes="$2"; shift 2 ;;
+      --force) force=1; shift ;;
+      *) shift ;;
+    esac
+  done
+  [ "$topk" -gt 20 ] && topk=20      # cap the per-call spend
+  local extra=()
+  [ -n "$scopes" ] && extra=(--scopes "$scopes")
+  need_bohr
+  local f
+  f="$(FORCE="$force" billable "search-${q:0:40}" lkm search "$q" --top-k "$topk" "${extra[@]}")" || exit 2
+  echo "cached: $f" >&2
+  summarize "$f" search
+}
+
+cmd_reasoning() {
+  local q="" topk=10
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      --query) q="$2"; shift 2 ;;
+      --top-k) topk="$2"; shift 2 ;;
+      *) shift ;;
+    esac
+  done
+  [ -z "$q" ] && die "reasoning needs --query"
+  [ "$topk" -gt 20 ] && topk=20
+  need_bohr
+  local f; f="$(billable "reasoning-${q:0:40}" lkm reasoning --query "$q" --top-k "$topk")" || exit 2
+  echo "cached: $f" >&2
+  summarize "$f" reasoning
+}
+
+cmd_graph() {
+  local id=""
+  while [ $# -gt 0 ]; do case "$1" in --paper-id) id="$2"; shift 2 ;; *) id="$1"; shift ;; esac; done
+  [ -z "$id" ] && die "graph needs --paper-id"
+  need_bohr
+  local f; f="$(billable "graph-$id" lkm graph --paper-id "$id")" || exit 2
+  summarize "$f" graph
+}
+
+cmd_claim() {
+  local id="${1:-}"; [ -z "$id" ] && die "claim needs an id"
+  need_bohr
+  local f; f="$(billable "claim-$id" lkm claim --claim-id "$id")" || exit 2
+  summarize "$f" other
+}
+
+cmd_parse_local() {
+  local f="${1:-}"; [ -f "$f" ] || die "parse-local needs an existing PDF"
+  need_bohr
+  local raw; raw="$(billable "parse-$(basename "$f")" lkm parse submit --file "$f")" || exit 2
+  local task
+  task="$(python3 -c 'import json,sys;d=json.load(open(sys.argv[1]));print(d.get("data",{}).get("task_id") or d.get("data",{}).get("id") or "")' "$raw" 2>/dev/null)"
+  echo "submitted: task=$task  cached: $raw"
+  [ -n "$task" ] && timeout "$TIMEOUT" "$BOHR" lkm parse wait --task-id "$task" --yes -o json 2>&1 | head -c 3000
+}
+
+cmd_text() {
+  local f="${1:-}"; [ -f "$f" ] || die "text needs an existing PDF"
+  need_bohr
+  local raw; raw="$(billable "pdfparse-$(basename "$f")" pdf parse --file "$f" --sync)" || exit 2
+  summarize "$raw" other
+}
+
+cmd_verify() {
+  local bib="${1:-paper/references.bib}"
+  [ -f "$bib" ] || die "no such bibliography: $bib"
+  python3 - "$bib" "$RAW" <<'PY'
+import json, os, re, sys, time, urllib.parse, urllib.request
+bib, raw = sys.argv[1], (sys.argv[2] if len(sys.argv) > 2 else "")
+txt = open(bib, errors="ignore").read()
+ents = []
+for chunk in re.split(r"(?m)^@", txt)[1:]:
+    key = re.match(r"\w+\{([^,]+),", chunk)
+    if not key: continue
+    def field(name):
+        m = re.search(r'(?is)\b' + name + r'\s*=\s*[{"](.+?)[}"]\s*,?\s*\n', chunk)
+        return re.sub(r"\s+", " ", m.group(1)).strip() if m else ""
+    ents.append(dict(key=key.group(1).strip(), title=field("title"),
+                     doi=field("doi"), eprint=field("eprint")))
+def norm(s): return re.sub(r"[^a-z0-9 ]", " ", s.lower())
+def overlap(a, b):
+    ta, tb = set(norm(a).split()), set(norm(b).split())
+    return len(ta & tb) / max(1, len(ta)) if ta else 0
+def get(url, to=20):
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": "gewu-lit/1.0 (mailto:research@example.org)"})
+        return urllib.request.urlopen(req, timeout=to).read().decode("utf8", "ignore")
+    except Exception as e:
+        return "ERR " + str(e)
+ok = bad = noid = 0
+problems = []
+cache = {}
+for e in ents:
+    if e["doi"]:
+        d = e["doi"].strip().rstrip(".")
+        j = get("https://api.crossref.org/works/" + urllib.parse.quote(d))
+        if j.startswith("ERR"):
+            bad += 1; problems.append(("unresolved DOI", e["key"], d, j[:60])); time.sleep(1); continue
+        try: t = json.loads(j)["message"].get("title", [""])[0]
+        except Exception:
+            bad += 1; problems.append(("bad Crossref payload", e["key"], d, "")); continue
+        s = overlap(e["title"], t)
+        if s >= 0.4: ok += 1
+        else: bad += 1; problems.append(("title mismatch", e["key"], d, f"bib='{e['title'][:50]}' registry='{t[:50]}'"))
+        time.sleep(0.5)
+    elif e["eprint"]:
+        a = e["eprint"].strip()
+        j = get("http://export.arxiv.org/api/query?id_list=" + urllib.parse.quote(a))
+        if j.startswith("ERR") or "<entry>" not in j:
+            bad += 1; problems.append(("unresolved arXiv id (or network block)", e["key"], a, j[:60]))
+        else:
+            m = re.search(r"<title>(.*?)</title>", j, re.S)
+            t = re.sub(r"\s+", " ", m.group(1)).strip() if m else ""
+            s = overlap(e["title"], t)
+            if s >= 0.4: ok += 1
+            else: bad += 1; problems.append(("title mismatch", e["key"], a, f"bib='{e['title'][:50]}' arxiv='{t[:50]}'"))
+        time.sleep(1.5)
+    else:
+        noid += 1
+print(f"entries={len(ents)} resolved={ok} problematic={bad} no-identifier={noid}")
+for p in problems: print("  -", " | ".join(str(x) for x in p))
+if raw:
+    os.makedirs(raw, exist_ok=True)
+    json.dump(dict(entries=len(ents), resolved=ok, problematic=bad, no_identifier=noid,
+                   problems=[list(map(str, p)) for p in problems]),
+              open(os.path.join(raw, "verify.json"), "w"), indent=1)
+PY
+}
+
+cmd_usage() {
+  echo "budget: $BUDGET billable calls per run"
+  echo "used:   $(count_calls)"
+  [ -n "$CALLS" ] && [ -f "$CALLS" ] && { echo "log:    $CALLS"; tail -5 "$CALLS"; }
+  [ -z "$WS" ] && echo "(no workspace detected: LKM responses were not cached)"
+}
+
+# --force may appear anywhere; strip it before dispatch.
+ARGS=()
+for a in "$@"; do [ "$a" = "--force" ] && FORCE=1 || ARGS+=("$a"); done
+set -- ${ARGS[@]+"${ARGS[@]}"}
+CMD="${1:-}"; shift || true
+case "$CMD" in
+  search)    [ $# -ge 1 ] || die "search needs a query"; cmd_search "$@" ;;
+  reasoning) cmd_reasoning "$@" ;;
+  graph)     cmd_graph "$@" ;;
+  claim)     cmd_claim "$@" ;;
+  parse-local) cmd_parse_local "$@" ;;
+  text)      cmd_text "$@" ;;
+  verify)    cmd_verify "$@" ;;
+  replay)    # replay <cached.json> [search|reasoning|graph|other] -- no billing
+             [ $# -ge 1 ] || die "replay needs a cached JSON path"
+             summarize "$1" "${2:-search}" ;;
+  usage)     cmd_usage ;;
+  ""|-h|--help|help) sed -n '2,30p' "$0" | sed 's/^# \{0,1\}//' ;;
+  *) die "unknown command '$CMD' (try: gewu-lit help)" ;;
+esac
