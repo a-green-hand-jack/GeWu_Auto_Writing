@@ -18,7 +18,7 @@
 #            [--skill PATH] [--thinking high]
 set -uo pipefail
 
-TASK_DIR=""; MODEL="deepseek-v4.1-flash"; PROVIDER="gravarc-router"; TIMEOUT=7200
+TASK_DIR=""; MODEL="glm-5.3"; PROVIDER="gravarc-router"; TIMEOUT=7200   # GLM is the writing model; deepseek is retired
 STALL=1200; RETRIES=1; THINKING=high; NO_PROGRESS=3600
 SKILL="${GEWU_SKILL:-$HOME/GeWu_Auto_Writing/.agents/skills/paperwriter-pi/SKILL.md}"
 
@@ -160,8 +160,23 @@ while : ; do
       reason="exit $RC"
       [ -f "$TASK_DIR/stall-detected" ] && reason="provider stall"
       [ -f "$TASK_DIR/no-progress-detected" ] && reason="no progress for over ${NO_PROGRESS}s"
-      echo "gewu-run: $NAME attempt $attempt failed ($reason); retrying in 30s" >&2
-      sleep 30
+      # Escalating backoff. A flat 30s once burned all four attempts inside a
+      # transient router outage that lasted under two minutes, and a whole
+      # 30-task batch died with zero manuscripts for a provider fault.
+      case "$attempt" in
+        1) BACKOFF=60 ;;
+        2) BACKOFF=180 ;;
+        *) BACKOFF=420 ;;
+      esac
+      # A log of a few hundred bytes means the attempt died before doing any
+      # work at all: an infrastructure fault, not a hard task. Back off further.
+      LOG="$TASK_DIR/run.log.attempt${attempt}"
+      if [ -f "$LOG" ] && [ "$(wc -c < "$LOG")" -lt 400 ]; then
+        BACKOFF=$((BACKOFF * 2))
+        reason="$reason; no work done, treating as provider fault"
+      fi
+      echo "gewu-run: $NAME attempt $attempt failed ($reason); retrying in ${BACKOFF}s" >&2
+      sleep "$BACKOFF"
       continue
     fi
   fi
