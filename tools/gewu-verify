@@ -19,11 +19,17 @@ import argparse, glob, json, os, re, subprocess, sys
 
 VOCAB = re.compile(
     r"Solution[ _-]?[0-9]+|top[ _-]?30|\bfunnel\b|black[- ]?box|evidence tier|"
-    r"verification tier|source[- ]?bound|platform rank", re.I)
+    r"verification tier|source-bound\b|platform rank", re.I)   # "source bound" is ordinary English
 PROCESS = re.compile(
     r"\b(harness|provider|prompt|run[-_ ]?id|commit|hash|sandbox|"
     r"pi harness|gravarc|glm-5|deepseek|openai|anthropic)\b", re.I)
-PATHS = re.compile(r"/home/|/Users/|[A-Za-z]:\\\\|\.\./")
+# A drive letter must be followed by a path character, and a single
+# backslash: the first pattern wanted two, which matched the LaTeX line
+# break in \title{... :\\} and reported two clean papers as leaking a
+# Windows path.
+# No drive-letter pattern: in valid LaTeX a:\cmd is a backslash command, and
+# the earlier pattern reported eight clean papers as leaking a Windows path.
+PATHS = re.compile(r"/home/|/Users/|\.\./")
 SCOPE_OK = {"full-text", "abstract", "metadata-only"}
 SCOPE_META = re.compile(r"(?i)metadata|title-level|content-known|well-known|canonical|bibliographic")
 SCOPE_FULL = re.compile(r"(?i)full[- ]?text|full text|read in full")
@@ -91,7 +97,10 @@ def entries(ws):
             if mm:
                 ordered.append((re.sub(r"\\label\{[^}]*\}", "", mm.group(1)).strip(), fp))
             elif not backmatter.search(os.path.basename(fp)) and not backmatter.search(f):
-                nosection.append(f)
+                # A file that opens with \subsection is a container of subsections
+                # (the Nature "Methods", for one), not a section that lost its heading.
+                if not re.search(r"\\subsection\*?\{", read(fp)):
+                    nosection.append(f)
         else:
             ordered.append((m.group(2), ent))
     if missing: issue.append("missing input: " + ", ".join(missing))
@@ -138,7 +147,16 @@ def reference_region(ent, ws):
     biblio = t.find("\\bibliography{")
     app = t.find("\\appendix")
     fb = "\\FloatBarrier" in t; cp = "\\clearpage" in t
-    out.append(("floatbarrier+clearpage", fb and cp, f"FloatBarrier={fb} clearpage={cp}"))
+    venue0 = venue_of(t)
+    # \FloatBarrier is mandated for PRX and amsart, where placeins is loaded;
+    # the Nature and ICLR classes do not carry it, so requiring it there would
+    # be a house rule the venue never asked for. The reference list still needs
+    # its own page in every venue.
+    fb, cp = ("\\FloatBarrier" in t), ("\\clearpage" in t)
+    if venue_of(t) in ("prx", "amsart"):
+        out.append(("floatbarrier+clearpage", fb and cp, f"FloatBarrier={fb} clearpage={cp}"))
+    else:
+        out.append(("reference page break", cp or fb, f"({venue_of(t)}) clearpage={cp} FloatBarrier={fb}"))
     appx = glob.glob(os.path.join(ws, "paper", "sections", "*appendix*"))
     if appx and app < 0:
         out.append(("appendix marker", False,
@@ -200,6 +218,8 @@ def literature(ws):
     bad_scope = []
     for r in rows:
         cells = [c.strip() for c in r.strip().strip("|").split("|")]
+        # The table header is not a reference.
+        if [c.lower() for c in cells][:1] and cells[0].lower() in ("key","ref","reference","bibkey","citation"): continue
         if len(cells) < 4: continue
         scope = " ".join(cells[2:4]) if len(cells) >= 5 else " ".join(cells[1:])
         if SCOPE_FULL.search(scope): ft += 1
@@ -261,6 +281,7 @@ def authors(ws, record):
         # value literally starting with "and".
         for v in re.split(r";|,|\\and\b|\band\b", text):
             v = plain(v)
+            v = re.sub(r"(?i)^(together\s+with|with|and|plus|as well as)\s+", "", v).strip()
             if v and v.lower() != "and": vals.append(v)
     if not record:
         return vals, "no AUTHORSHIP.json to compare"
@@ -297,6 +318,9 @@ def pdf_facts(pdf):
         t = doc[i].get_textpage().get_text_range()
         if re.search(r"(?m)^\s*(APPENDIX|Appendix)\s+[A-Z]", t):
             app_start = i + 1; break
+    # Only PRX and amsart print an "Appendix A" heading this way. In the Nature and
+    # ICLR formats the back matter is titled differently, so a zero here would be a
+    # statement about the detector, not about the paper.
     return {"pages": pages, "appendix_starts": app_start,
             "body_pages": (app_start - 1) if app_start else pages,
             "appendix_pages": (pages - app_start + 1) if app_start else 0}
