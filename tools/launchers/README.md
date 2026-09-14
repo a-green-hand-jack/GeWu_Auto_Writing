@@ -38,3 +38,20 @@ was for and how a delivered defect was addressed.
 
 Round 6 (`round6-slim`) and round 6b are superseded; their run directories carry
 `SUPERSEDED.md` / `STOPPED.md`.
+
+## Retired requirements
+
+**The production note is gone.** Until round 8 every launcher told the agent to
+add a "Production and authorship" subsection before the appendices, disclosing
+the source repository, the collaborating agents, the harness, the model and the
+checks performed. That was wrong on two counts: it required a field no journal
+asks for, and it put tooling and platform names into the manuscript.
+
+What replaced it: the source repository is cited **as an ordinary reference** in
+the bibliography — one entry per repository, several where a paper derives from
+several — and no harness, model, provider, host, agent, prompt, run or check word
+appears anywhere in the manuscript. The requirement is stated in
+`references/constitution.md` §7 and the wording the agent receives is in each
+launcher's `Attribution` block. The launchers from rounds 4–8 have been updated
+in place; `git log -p` still shows what they used to say.
+

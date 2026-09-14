@@ -52,14 +52,13 @@ Attribution (new requirement, see references/knowledge/authorship.md):
 - set the author line from that record's authors_on_repo / repo_owner using the
   `display` form, and name the collaborating Scientific Authors as collaborators,
   with what they contributed when the record says so;
-- add ONE short production note before the appendices (acknowledgments, or an
-  unnumbered subsection "Production and authorship") stating the source Solution
-  and its authors, the collaborating agents, that the manuscript was drafted,
-  verified and typeset by an autonomous agent running the PaperWriter skill in
-  the Pi harness on the GeWu Matrixlab host, using deepseek-v4.1-flash served
-  through the GravArc Router, and which checks were performed and which were
-  blocked. That note is the ONLY place any harness, model or platform name may
-  appear — never in the title, abstract, body, captions or bibliography.
+- cite the source repository as an ordinary reference in the bibliography
+  (references/constitution.md section 7): author or owning account, repository
+  title, repository identifier or URL, year. One entry per repository; a paper
+  derived from several cites several.
+- that citation is the ONLY place the repository appears: no production note and
+  no harness, model, provider, host, agent, prompt, run or check word anywhere in
+  the manuscript.
 
 Prose shape (new requirement): write limitations and discussion as prose
 sentences, not as a bullet list. Each limitation must state what the evidence

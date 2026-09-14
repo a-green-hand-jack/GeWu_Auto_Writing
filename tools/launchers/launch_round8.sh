@@ -8,7 +8,8 @@
 #   skill        : SKILL.md + references/{constitution,production,templates,
 #                  writing,checks}.md, no domain or imported-skill files
 #   attribution  : author and collaboration display forms verbatim from
-#                  AUTHORSHIP.json (a whitelist) + one production note
+#                  AUTHORSHIP.json (a whitelist) + the source repository cited
+#                  as an ordinary reference; no production note
 #   process      : bounded verification inside research/checks/, stall and
 #                  no-progress watchdogs, retries
 # Skill, authorship record and runner are frozen into the run directory.
@@ -113,7 +114,7 @@ constitution and the production procedure; load templates.md when you route the
 template, assemble, or compile; writing.md when you plan and draft; checks.md after
 the draft compiles. Follow them rather than describing them.
 
-Attribution (see references/constitution.md section 7 and references/production.md section 5):
+Attribution (see references/constitution.md section 7, and references/production.md section 8 for where it goes):
 - read YOUR record in AUTHORSHIP.json above (match the slug);
 - copy the author and collaboration display forms VERBATIM from that record's
   authors_on_repo / repo_owner, and name the collaborating Scientific Authors as
@@ -122,13 +123,13 @@ Attribution (see references/constitution.md section 7 and references/production.
   GeWu's own -- are authoritative and go in exactly as given; do not translate,
   reorder, or replace them. Never invent an author, and never substitute a
   placeholder for a display form the record actually has;
-- add ONE short production note before the appendices (acknowledgments, or an
-  unnumbered subsection "Production and authorship") stating the source Solution
-  and its authors, the collaborating agents, that the manuscript was drafted,
-  verified and typeset by an autonomous agent running the PaperWriter skill in
-  the Pi harness on the GeWu Matrixlab host using glm-5.3 served through the
-  GravArc Router, and which checks were performed and which were blocked. That note is the ONLY place any harness, model or platform name may
-  appear — never in the title, abstract, body, captions or bibliography.
+- cite the source repository as an ordinary reference in the bibliography
+  (references/constitution.md section 7): author or owning account, repository
+  title, repository identifier or URL, year. One entry per repository; a paper
+  derived from several cites several.
+- that citation is the ONLY place the repository appears: no production note and
+  no harness, model, provider, host, agent, prompt, run or check word anywhere in
+  the manuscript.
 
 Section skeleton (checks.md section 1): the manuscript's
 first section must be an Introduction, as its own separate \section, always

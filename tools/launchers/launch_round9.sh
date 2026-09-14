@@ -14,7 +14,8 @@
 #   skill        : SKILL.md + references/{constitution,production,templates,
 #                  writing,checks}.md, no domain or imported-skill files
 #   attribution  : author and collaboration display forms verbatim from
-#                  AUTHORSHIP.json (a whitelist) + one production note
+#                  AUTHORSHIP.json (a whitelist) + the source repository cited
+#                  as an ordinary reference; no production note
 #   process      : bounded verification inside research/checks/, stall and
 #                  no-progress watchdogs, retries
 # Skill, authorship record and runner are frozen into the run directory.
@@ -140,7 +141,7 @@ constitution and the production procedure; load templates.md when you route the
 template, assemble, or compile; writing.md when you plan and draft; checks.md after
 the draft compiles. Follow them rather than describing them.
 
-Attribution (see references/constitution.md section 7 and references/production.md section 5):
+Attribution (see references/constitution.md section 7, and references/production.md section 8 for where it goes):
 - read YOUR record in AUTHORSHIP.json above (match the slug);
 - copy the author and collaboration display forms VERBATIM from that record's
   authors_on_repo / repo_owner, and name the collaborating Scientific Authors as
