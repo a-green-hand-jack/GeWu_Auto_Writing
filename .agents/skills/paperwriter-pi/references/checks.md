@@ -142,7 +142,12 @@ pdftoppm -png -r 110 paper/main.pdf /tmp/page    # or any renderer available
 - floats appear at or after the page that first references them, never after the
   bibliography;
 - figure text legible at print scale; captions self-contained;
-- no overfull box wider than a few points remains in `main.log`.
+- no overfull box wider than a few points remains in `main.log`;
+- no line consisting of a single character or a lone word after a display;
+- a paragraph's last line should fill roughly three quarters of the column — a
+  stub tail of one or two words is a defect, not a rounding error;
+- paragraphs are of varied length: a page of many very short paragraphs reads as
+  a list and needs merging into a real argument.
 
 Only claim a page-level observation after reading that page's image. If the
 model cannot read images or no renderer exists, record the visual gate as
