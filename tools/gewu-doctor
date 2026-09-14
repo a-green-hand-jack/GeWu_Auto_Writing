@@ -83,11 +83,31 @@ fi
 
 # --- the skill itself --------------------------------------------------------
 SKILL_FOUND=""
+SELF_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Walk up from a directory (bounded) looking for a checkout of the skill. Done for
+# both the current directory and the directory this script was run from, because
+# running the tool out of a clone is a normal way to use the pipeline -- and
+# because an installed copy in ~/.local/bin has no checkout above it, so a
+# fixed "../" path from the script was simply wrong.
+find_checkout() {
+  local d="$1" n=0
+  while [ "$d" != "/" ] && [ "$n" -lt 8 ]; do
+    for c in "$d/.agents/skills/paperwriter-pi" "$d/.pi/skills/paperwriter-pi"; do
+      [ -f "$c/SKILL.md" ] && { echo "$c"; return 0; }
+    done
+    d="$(dirname "$d")"; n=$((n+1))
+  done
+  return 1
+}
+
 for d in "$HOME/.agents/skills/paperwriter-pi" "$HOME/.pi/agent/skills/paperwriter-pi" \
-         "$HOME/.claude/skills/paperwriter-pi" "$HOME/.codex/skills/paperwriter-pi" \
-         "$(pwd)/.agents/skills/paperwriter-pi" "$(pwd)/.pi/skills/paperwriter-pi"; do
-  [ -f "$d/SKILL.md" ] && { SKILL_FOUND="$d"; break; }
+         "$HOME/.claude/skills/paperwriter-pi" "$HOME/.codex/skills/paperwriter-pi"; do
+  [ -f "$d/SKILL.md" ] && { SKILL_FOUND="$(cd "$d" && pwd)"; break; }
 done
+[ -z "$SKILL_FOUND" ] && SKILL_FOUND="$(find_checkout "$(pwd)" || true)"
+[ -z "$SKILL_FOUND" ] && SKILL_FOUND="$(find_checkout "$SELF_DIR" || true)"
+
 if [ -n "$SKILL_FOUND" ]; then
   row required "paperwriter-pi skill" ok "$SKILL_FOUND" ""
 else
