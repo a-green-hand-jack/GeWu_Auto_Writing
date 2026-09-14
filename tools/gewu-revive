@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+# Revive tasks that a provider outage killed, continuing from their workspace.
+#
+# Why this exists: an intermittent router fault ("Request audit capture is
+# unavailable") killed 74 attempts in one round. A task that exhausts its
+# retries writes a non-zero exit-code and its wrapper exits, but its workspace
+# survives. Relaunching the wrapper gives the agent the same task.md and the
+# same files, and the skill's first instruction is to resume by re-reading the
+# workspace -- so the work continues instead of being thrown away.
+#
+# Usage: gewu-revive RUN_DIR [MAX_REVIVALS_PER_TASK]
+# Runs one sweep and exits; drive it from a supervisor loop.
+set -uo pipefail
+
+RUN="${1:?usage: gewu-revive RUN_DIR [MAX_REVIVALS]}"; RUN="${RUN%/}"
+MAX_REVIVE="${2:-3}"
+SKILL="$RUN/skill/SKILL.md"
+RUNNER="$HOME/GeWu_Auto_Writing/bin/gewu-run"
+MODEL="${GEWU_MODEL:-glm-5.3}"
+
+[ -d "$RUN" ] || { echo "gewu-revive: no such run dir: $RUN" >&2; exit 2; }
+[ -x "$RUNNER" ] || { echo "gewu-revive: runner not executable: $RUNNER" >&2; exit 2; }
+
+revived=0
+for d in "$RUN"/*/; do
+  d="${d%/}"
+  [ -d "$d/workspace" ] || continue
+  [ -f "$d/exit-code" ] || continue
+  rc="$(cat "$d/exit-code" 2>/dev/null)"
+  [ "$rc" = "0" ] && continue
+  # a live wrapper already owns this task
+  pgrep -f "tool/gewu-run --task-dir $d" >/dev/null 2>&1 && continue
+  n="$(cat "$d/revivals" 2>/dev/null || echo 0)"
+  [ "$n" -ge "$MAX_REVIVE" ] && continue
+
+  n=$(( n + 1 ))
+  echo "$n" > "$d/revivals"
+  mv -f "$d/exit-code" "$d/exit-code.retired${n}" 2>/dev/null
+  rm -f "$d/finished-at" "$d/stall-detected" "$d/no-progress-detected"
+  setsid nohup env MAX_FAULTS="${MAX_FAULTS:-12}" bash "$RUNNER" \
+      --task-dir "$d" --skill "$SKILL" --timeout 10800 --stall 1200 \
+      --no-progress 2400 --retries 3 --model "$MODEL" --provider gravarc-router \
+      >> "$RUN/$(basename "$d").revive.log" 2>&1 < /dev/null &
+  echo "[$(date -u +%H:%M:%SZ)] revived $(basename "$d") (revival $n/$MAX_REVIVE, was exit $rc)"
+  revived=$(( revived + 1 ))
+  sleep 5   # do not stampede the provider
+done
+
+echo "[$(date -u +%H:%M:%SZ)] sweep done, revived=$revived"
