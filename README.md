@@ -116,6 +116,25 @@ WORKSPACE/
 ./tools/gwb tail top30 18-... 40 # 看某任务报告
 ```
 
+检查器的指标不等于写作或投稿验收。`gates` 从 `paper/main.tex` 的 literal
+input/include 链收集信息，忽略注释并用 `SOURCEISSUES` 显示缺失、循环或越界引用。
+PRX 必须匹配 `revtex4-2` 和 `prx` 选项；APS 原生文献块可以显示为 `aps-native`。
+`report` 的 `compiled_pdf` 已改为 `valid_pdf` / `valid_pdf_unknown`，
+`reference_label_present` 改为 `bibliography_blocks_detected`。PDF 由可用的
+`pdfinfo` 做有界可读性检查；没有验证工具或检查未完成时为 unknown，不能声称已编译、
+与当前源码一致、已做视觉检查或已通过论文审阅。`status` 的 PDF 列仍只是文件数。
+
+安装时将 `tools/gewu-batch` 与 `tools/gewu_tex_metrics.py` 放在同一实际目录，
+可以再把 `gewu-batch` 软链到 PATH。TeX 指标 helper 只用 Python 标准库，不解释
+宏、条件分支、catcode 或 verbatim；涉及这些机制时需检查实际编译稿。
+
+本地回归测试不调用模型或云端服务：
+
+```bash
+python3 -m unittest discover -s tests -v
+bash -n tools/gewu-batch
+```
+
 长任务一律后台启动（`setsid nohup ... < /dev/null &`），不要在前台等；反复执行的检查命令沉淀到该 CLI。详见 `.agents/memory/operations.md`。
 
 ## 写作与排版门禁
