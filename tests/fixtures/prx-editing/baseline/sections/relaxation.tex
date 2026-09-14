@@ -1,0 +1,18 @@
+\section{Relaxation}
+The balances conserve $C_1T_1+C_2T_2$, giving the common final temperature
+\begin{equation}
+ T_* = \frac{C_1T_1(0)+C_2T_2(0)}{C_1+C_2}.\label{eq:tstar}
+\end{equation}
+This weighted mean is the point to which the two temperatures relax, rather than an independently prescribed bath temperature.
+
+Define $\Delta=T_1-T_2$ and $\lambda=G(C_1^{-1}+C_2^{-1})$. Subtracting the balance equations after division by the respective heat capacities gives
+\begin{equation}
+ \dot\Delta=-\lambda\Delta,\qquad
+ \Delta(t)=\Delta(0)e^{-\lambda t}.\label{eq:delta}
+\end{equation}
+The conserved mean and decaying difference reconstruct the individual temperatures:
+\begin{align}
+ T_1(t)&=T_*+\frac{C_2}{C_1+C_2}\Delta(t),\label{eq:t1}\\
+ T_2(t)&=T_*-\frac{C_1}{C_1+C_2}\Delta(t).\label{eq:t2}
+\end{align}
+Each temperature is also $T_*+[T_i(0)-T_*]e^{-\lambda t}$. For $t\geq0$ it is therefore a convex combination of positive temperatures. This gives positivity without a small-temperature-difference approximation. Appendix~\ref{app:checks} records the initial-condition and unit checks.

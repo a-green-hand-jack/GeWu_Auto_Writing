@@ -1,0 +1,12 @@
+\section{Entropy production}
+For each internally equilibrated body with constant heat capacity, the stipulated entropy differential gives the entropy difference $C_i\ln[T_i(t)/T_i(0)]$. Entropy itself is defined only up to an additive constant here. The total entropy change is therefore
+\begin{equation}
+ S(t)-S(0)=\sum_{i=1}^{2} C_i\ln\frac{T_i(t)}{T_i(0)}.\label{eq:entropy}
+\end{equation}
+Differentiating and using Eqs.~\eqref{eq:balance1} and \eqref{eq:balance2} yields
+\begin{equation}
+ \dot S=\frac{G[T_1(t)-T_2(t)]^2}{T_1(t)T_2(t)}\geq0.\label{eq:srate}
+\end{equation}
+The positivity argument above makes the sign well defined throughout the trajectory. Equality holds for equal temperatures; for unequal initial temperatures it is approached asymptotically. The heat flux can change sign when the reservoir labels are exchanged, but the entropy production cannot change sign under that relabeling. The expression thus respects the symmetry between the two labels.
+
+Taking $t\to\infty$ in Eq.~\eqref{eq:entropy} gives $\Delta S_\infty=\sum_i C_i\ln[T_*/T_i(0)]$. This expression is nonnegative as a consequence of the nonnegative rate along the solution. It does not require treating either reservoir as an infinite bath.

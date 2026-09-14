@@ -1,0 +1,3 @@
+Prepare an analytic/theoretical physics paper about a finite physical system coupled to two thermal reservoirs. Explain the assumptions and derive the stated transport relation and its limiting cases using only supplied scientific evidence; do not invent results. The argument may use theorem/proof notation. No journal or venue is specified. Use the project's normal domain-based template routing. This is a synthetic routing brief only: no manuscript, source repository, or template files are actually supplied.
+
+Apply the supplied writing skill and give a bounded editorial plan (<=180words), stating actual resources loaded, selected venue and template, and unavailable checks. Plan only.

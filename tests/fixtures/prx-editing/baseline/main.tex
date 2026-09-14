@@ -1,0 +1,57 @@
+%% ****** Start of file apstemplate.tex ****** %
+%%
+%%
+%%   This file is part of the APS files in the REVTeX 4.2 distribution.
+%%   Version 4.2a of REVTeX, January, 2015
+%%
+%%
+%%   Copyright (c) 2015 The American Physical Society.
+%%
+%%   See the REVTeX 4 README file for restrictions and more information.
+
+\documentclass[aps,prx,reprint,groupedaddress]{revtex4-2}
+\usepackage{amsmath,amssymb,graphicx}
+\usepackage{microtype}
+\usepackage{needspace}
+\usepackage{placeins}
+\usepackage{booktabs}
+\usepackage[hidelinks]{hyperref}
+\emergencystretch=2em
+\begin{document}
+\title{Relaxation and entropy production in two finite thermal reservoirs}
+\author{Synthetic Test Author}
+\noaffiliation
+\date{Synthetic validation fixture; not a research submission}
+\begin{abstract}
+For two finite bodies exchanging heat, the final temperature and relaxation rate depend on both heat capacities. We examine an isolated pair of internally equilibrated reservoirs joined by a constant thermal conductance. Conservation fixes the common final temperature, while the temperature difference decays exponentially. The resulting temperatures remain positive, and the total entropy production is nonnegative at every finite time. The integrated entropy change requires no small-temperature-difference approximation. Equal heat capacities and the infinite-capacity bath limit clarify how the response of each body contributes to the relaxation rate. These statements are exact for the stipulated lumped description with positive constant heat capacities and conductance. They do not establish its validity for spatially nonuniform bodies, temperature-dependent parameters, or a microscopic transport mechanism.
+\end{abstract}
+\maketitle
+\input{sections/introduction}
+\input{sections/thermal-model}
+\input{sections/relaxation}
+\input{sections/entropy-production}
+\input{sections/limiting-regimes}
+\input{sections/related-work}
+\input{sections/discussion}
+\input{sections/conclusion}
+\input{sections/production-note}
+\appendix
+\input{sections/consistency-checks}
+
+\FloatBarrier
+\clearpage
+\makeatletter
+\renewcommand{\bibsection}{%
+  \par
+  \onecolumngrid
+  \vspace{19\p@}%
+  \bib@device{\textwidth}{245.5\p@}%
+  \vspace{3\p@}%
+  \begin{center}{\bfseries REFERENCES}\end{center}%
+  \vspace{4\p@}%
+  \twocolumngrid
+  \nobreak
+}
+\makeatother
+\bibliography{references}
+\end{document}

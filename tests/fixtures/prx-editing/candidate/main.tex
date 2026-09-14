@@ -1,0 +1,27 @@
+%% Local derivative of the APS REVTeX 4.2 apstemplate.tex sample.
+%% Original sample header: Version 4.2a, January 2015.
+%% Copyright (c) 2015 The American Physical Society.
+%% See the REVTeX 4 README for restrictions and more information.
+%% Bundled source notices are retained in template-assets/SOURCE-LICENSE.txt.
+\documentclass[aps,prx,reprint,groupedaddress]{revtex4-2}
+\usepackage{amsmath,amssymb}
+\usepackage[hidelinks]{hyperref}
+\begin{document}
+\title{Relaxation and entropy production in two finite thermal reservoirs}
+\author{Synthetic Test Author}
+\noaffiliation
+\begin{abstract}
+For two finite bodies exchanging heat, energy conservation fixes the final temperature, while the contact law sets the relaxation rate. We solve the stipulated equations for an isolated pair of internally equilibrated reservoirs with positive constant heat capacities and thermal conductance. Their temperature difference decays exponentially, and each temperature remains positive without a small-temperature-difference approximation. The same trajectory gives a nonnegative entropy production rate and an explicit integrated entropy change. Equal heat capacities and the infinite-capacity bath limit clarify how motion of both temperatures affects relaxation. The zero-conductance endpoint requires a separate qualification: it leaves every initial pair stationary. These results apply to the stated lumped description; they establish neither its experimental accuracy nor a microscopic transport mechanism.
+\end{abstract}
+\maketitle
+
+\input{sections/introduction}
+\input{sections/relaxation}
+\input{sections/entropy}
+\input{sections/limits}
+\input{sections/discussion}
+\input{sections/production-note}
+\appendix
+\input{sections/appendix-checks}
+\bibliography{references}
+\end{document}

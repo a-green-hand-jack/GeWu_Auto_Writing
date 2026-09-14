@@ -1,0 +1,158 @@
+{
+  "baseline": "b61f40d7ed1e4b4fffeed1b4d63511a4b3532927",
+  "candidate": "81b84956765d0a79d4e662d6d63811a27525181b",
+  "model": "gpt-6-astra",
+  "reasoning_effort": "high",
+  "source_sha256": {
+    "algebra-note.md": "6159641c8fe304eeb4631db9117d4b16bcd3584cfb4d88102a7c521f0e2e7cd2",
+    "gewu-top30/AUTHORSHIP.json": "365078a01333ec11375f96a359085b7ad8bec13caa1dd0e402ff2cfad04886fe",
+    "main.tex": "7a9c1d235eb94f5e69f21b48f3ece3053e96d803733ed589d1b76b31e0044f0c",
+    "model-note.md": "e88d12def92878d4539fdbf30f33db06d6e56ee0c07624e7e3c2e3b1269ee65e",
+    "references.bib": "da22b9950330213cf3ed40196b14d620ba7c899d07595a0c7aa7ae33e4907bb8"
+  },
+  "brief_sha256": "11362fb44f56b19fc3d79561355ca4b26dca1649da4839d1931138308c67c884",
+  "baseline_skill_tree": "0125dc52b0904d9302bfaf577fad3e33a4b8c8d4",
+  "candidate_skill_tree": "9bcb54948747676d69d50e46ff2f0f1cd6adcfc9",
+  "applications": {
+    "baseline": {
+      "source_sha256": {
+        "SOURCE-LICENSE.txt": "213a01b5cdf5b39c3438961f976b764e3e2a1a9ea50e0fad0d1dce51ca0acdfb",
+        "main.tex": "22477113368888de4df8dcf574fb81723a52c25d68a4253a342d0e02838f3ffd",
+        "references.bib": "a398337e9d66caec089bdaec25efe15c23136a8a6aadc81fbcbefbd41824542c",
+        "sections/conclusion.tex": "6150506a9263abaebae7762b2eeaab3d06b6dfdbfba25a5fd509afded0427ba9",
+        "sections/consistency-checks.tex": "c11cd23d6522060f6685ac6c0eea7fa61de127231a34989d7659ec1ab7e893e0",
+        "sections/discussion.tex": "ac2070e28196c753ae20423af7c5b8b4ae8a6b2b563a1cdbd6551351c94fc075",
+        "sections/entropy-production.tex": "83f7833bb9035abd573e93af5a8e46451e5cfa727a508fd0938dc88a9e84363f",
+        "sections/introduction.tex": "082dd74fde75303b20d0bd02bcfd01ebb4e64e288e5e1f6149715ba25a6a570f",
+        "sections/limiting-regimes.tex": "3fe26a4ca9d96873ef6bd27b4299717163f23a42a8873aae715be54af02065b4",
+        "sections/production-note.tex": "133a7c1911e7a3e8ac04013bf82c1c8b014c0d1d18488a5f4501e53b77ee482a",
+        "sections/related-work.tex": "00861ee3ef39d80fa23273aa21d83a19a2926b2829c21c33fd9ac51f59f6b5fd",
+        "sections/relaxation.tex": "f03689e38ff7b113b5810a47c32cafd570ddeffecbca9399ab0dd4ad07ff2a91",
+        "sections/thermal-model.tex": "c90c75d09e6b0a573c19439ed12ea2d0ee7d04360aabf22072b4f98bb32ef78f"
+      },
+      "reviewed_pdf_sha256": "05748ff6298b5c1d5058ac58406ea335a8c071e59a49701e04ec83ba0e4df2ac",
+      "rebuild_steps": [
+        {
+          "command": [
+            "pdflatex",
+            "-interaction=nonstopmode",
+            "-halt-on-error",
+            "main.tex"
+          ],
+          "exit_code": 0
+        },
+        {
+          "command": [
+            "bibtex",
+            "main"
+          ],
+          "exit_code": 0
+        },
+        {
+          "command": [
+            "pdflatex",
+            "-interaction=nonstopmode",
+            "-halt-on-error",
+            "main.tex"
+          ],
+          "exit_code": 0
+        },
+        {
+          "command": [
+            "pdflatex",
+            "-interaction=nonstopmode",
+            "-halt-on-error",
+            "main.tex"
+          ],
+          "exit_code": 0
+        }
+      ],
+      "pages": 3,
+      "rebuilt_pdf_sha256": "c0af2f15b919835a5e52768dc0c15f303382e0d7f5779a82621a2af876b46f25",
+      "layout_text_matches_reviewed_pdf": true,
+      "author_source_sha256": {
+        "SOURCE-LICENSE.txt": "213a01b5cdf5b39c3438961f976b764e3e2a1a9ea50e0fad0d1dce51ca0acdfb",
+        "main.tex": "22477113368888de4df8dcf574fb81723a52c25d68a4253a342d0e02838f3ffd",
+        "references.bib": "a398337e9d66caec089bdaec25efe15c23136a8a6aadc81fbcbefbd41824542c",
+        "sections/conclusion.tex": "6150506a9263abaebae7762b2eeaab3d06b6dfdbfba25a5fd509afded0427ba9",
+        "sections/consistency-checks.tex": "c11cd23d6522060f6685ac6c0eea7fa61de127231a34989d7659ec1ab7e893e0",
+        "sections/discussion.tex": "ac2070e28196c753ae20423af7c5b8b4ae8a6b2b563a1cdbd6551351c94fc075",
+        "sections/entropy-production.tex": "fed6149daa0a910a4200543f5c6a3346e322444d385b88f5568d961021a30ec7",
+        "sections/introduction.tex": "082dd74fde75303b20d0bd02bcfd01ebb4e64e288e5e1f6149715ba25a6a570f",
+        "sections/limiting-regimes.tex": "3fe26a4ca9d96873ef6bd27b4299717163f23a42a8873aae715be54af02065b4",
+        "sections/production-note.tex": "133a7c1911e7a3e8ac04013bf82c1c8b014c0d1d18488a5f4501e53b77ee482a",
+        "sections/related-work.tex": "00861ee3ef39d80fa23273aa21d83a19a2926b2829c21c33fd9ac51f59f6b5fd",
+        "sections/relaxation.tex": "f03689e38ff7b113b5810a47c32cafd570ddeffecbca9399ab0dd4ad07ff2a91",
+        "sections/thermal-model.tex": "c90c75d09e6b0a573c19439ed12ea2d0ee7d04360aabf22072b4f98bb32ef78f"
+      },
+      "packaging_changes": [
+        {
+          "file": "sections/entropy-production.tex",
+          "change": "Removed one trailing ASCII space; no prose or TeX command changed."
+        }
+      ]
+    },
+    "candidate": {
+      "source_sha256": {
+        "main.tex": "7346f872cee9af698096bb54faddc827a7660ccc4675e7ba8d24d5a3205620cc",
+        "references.bib": "a398337e9d66caec089bdaec25efe15c23136a8a6aadc81fbcbefbd41824542c",
+        "sections/appendix-checks.tex": "7e9de6edd0e30f63a36927764e00f5ec75545e5cd761f27a4c40ac690eefe5ef",
+        "sections/discussion.tex": "54b3bac7be798bb5773cd94b68528f9f45182995d590a77426fd7c8ff4cfe216",
+        "sections/entropy.tex": "a1b7bb3df2827bb8fe23cc3dd2fd9128de3774798792695a82b68341fb98954a",
+        "sections/introduction.tex": "689b0d786a14f2ea25f25dd422b0da5e1fd4c8d58efa93ca1910c7f4a870429e",
+        "sections/limits.tex": "76229a30059715b0f31bbfda2d54df1aa8dec9b66428729c8f5b21135a698e00",
+        "sections/production-note.tex": "55f42fe2c7c019aadd581c31f7146870ccb990f7b9cd1c3ea8b628786bb1748c",
+        "sections/relaxation.tex": "8b31f81a631eb7f1273e6930ecadbf7de1298a3324757bf311e864e848cf9c91",
+        "template-assets/SOURCE-LICENSE.txt": "0d2624cde5de619d2fa2f6a65d5925b1c027fd8143e5a932bccef269ee20aa11"
+      },
+      "reviewed_pdf_sha256": "ac638a1cbc799b8fd10ccdc327cb971453f61b243cd8a440e3f64c7871691e7e",
+      "rebuild_steps": [
+        {
+          "command": [
+            "pdflatex",
+            "-interaction=nonstopmode",
+            "-halt-on-error",
+            "main.tex"
+          ],
+          "exit_code": 0
+        },
+        {
+          "command": [
+            "bibtex",
+            "main"
+          ],
+          "exit_code": 0
+        },
+        {
+          "command": [
+            "pdflatex",
+            "-interaction=nonstopmode",
+            "-halt-on-error",
+            "main.tex"
+          ],
+          "exit_code": 0
+        },
+        {
+          "command": [
+            "pdflatex",
+            "-interaction=nonstopmode",
+            "-halt-on-error",
+            "main.tex"
+          ],
+          "exit_code": 0
+        }
+      ],
+      "pages": 2,
+      "rebuilt_pdf_sha256": "7f343eaaeaed86648f3df47a59c9b1ac286333e118355a47c0760682b1c55d60",
+      "layout_text_matches_reviewed_pdf": true
+    }
+  },
+  "independent_review": {
+    "requested_model": "gpt-6-astra",
+    "reasoning_effort": "high",
+    "source_only_rubric_sha256": "ac8103bccf61ef6537efb6da9ac8032ce5e6e31f6a3b374bfc3e1b97b1ed4b6e",
+    "original_report_sha256": "22a3ecf1b04ca47b340c86cb718e7927857d104d26cec00f94d652e8a94f0b02",
+    "packaged_report_sha256": "b74c9a658f0f58be256919f3ac3e05e28bd1c8792e331227a95a35d8f4d2a150",
+    "hard_preservation_scope_blockers": []
+  }
+}

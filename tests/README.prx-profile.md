@@ -44,41 +44,58 @@ for name in ['SKILL.md', 'references/production.md', 'references/writing.md',
     assert without_hook == original, name
 ```
 
-## Same-model application checks
+## Frozen skill validation
 
-The prompts under `fixtures/prx-scope/` were run in fresh contexts against
-baseline `93b2071` and candidate `acdc3d1` using **gpt-6-astra/high**, one application per prompt per
-variant. Each agent read the real skill and applicable references. It could
-read local files but could not edit, browse or run manuscript/cloud jobs.
-The author supplied the requirements inside each scenario; they are not
-assertions about current conference or journal policy.
+The final executable skill under test is commit
+`81b84956765d0a79d4e662d6d63811a27525181b`, skill tree
+`9bcb54948747676d69d50e46ff2f0f1cd6adcfc9`. The baseline for actual manuscript
+editing is `b61f40d7ed1e4b4fffeed1b4d63511a4b3532927`, skill tree
+`0125dc52b0904d9302bfaf577fad3e33a4b8c8d4`. Subsequent validation-artifact commits
+do not change these skill files.
 
-| Case | Base observation | Candidate observation |
-|---|---|---|
-| PRX theory | Preserved the requested structure and native references provisionally, while explicitly recognizing conflicting bundle prescriptions | Kept the coherent structure, analytic abstract and native bibliography; loaded PRX profile |
-| AI/ML conference | Kept IEEEtran, quantitative abstract, contribution list, separate Limitations and experiment reporting | Same required features retained; PRX profile inactive |
-| Mathematics | Kept amsart/amsplain, theorem/proof, proof strategy and sharpness | Same required features retained; PRX profile not loaded |
-| Life sciences | Kept structured abstract, Methods, controls/replication and applicable ethics reporting | Same required features retained; PRX profile inactive |
-| PRE | Honored explicit PRE over physics default; existing guides consulted | Honored explicit PRE; PRX profile not loaded |
-| PRX Quantum | Treated as a different journal with the supplied template | Explicitly excluded PRX profile; retained supplied organization and quantities |
+### Routing applications
 
-All cases kept unavailable manuscript, compilation and visual checks
-unverified. The baseline PRX agent already resolved several instruction
-conflicts in favor of this explicitly scoped request. The candidate makes
-that behavior explicit; this single pair does not show a quality improvement.
-Other venues retain the current upstream guidance and any remaining defects.
+Eleven prompts under `fixtures/prx-scope/` were applied to the candidate by
+**gpt-6-astra/high**, with a fresh context for each prompt. Each agent read the
+real skill and required resources and returned an editorial plan. Local reads
+and an evaluation report were allowed; manuscript edits, network access and
+cloud jobs were excluded. These are author-specified synthetic requirements,
+not statements of current journal/conference policy.
 
-These are 12 short application runs, not replicated performance estimates,
-full-paper quality evidence or validation of the deployed Pi/provider model.
-Only the observed case-level decisions are reported; wording differs across
-runs. Real-manuscript before/after review remains the next acceptance step.
+| Case | Observed decision |
+|---|---|
+| PRX theory | Loaded PRX profile; retained coherent sections, analytic abstract and native references |
+| IEEE AI/ML | Did not load PRX profile; kept IEEEtran, quantitative abstract, contribution list, independent Limitations and experiment reporting |
+| Mathematics | Did not load PRX profile; kept amsart/amsplain, theorem/proof, proof strategy and sharpness |
+| Life sciences | Did not load PRX profile; kept structured abstract, Methods, controls/replication and applicable ethics reporting |
+| PRE | Did not load PRX profile; retained explicit PRE and supplied template |
+| PRX Quantum | Did not load PRX profile; retained supplied template, organization and quantities |
+| Physics, no venue | Resolved existing default to PRX; required assessment record, loaded PRX profile |
+| PRB | Did not load PRX profile; retained explicit PRB and supplied template |
+| PRL | Did not load PRX profile; retained explicit PRL and supplied template |
+| Physics, explicit neutral | Did not load PRX profile; used explicit neutral single-column article |
+| PRX, exact author overrides | Loaded PRX profile but retained preprint/superscriptaddress and documented manual References heading |
 
-After these applications, upstream added author-display whitelist and
-body/appendix guidance in `9a43163` and `b61f40d`. This branch was rebased onto
-`b61f40d`; only template comments needed to follow the new authorship wording.
-Source-scope and resource/integration checks were repeated. The 12 editorial
-applications were not repeated on that newer shared guidance, so they are
-not behavioral validation of the final rebased tree.
+All applications left unavailable scientific, policy, compilation and visual
+checks unverified. A preliminary five-case interpretive matrix used a shared
+context; it is not counted among these eleven fresh applications. There is
+one application per case, so these observations are not replicated reliability
+estimates. Applications ran through Codex subagents, not the repository's
+deployed Pi/provider execution path. The earlier twelve paired plans on `93b2071/acdc3d1` are historical
+checks, not the evidence for the final skill version reported here.
+
+### Actual synthetic manuscript revision
+
+See [the paired editing fixture](fixtures/prx-editing/README.md) for the common
+brief, original manuscript, local evidence notes, exact source hashes, resulting
+TeX/BibTeX, compile results and independent review. The two-reservoir example is
+an explicitly synthetic validation document, not a research submission.
+
+The paired applications use the same model/effort and input in separate
+contexts. They perform actual editorial revisions, compilation and page
+inspection. Scope is preservation of the stipulated science and application of
+presentation rules; two synthetic bibliography records intentionally cannot
+satisfy a research paper's literature coverage requirements.
 
 ## Template mechanics
 
