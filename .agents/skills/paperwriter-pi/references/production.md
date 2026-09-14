@@ -94,9 +94,11 @@ worked instances, interpretation, and related-work context — expand the
 explanation, never the claims. Implementation narration stays in `research/`.
 
 Before assembly, write the attribution: read the Solution's record in
-`gewu-top30/AUTHORSHIP.json`, set the author line from the repository's own
-authorship as `constitution.md` §4 requires, list the collaborating Scientific
-Authors with their contributions, and write the production note (§7 there).
+`gewu-top30/AUTHORSHIP.json` and copy the author and collaboration display forms
+**verbatim** into `\author{}` / `\collaboration{}` — that record is a whitelist
+(`constitution.md` §4), so its labels are used exactly as given. Then write the
+production note (§7 there) stating the source Solution and its authors, the
+collaborating agents, the harness and model, and the checks performed.
 
 ## 6. Literature
 

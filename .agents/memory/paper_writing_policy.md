@@ -118,3 +118,6 @@
 ## 作者行缺陷（同一轮抽查发现，属第③条）
 
 第五轮 30 篇的作者行不统一且含内部标识：`\author{Scientific Author 82}`（GeWu 匿名标签，约 10 篇）、`\author{kunchen}`（git 句柄）、`\author{Agent Scientific Author}`（凭空占位）、`\author{玮琦 蒋}`（中文名序倒置，与英文正文混排）。新规则（constitution §4）：作者行必须是**人名**，英文场刊用拉丁字母与场刊姓名序；不得出现平台标签、登录句柄、角色名或占位符；真名不可得时用 `Authors to be supplied by the submitting authors` 并在 `research/` 记录未决的作者身份。真名需从 GeWu 系统取（受 API scope 阻塞）。
+
+**作者行是白名单（用户 2026-09-14 明确）**：`\author{}` / `\collaboration{}` **逐字取自** `gewu-top30/AUTHORSHIP.json` 的 display 形式，GeWu 的标签（`Scientific Author 82`、`kunchen`、`玮琦 蒋`）**按原样写入即为正确**——不要翻译、不要调序、不要罗马化、不要"改进"。我此前把它当缺陷要求改真名是**误判**，已改正（constitution §4、checks §2 的 grep 排除该两字段、production §5、launcher）。唯一保留的底线：不得凭空编造作者，不得把记录中已有的 display 形式换成占位符。
+

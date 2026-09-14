@@ -43,11 +43,21 @@ file; a title naming a process (`Build report`) instead of a scientific role.
 
 ```bash
 # internal vocabulary must not reach the manuscript (constitution §4)
-grep -RniE 'Solution[ _-]?[0-9]+|top[ _-]?30|funnel|black[- ]?box|evidence tier|verification tier|source-bound|platform rank|Scientific Author' paper/
+grep -RniE 'Solution[ _-]?[0-9]+|top[ _-]?30|funnel|black[- ]?box|evidence tier|verification tier|source-bound|platform rank' paper/
 grep -RniE 'GitLab|GitHub|README|\.md\b|\.py\b|\.sh\b|\.yaml\b|\.json\b|run[-_ ]?id|commit|hash|provider|agent|model|harness' paper/
 grep -RniE '/home/|/Users/|[A-Za-z]:\\' paper/
+# the author line is a whitelisted exception: compare it to the record instead
 grep -nE '^\\author\{|^\\collaboration\{' paper/*.tex
+grep -nE '^\\author\{|^\\collaboration\{' paper/*.tex \
+  | sed -E 's/.*\{(.*)\}\s*$/\1/' | tr ';' '\n' | sed 's/^ *//;s/ *$//' | sort -u
 ```
+
+The `\author{}` and `\collaboration{}` values must match
+`gewu-top30/AUTHORSHIP.json` display forms **verbatim** — that record is a
+whitelist, so a GeWu label there is expected, not a violation. Exclude those two
+fields when reading the first three greps. The production note
+(`constitution.md` §7) is the only other place harness, model, platform, or host
+names may appear.
 
 Review every hit: the second pattern also matches legitimate scholarly words
 ("model", "agent" in a scientific sense), so read the line, do not just count.

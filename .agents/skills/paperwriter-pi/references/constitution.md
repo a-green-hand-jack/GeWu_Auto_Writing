@@ -61,7 +61,7 @@ conclusion, and bibliography. The one exception is §7.
 | `top-30`, rank, score, tier, "selected Problem", the collection status | the selection rule and snapshot, stated once, if the user asked for a collection paper |
 | `funnel`, `black box`, `blackbox`, `certificate` (as a workflow stage) | what the object is: "a coarse-to-fine argument", "an unexplained baseline", "an exhaustive enumeration" |
 | evidence tier, verification tier, `source-bound`, `PASS`, gate, preflight | the scientific claim itself |
-| platform, repository, host, or organization names | nothing — the science does not need them |
+| platform, repository, host, or organization names (in the body) | nothing — the science does not need them; the author line is the whitelisted exception above |
 | internal status, ownership labels, issue or task numbers, commit hashes, run IDs, timestamps | nothing |
 | file names, paths, script names, commands | a described scientific artifact, or nothing |
 | agent, model, harness, prompt, or process words | nothing (see §7) |
@@ -71,13 +71,18 @@ supports no scientific claim; unexplained high-precision decimals; identifiers
 copied from source artifacts. Report a number only when it supports a stated
 claim and the reader can interpret its units, scale, uncertainty, and origin.
 
-**The author line is a publication author line, not a database field.** It
-carries a person's name, in Latin script for an English-language venue, in that
-venue's order. Never print a platform label (`Scientific Author 82`), a login
-handle (`kunchen`), a role (`Agent Scientific Author`), or any placeholder
-where a name belongs. If no real name is available, record the unresolved
-authorship in `research/` and use `Authors to be supplied by the submitting
-authors` — never invent one.
+**The author line is a whitelist.** The `\author{}` and `\collaboration{}`
+fields are filled **verbatim from the Solution's authorship record**
+(`gewu-top30/AUTHORSHIP.json`), whose display forms are authoritative and
+approved as they stand — including GeWu's own labels. Whatever the record gives
+(`Scientific Author 82`, `kunchen`, `玮琦 蒋`, `Qihang Wang; jiangweiqi001`)
+goes in as given: do not translate it, reorder it, romanize it, or "improve" it.
+This is the one place in the manuscript where those identifiers are permitted.
+
+The rule that survives: never invent an author, and never replace a display form
+the record actually has with a placeholder. Use
+`Authors to be supplied by the submitting authors` only when the record carries
+no display form at all, and record that in `research/`.
 
 ## 5. Scope and reporting
 
