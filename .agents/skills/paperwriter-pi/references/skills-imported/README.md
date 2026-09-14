@@ -1,15 +1,14 @@
-# Imported skills (adapted from the ResearchWorld_paper project)
+# Skills for the writing and review stages
 
-Source: `/home/user/orca/papers/ResearchWorld_paper/.agents/` (that project's
-skills and memory). Copied here because they fill gaps this bundle had: a
-structured pre-submission proofread, a rendered-page visual contract, an
-explicit anti-AI-tone whitelist, and a structure/argument guide.
+Reference material this bundle loads at specific stages. It fills gaps the
+constitution and the workflows deliberately leave to a dedicated pass: a
+structured pre-submission proofread, a rendered-page visual contract, an explicit
+anti-AI-tone white list, and a structure/argument guide.
 
-They are reference material for the writing and review stages. This bundle stays
-prompt-only: load the file with `read` and apply its checks by inspecting the
-LaTeX and the rendered pages. The Python scripts bundled under
-`proofreading/scripts/` are optional (they need PDFs and extra dependencies);
-they are not part of this pipeline.
+They are reference material only. This bundle stays prompt-only: load the file
+with `read` and apply its checks by inspecting the LaTeX and the rendered pages.
+The Python scripts bundled under `proofreading/scripts/` are optional (they need
+PDFs and extra dependencies); they are not part of this pipeline.
 
 | File | Load when | What it adds |
 |---|---|---|
@@ -27,6 +26,5 @@ certify the same text; run at least one independent pass from a different
 category (see `workflows/review.md`).
 
 Attribution: `proofreading/` is Jakob Thumm's MIT-licensed paper-proofreading
-skill (its own `LICENSE` and `README.md` are kept alongside). The other files
-come from the same local project; they are used here as reference material with
-their source path recorded above, not as an endorsement.
+skill; its own `LICENSE` and `README.md` are kept alongside, as that licence
+requires.

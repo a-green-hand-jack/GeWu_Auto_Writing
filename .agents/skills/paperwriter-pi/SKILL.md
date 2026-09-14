@@ -57,12 +57,11 @@ and one short production note states the source, the agents, the harness and the
 model, and the checks performed. That note is the only place in the manuscript
 where a harness or model name may appear.
 
-**`references/skills-imported/`** — adapted skills from the ResearchWorld_paper
-project that this bundle uses at specific stages: `scientific-writing.md` while
-drafting, `anti-ai-tone.md` before assembly, `proofreading/SKILL.md` and
-`visual-inspection.md` before delivery. See its `README.md` for what each adds
-and the boundaries they inherit (they may change language and organization,
-never a claim, number, citation, or result).
+**`references/skills-imported/`** — stage-specific skills this bundle uses:
+`scientific-writing.md` while drafting, `anti-ai-tone.md` before assembly,
+`proofreading/SKILL.md` and `visual-inspection.md` before delivery. See its
+`README.md` for what each adds and the boundaries they carry (they may change
+language and organization, never a claim, number, citation, or result).
 
 Gates, run at the end:
 
