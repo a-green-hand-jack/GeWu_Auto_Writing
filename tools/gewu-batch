@@ -2,7 +2,8 @@
 # gewu-batch — inspect the GeWu paper-writing batch runs.
 #
 # Operates on $HOME/GeWu_Auto_Writing/paperwriter-pi-runs/<run>/<solution>/{task.md,run.log,
-# exit-code,started-at,finished-at,workspace/}. Read-only: it never modifies a run.
+# exit-code,started-at,finished-at,workspace/}. Inspection never modifies a run;
+# explicit handover writes the requested output bundle.
 #
 # Usage:
 #   gewu-batch list                      list run directories, newest first
@@ -18,6 +19,13 @@
 set -uo pipefail
 
 BASE="${GEWU_BATCH_BASE:-$HOME/GeWu_Auto_Writing/paperwriter-pi-runs}"
+# Install gewu_tex_metrics.py beside the real gewu-batch script.  The deployed
+# ~/.local/bin/gewu-batch is a symlink, so locate its target before finding it.
+SCRIPT_PATH="$0"
+if command -v readlink >/dev/null 2>&1; then
+  SCRIPT_PATH="$(readlink -f "$SCRIPT_PATH" 2>/dev/null || printf '%s' "$SCRIPT_PATH")"
+fi
+METRICS="$(cd "$(dirname "$SCRIPT_PATH")" && pwd)/gewu_tex_metrics.py"
 
 die() { echo "gewu-batch: $*" >&2; exit 1; }
 
@@ -37,7 +45,7 @@ resolve_run() {
   if [ -z "$q" ]; then
     for cand in $(ls -td "$BASE"/*/ 2>/dev/null); do is_run_dir "$cand" && { printf '%s\n' "$cand"; return; }; done
   elif [ -d "$q" ]; then
-    printf '%s\n' "$q"
+    printf '%s/\n' "${q%/}"
   else
     for cand in $(ls -td "$BASE"/*"$q"*/ 2>/dev/null); do is_run_dir "$cand" && { printf '%s\n' "$cand"; return; }; done
   fi
@@ -53,6 +61,36 @@ tasks_of() { for d in "$1"/*/; do [ -d "$d/workspace" ] && basename "$d"; done; 
 paper_scope() {
   local ws="$1/workspace"
   if [ -d "$ws/paper" ]; then printf '%s\n' "$ws/paper"; else printf '%s\n' "$ws"; fi
+}
+
+# Emit the source metrics needed by this shell UI in one tab-separated row.
+# The helper deliberately reads only main.tex and recursively included in-root
+# sources, so downloaded material and stale scratch .tex files do not count.
+source_fields() {
+  python3 "$METRICS" --root "$1" --main main.tex | python3 -c '
+import json, sys
+m = json.load(sys.stdin)
+values = [
+    m.get("document_class") or "-", int(bool(m.get("prx"))),
+    "yes" if m.get("floatbarrier") else "NO", m.get("refslabel", "MISSING"),
+    m.get("bibitems", 0), m.get("bib_entries", 0), m.get("uncited", "-"), m.get("narration", 0), m.get("theorems", 0), len(m.get("issues", [])),
+]
+print("\t".join(map(str, values)))
+'
+}
+
+valid_pdf_of() {
+  local pdf="$1"
+  [ -n "$pdf" ] || { printf 'no\n'; return; }
+  python3 "$METRICS" --valid-pdf "$pdf" | python3 -c 'import json, sys; print(json.load(sys.stdin)["valid_pdf"])'
+}
+
+candidate_pdf_of() {
+  local ws="$1" pdf=""
+  for pdf in "$ws/paper/main.pdf" "$ws/paper/paper.pdf" "$ws/main.pdf" "$ws/paper.pdf"; do
+    [ -f "$pdf" ] && { printf '%s\n' "$pdf"; return; }
+  done
+  printf '\n'
 }
 
 # number of tasks of a run currently held by a live pi process
@@ -124,91 +162,52 @@ gate_line() {
   local d="$1" t="$2"
   local ws paper
   ws="$d/workspace"; paper="$(paper_scope "$d")"
-  local class floatbarrier refslabel bibitems uncited narration theorems pdf research
-  class=$(grep -rhoE 'documentclass(\[[^]]*\])?\{[a-z0-9-]+\}' "$paper" --include='*.tex' 2>/dev/null | sort -u | tr '\n' ' ')
-  [ -z "$class" ] && class="-"
-  if grep -rq 'FloatBarrier' "$paper" --include='*.tex' 2>/dev/null; then floatbarrier=yes; else floatbarrier=NO; fi
-  if grep -rqE 'section\*\{References\}|section\*\{REFERENCES\}' "$paper" --include='*.tex' 2>/dev/null; then
-    refslabel=manual
-  elif printf '%s' "$class" | grep -q amsart; then
-    refslabel=amsart
-  else
-    refslabel=MISSING
-  fi
-  local bbl; bbl=$(find "$ws" -name '*.bbl' 2>/dev/null | head -1)
-  if [ -n "$bbl" ]; then bibitems=$(grep -c '\\bibitem' "$bbl"); else bibitems="$(grep -c '^@' "$paper/references.bib" 2>/dev/null || echo 0)b"; fi
-  if [ -f "$paper/references.bib" ]; then
-    # Flatten the sources before matching: a \cite{...} group may span lines,
-    # and naive line-based grep then reports cited keys as uncited.
-    uncited=$(python3 - "$paper" <<'PYUNC'
-import glob, os, re, sys
-scope = sys.argv[1]
-flat = []
-for f in glob.glob(os.path.join(scope, '**', '*.tex'), recursive=True):
-    try:
-        flat.append(open(f, errors='ignore').read())
-    except OSError:
-        pass
-text = ' '.join(flat)
-cited = set()
-for grp in re.findall(r'\\[a-zA-Z]*[Cc]ite[a-zA-Z]*\s*(?:\[[^\]]*\])?\s*\{([^}]*)\}', text, re.S):
-    for key in grp.split(','):
-        key = key.strip()
-        if key:
-            cited.add(key)
-bib = os.path.join(scope, 'references.bib')
-entries = set()
-if os.path.exists(bib):
-    for m in re.finditer(r'@[a-zA-Z]+\s*\{\s*([^,\s]+)', open(bib, errors='ignore').read()):
-        entries.add(m.group(1))
-print(len(entries - cited))
-PYUNC
-)
-  else
-    uncited="-"
-  fi
-  narration=$(grep -ciE 'verified through|not independently verified|preparation environment|Crossref|retrieved on|consulted on' "$paper" --include='*.bib' --include='*.bbl' 2>/dev/null | awk -F: '{s+=$2} END{print s+0}')
-  theorems=$(grep -rhoE '\\begin\{(theorem|proposition|lemma|corollary)\}' "$paper" --include='*.tex' 2>/dev/null | wc -l)
-  if find "$ws" -maxdepth 2 -name 'main.pdf' -o -maxdepth 2 -name 'paper.pdf' 2>/dev/null | grep -q .; then pdf=yes; else pdf=no; fi
-  research=$(find "$ws/research" -name '*.md' 2>/dev/null | wc -l)
-  printf '%-46s %-9s %-9s %-8s %-9s %-7s %-9s %-8s %-5s %s\n' \
-    "$t" "$(state_of "$d")" "${class:0:30}" "$floatbarrier" "$refslabel" "$bibitems" "$uncited" "$narration" "$theorems" "$pdf"
+  local class prx floatbarrier refslabel bibitems bibentries uncited narration theorems sourceissues pdf
+  IFS=$'\t' read -r class prx floatbarrier refslabel bibitems bibentries uncited narration theorems sourceissues < <(source_fields "$paper")
+  [ "$bibitems" = "0" ] && bibitems="${bibentries}b"
+  pdf="$(valid_pdf_of "$(candidate_pdf_of "$ws")")"
+  printf '%-46s %-9s %-9s %-8s %-9s %-7s %-9s %-8s %-5s %-9s %s\n' \
+    "$t" "$(state_of "$d")" "${class:0:30}" "$floatbarrier" "$refslabel" "$bibitems" "$uncited" "$narration" "$theorems" "$pdf" "$sourceissues"
 }
 
 cmd_gates() {
   local run; run="$(resolve_run "${1:-}")"; [ -z "$run" ] && die "no run found"
   echo "RUN=$(run_name "$run")"
-  printf '%-46s %-9s %-9s %-9s %-8s %-9s %-7s %-9s %-8s %s\n' \
-    TASK STATE CLASS FLOATBAR REFLABEL BIBITEMS UNCITED NARRATION THEOREMS PDF
+  printf '%-46s %-9s %-9s %-9s %-8s %-9s %-7s %-9s %-8s %-9s %s\n' \
+    TASK STATE CLASS FLOATBAR REFLABEL BIBITEMS UNCITED NARRATION THEOREMS VALIDPDF SOURCEISSUES
   local t
   for t in $(tasks_of "$run"); do gate_line "$run$t" "$t"; done
 }
 
 cmd_report() {
   local run; run="$(resolve_run "${1:-}")"; [ -z "$run" ] && die "no run found"
-  local t total=0 finished=0 compiled=0 prx=0 ams=0 fb=0 label=0 narr=0 zerothm=0
+  local t total=0 finished=0 valid_pdf=0 valid_pdf_unknown=0 prx=0 ams=0 fb=0 bibliography_blocks=0 narr=0 zerothm=0 source_parse_issues=0
   local bibsum=0 bibn=0
   for t in $(tasks_of "$run"); do
     total=$((total+1))
-    local d="$run$t" paper
+    local d="$run$t" paper ws
     paper="$(paper_scope "$d")"
+    ws="$d/workspace"
     [ -f "$d/exit-code" ] && finished=$((finished+1))
-    find "$d/workspace" -maxdepth 2 \( -name 'main.pdf' -o -name 'paper.pdf' \) 2>/dev/null | grep -q . && compiled=$((compiled+1))
-    grep -rq 'revtex4-2' "$paper" --include='*.tex' 2>/dev/null && prx=$((prx+1))
-    grep -rq 'documentclass.*amsart' "$paper" --include='*.tex' 2>/dev/null && ams=$((ams+1))
-    grep -rq 'FloatBarrier' "$paper" --include='*.tex' 2>/dev/null && fb=$((fb+1))
-    if grep -rqE 'section\*\{References\}' "$paper" --include='*.tex' 2>/dev/null || grep -rq 'documentclass.*amsart' "$paper" --include='*.tex' 2>/dev/null; then label=$((label+1)); fi
-    local n; n=$(grep -ciE 'verified through|not independently verified|preparation environment|Crossref|retrieved on' "$paper" --include='*.bib' --include='*.bbl' 2>/dev/null | awk -F: '{s+=$2} END{print s+0}')
+    local class is_prx is_float refslabel bibitems bibentries uncited n th issues pdf
+    IFS=$'\t' read -r class is_prx is_float refslabel bibitems bibentries uncited n th issues < <(source_fields "$paper")
+    [ "$is_prx" = "1" ] && prx=$((prx+1))
+    [ "$class" = "amsart" ] && ams=$((ams+1))
+    [ "$is_float" = "yes" ] && fb=$((fb+1))
+    case "$refslabel" in manual|amsart|aps-native) bibliography_blocks=$((bibliography_blocks+1)) ;; esac
     [ "${n:-0}" != "0" ] && narr=$((narr+1))
-    local th; th=$(grep -rhoE '\\begin\{(theorem|proposition|lemma|corollary)\}' "$paper" --include='*.tex' 2>/dev/null | wc -l)
     [ "$th" = "0" ] && zerothm=$((zerothm+1))
-    local bbl; bbl=$(find "$d/workspace" -name '*.bbl' 2>/dev/null | head -1)
-    if [ -n "$bbl" ]; then local c; c=$(grep -c '\\bibitem' "$bbl"); bibsum=$((bibsum+c)); bibn=$((bibn+1)); fi
+    source_parse_issues=$((source_parse_issues + issues))
+    [ "$bibitems" -gt 0 ] && { bibsum=$((bibsum+bibitems)); bibn=$((bibn+1)); }
+    pdf="$(valid_pdf_of "$(candidate_pdf_of "$ws")")"
+    [ "$pdf" = "yes" ] && valid_pdf=$((valid_pdf+1))
+    [ "$pdf" = "unknown" ] && valid_pdf_unknown=$((valid_pdf_unknown+1))
   done
   echo "RUN=$(run_name "$run")"
   echo "tasks=$total finished=$finished"
-  echo "compiled_pdf=$compiled  prx_class=$prx  amsart_class=$ams"
-  echo "floatbarrier_present=$fb  reference_label_present=$label"
+  echo "valid_pdf=$valid_pdf  valid_pdf_unknown=$valid_pdf_unknown  prx_class=$prx  amsart_class=$ams"
+  echo "floatbarrier_present=$fb  bibliography_blocks_detected=$bibliography_blocks"
+  echo "source_parse_issues=$source_parse_issues"
   echo "papers_with_bibliography_narration=$narr  papers_with_zero_theorem_envs=$zerothm"
   if [ "$bibn" -gt 0 ]; then echo "bibliography_entries: n=$bibn total=$bibsum mean=$((bibsum / bibn))"; fi
 }
@@ -254,10 +253,14 @@ cmd_handover() {
       slug="$(printf '%s' "$t" | sed 's/^[0-9]*-//')"
       cp -f "$pdf" "$out/.tmp/$slug.pdf" || continue
 
-      local pscope class pages refs thms notes bbl
+      local pscope class is_prx is_float refslabel bibitems bibentries uncited narration thms sourceissues pages refs notes bbl
       pscope="$(paper_scope "$d")"
-      class=$(grep -rhoE 'documentclass(\[[^]]*\])?\{[a-z0-9-]+\}' "$pscope" --include='*.tex' 2>/dev/null | sort -u | head -1)
-      case "$class" in *revtex4-2*) class=revtex4-2/PRX ;; *amsart*) class=amsart ;; *article*) class=article/neutral ;; esac
+      IFS=$'\t' read -r class is_prx is_float refslabel bibitems bibentries uncited narration thms sourceissues < <(source_fields "$pscope")
+      case "$class" in
+        revtex4-2) [ "$is_prx" = "1" ] && class=revtex4-2/PRX || class=revtex4-2/non-PRX ;;
+        amsart) class=amsart ;;
+        article) class=article/neutral ;;
+      esac
       pages=$(python3 -c "
 import sys
 try:
@@ -268,7 +271,6 @@ except Exception:
 " "$out/.tmp/$slug.pdf" 2>/dev/null)
       bbl=$(find "$ws" -name '*.bbl' 2>/dev/null | head -1)
       if [ -n "$bbl" ]; then refs=$(grep -c '\\bibitem' "$bbl"); else refs="$(grep -c '^@' "$pscope/references.bib" 2>/dev/null || echo -)"; fi
-      thms=$(grep -rhoE '\\begin\{(theorem|proposition|lemma|corollary)\}' "$pscope" --include='*.tex' 2>/dev/null | wc -l)
       notes=$(find "$ws/research" -name '*.md' 2>/dev/null | wc -l)
       st="$(state_of "$d")"
       printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' "$t" "$st" "$class" "$pages" "$refs" "$thms" "$notes" "$(run_name "$run")" > "$out/.tmp/$slug.meta"
@@ -282,7 +284,7 @@ except Exception:
     echo "Generated $(date -u +%Y-%m-%dT%H:%M:%SZ) from:"
     for r in "${runs[@]}"; do echo "- $(run_name "$(resolve_run "$r")")"; done
     echo
-    echo "Label: source drafts, compiled. Visual inspection is the reviewer's own step."
+    echo "Label: candidate source drafts and PDF files. PDF presence does not establish compilation, freshness, scientific, visual, or acceptance validation."
     echo "Where a Solution appears in more than one run, the newest run wins."
     echo
     echo "| # | manuscript | state | class | pages | refs | thm | research notes | pdf | source run |"
