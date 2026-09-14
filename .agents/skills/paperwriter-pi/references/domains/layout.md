@@ -64,6 +64,22 @@ suggestion.
   and the final two pages. A page beginning with a lowercase continuation, a
   one-word fragment, or a detached caption is a defect.
 
+## Page 1 and the reference page
+
+Two pages deserve an explicit check; both defects below were invisible in the
+LaTeX source and obvious in the rendering.
+
+- **Page 1**: the title is the topmost element of the page. If any text — an
+  abstract paragraph, a note, an author block, a stray section — appears above
+  the title, the front matter is wrong (a common cause is abstract prose placed
+  before `\maketitle` without its environment).
+- **Reference page**: the reference list is the only content on the page. A
+  table or figure sharing that page leaves booktabs rules above or beside the
+  references, which read as unexplained underlines. No line in the reference
+  region may consist only of a dash: a repeated-author marker is a defect.
+  The heading must be present and, for the APS/PRX entrypoint, centred across
+  the full text width rather than inside one column.
+
 ## The reference region
 
 - The reference list is labeled and reads as one block. With the APS PRX

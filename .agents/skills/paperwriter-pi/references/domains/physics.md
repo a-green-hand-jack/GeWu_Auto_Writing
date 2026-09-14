@@ -13,6 +13,26 @@ objects — graphs, designs, matchings, enumeration, extremal or colouring
 problems, counterexamples to mathematical conjectures — belong to
 `mathematics`, however they are proved and however few theorems they use.
 
+**Front matter order.** REVTeX takes the abstract as part of the front matter
+that precedes `\maketitle`, and the abstract must be wrapped in its own
+environment. The entrypoint must read:
+
+```latex
+\title{...}
+\author{...}
+\noaffiliation
+\begin{abstract}
+...abstract text...
+\end{abstract}
+\maketitle
+```
+
+Putting bare abstract text before `\maketitle` — for example `\input` of a
+section file that contains only prose — typesets that prose as ordinary body
+text *above* the title. Every abstract file must be wrapped: either write the
+environment in the entrypoint, or make the included file itself
+`\begin{abstract}...\end{abstract}`.
+
 **Template.** A physics manuscript uses the official APS PRX entrypoint
 `templates/prx-official/apstemplate.tex` with
 `\documentclass[aps,prx,reprint,groupedaddress]{revtex4-2}`. Do not substitute
@@ -46,6 +66,22 @@ not how an APS page looks. Use exactly:
 `\makeatletter`/`\makeatother` are required because `\p@` and `\bib@device`
 are internal control sequences. Verified by compiling a produced manuscript:
 full-text-width centred REFERENCES, better column balance, entries intact.
+
+Immediately before that block, flush pending floats **and start the reference
+list on a fresh page**:
+
+```latex
+\FloatBarrier
+\clearpage
+\makeatletter
+...
+```
+
+`\FloatBarrier` alone stops a float from moving past the bibliography, but the
+float can still land on the same page as the start of the reference list, where
+its rules read as stray underlines. `\clearpage` after the barrier puts the
+reference list on a page of its own. Verified: references alone on the final
+page, no float sharing it.
 
 ## What the reader needs
 

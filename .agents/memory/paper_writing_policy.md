@@ -68,3 +68,15 @@
 ## 重跑方式
 
 见 `README.md` 的 "Pi 运行方式"：每个任务显式给出 `SOURCE_ROOT`（只读）与 `WORKSPACE`（唯一可写），任务 prompt 里指明使用 PRX 模板。30 篇可并行，各自独立 workspace。
+
+## 已被实证的产出缺陷与对应规则（2026-09-14 第三轮）
+
+用户视觉复核第二轮产出时发现三类缺陷，均已定位根因并写入 skill：
+
+| 现象 | 根因 | 规则位置 |
+|---|---|---|
+| PRX 论文第一页**标题上方多出一段摘要文字** | 摘要文件 `\input` 在 `\maketitle` **之前**且**没有 `abstract` 环境包裹**，被当正文排出（17 篇） | `domains/physics.md` 前言骨架；`preflight.md` §9 |
+| 数学论文文献区出现**"莫名其妙的下划线"**（同作者连续条目） | `amsplain.bst` 对重复作者输出 `\bysame`（长破折号）（27、10 篇） | `domains/mathematics.md` 的 `\bysame` 展开脚本；`preflight.md` §8/§9 |
+| 数学论文文献区出现**表格的 booktabs 线** | 表格浮动体与文献表**共页**——只加 `\FloatBarrier` 不阻止浮动体落在文献起始页（13 篇） | `\FloatBarrier` 后加 `\clearpage`；`preflight.md` §8/§9 |
+
+两个通用教训：**只读源码抓不到这类问题**——必须渲染第 1 页与文献页并按版面判据检查（`domains/layout.md` 已加入"标题必须是页面最上元素""文献页只能有文献表""不得有只由破折号构成的行"三条）。

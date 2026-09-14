@@ -227,6 +227,12 @@ Before assembly, run one anti-AI-tone pass over the finished prose using
 never change a claim, number, citation, or the structure, and leave unmatched
 text untouched.
 
+The entrypoint's front matter follows the skeleton in the domain guide
+(`\title`, `\author`, `\begin{abstract}...\end{abstract}`, `\maketitle` — in
+that order; never bare abstract prose before `\maketitle`), and the bibliography
+is preceded by `\FloatBarrier` **and** `\clearpage` so the reference list gets a
+page of its own.
+
 Build `paper/main.tex` from the entrypoint declared for the assessed domain:
 input every planned section,
 remove instructional placeholder text, keep required license notices,
@@ -253,7 +259,12 @@ A clean scan means those specific defects are absent — nothing more.
 
 If `pdflatex`/`bibtex` (or the template's engine) are available: compile
 (engine → bibtex → engine ×2), read every error and warning location, and
-repair in small bounded batches; recompile after each batch and compare
+repair in small bounded batches. After the first BibTeX run, expand `\bysame`
+in the generated `.bbl` when the style emits it (mathematics uses `amsplain`;
+see `references/domains/mathematics.md` for the exact script), then compile
+again — otherwise repeated-author entries print as a dash that readers see as a
+stray underline. Also render page 1 and the reference page and confirm the
+checks in `workflows/preflight.md` §9 before calling the draft compiled. recompile after each batch and compare
 diagnostics — if a blocker persists, change strategy rather than repeat the
 same edit. Fix overfull boxes wider than a few points: break unbreakable
 tokens (hashes, URLs, `\texttt` identifiers), use `aligned`/`split`/`multline`

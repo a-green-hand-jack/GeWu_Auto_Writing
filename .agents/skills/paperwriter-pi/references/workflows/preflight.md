@@ -161,7 +161,43 @@ labeled block.
 - Check for full-width rules on the reference page (a `table*`/`figure*` sharing
   the page): render the page and look, or render and analyze pixel rows.
 
-## 9. LaTeX and source gate
+## 9. Front-matter and reference-page gate
+
+Both defects below were found by rendering pages 1 and the reference page of
+delivered manuscripts; source inspection alone did not catch either.
+
+**Front matter order (PRX entrypoint).** The abstract must be inside its own
+environment and before `\maketitle`:
+
+```bash
+grep -nE '\\(title|author|noaffiliation|maketitle)|\\begin\{abstract\}|\\end\{abstract\}' paper/*.tex | head -20
+grep -rn 'abstract' paper/sections/*.tex | head            # an abstract file must carry the environment
+```
+
+Flag any entrypoint whose first `\begin{abstract}` comes after `\maketitle`,
+and any file `\input` before `\maketitle` that contains prose but no abstract
+environment — that prose is typeset above the title. Then render page 1 and
+confirm the title is the topmost element.
+
+**Reference page isolation and repeated-author dashes.**
+
+```bash
+grep -n 'FloatBarrier\|clearpage\|bibliography{' paper/main.tex
+grep -c '\\bysame' paper/*.bbl 2>/dev/null          # must be 0 after expansion
+```
+
+- `\FloatBarrier` and `\clearpage` must both precede `\bibliography`, so the
+  reference list starts on a page of its own. A table or figure sharing that
+  page leaves its rules above the references, where they read as stray
+  underlines.
+- Run the `\bysame` expansion in `references/domains/mathematics.md` after the
+  first BibTeX run; the count above must be 0 (or the style switched to
+  `plain` and recorded).
+- Render the reference page and confirm: the heading is present and centred as
+  required, the list is the only thing on the page, and no line consists only
+  of a dash or a rule.
+
+## 10. LaTeX and source gate
 
 ```bash
 grep -RniE '^\\documentclass|tableofcontents|colorlinks|\\textcolor|\\href|\\url' paper/
@@ -174,7 +210,7 @@ template markers, and no unresolved placeholders. In two-column templates use
 `aligned`/`split`/`multline` for long equations and starred floats only when a
 display genuinely needs full width.
 
-## 10. Compile and visual gate
+## 11. Compile and visual gate
 
 Compile the manuscript (engine → bibtex → engine ×2) and read every warning
 location: undefined references, overfull boxes wider than a few points, missing
@@ -198,7 +234,7 @@ page, and the final two pages:
 If the model cannot read images, or rendering is unavailable, record visual
 inspection as blocked. Never infer visual success from a compiler exit code.
 
-## 10b. Verification-script gate
+## 12. Verification-script gate
 
 ```bash
 # checks must live in the workspace, not in temporary space
@@ -215,7 +251,7 @@ states no coverage and no cap. `research/validation.md` must record, per check,
 the coverage reached and whether it completed or hit its cap; a claim that rests
 on a capped or absent check is marked conditional in the manuscript.
 
-## 11. Proofread pass
+## 13. Proofread pass
 
 Load `references/skills-imported/proofreading/SKILL.md` and run its six checks
 against the LaTeX sources (abbreviations, math notation, introduction structure,
@@ -223,7 +259,7 @@ grammar/style, figures and tables, statistics). Report line-level findings. A
 proofread that changes wording must not also certify the same text; re-run the
 affected consistency checks afterwards.
 
-## 12. Final report
+## 14. Final report
 
 Record in `research/validation.md`: the commands actually run and their
 results, the files and pages inspected, the bibliography size and coverage

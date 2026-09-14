@@ -280,7 +280,38 @@ when used.
 - amsart prints its own `References` heading, so no manual label is needed; the
   reference list is still the final scholarly component, so keep `placeins`
   loaded and put `\FloatBarrier` immediately before `\bibliography` exactly as
-  in the PRX entrypoint.
+  in the PRX entrypoint, followed by `\clearpage`. The barrier stops a float
+  from moving past the bibliography, but without the `\clearpage` a table can
+  still share the reference page and its rules read as stray underlines.
+- **Expand `\bysame` after the first BibTeX run.** `amsplain.bst` replaces the
+  author list of an entry whose authors repeat the previous entry with
+  `\bysame`, which typesets as a long dash at the start of the entry; readers
+  see an unexplained underline rather than an author. After the first
+  `bibtex`, rewrite the generated `.bbl`, then recompile:
+
+```python
+# research/checks/expand_bysame.py — expand the repeated-author dash
+import pathlib, re
+p = pathlib.Path("paper/main.bbl")
+parts = re.split(r"(\\bibitem\{[^}]*\})", p.read_text())
+out, prev = [parts[0]], None
+for i in range(1, len(parts), 2):
+    head, body = parts[i], (parts[i + 1] if i + 1 < len(parts) else "")
+    if re.match(r"\s*\\bysame", body) and prev:
+        body = re.sub(r"^\s*\\bysame\s*,?\s*", prev + ", ", body, count=1)
+    else:
+        m = re.match(r"^\s*(.*?),\s*\\emph", body, re.S)
+        if m:
+            prev = m.group(1).strip()
+    out += [head, body]
+p.write_text("".join(out))
+print("remaining bysame:", p.read_text().count("\\bysame"))
+```
+
+  Recompile afterwards and confirm the rendered reference page shows no line
+  that contains only a dash. If the expansion fails for an entry, fall back to
+  `\bibliographystyle{plain}` for that manuscript (which repeats authors) and
+  record the switch in `research/validation.md`.
 - Local layout controls are preferable to global compression; the
   compile-repair loop does the real work on overfull boxes.
 
