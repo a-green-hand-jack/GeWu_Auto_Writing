@@ -70,6 +70,13 @@ NAME="$(basename "$TASK_DIR")"
 MAX_ATTEMPTS=$(( RETRIES + 1 ))
 attempt=0
 RC=0
+# Provider faults get their own budget. An intermittent router error is not a
+# reason to abandon a manuscript: 31 attempts died to one such error in a single
+# round while every task was still making progress. Bounded by a wall-clock
+# deadline so a permanent outage still terminates.
+MAX_FAULTS=${MAX_FAULTS:-12}
+FAULTS=0
+DEADLINE=$(( $(date +%s) + ${MAX_WALL:-21600} ))
 
 date -u +%Y-%m-%dT%H:%M:%SZ > "$TASK_DIR/started-at"
 
@@ -163,21 +170,35 @@ while : ; do
       # Escalating backoff. A flat 30s once burned all four attempts inside a
       # transient router outage that lasted under two minutes, and a whole
       # 30-task batch died with zero manuscripts for a provider fault.
-      case "$attempt" in
-        1) BACKOFF=60 ;;
-        2) BACKOFF=180 ;;
-        *) BACKOFF=420 ;;
-      esac
-      # A log of a few hundred bytes means the attempt died before doing any
-      # work at all: an infrastructure fault, not a hard task. Back off further.
       LOG="$TASK_DIR/run.log.attempt${attempt}"
+      # A log of a few hundred bytes means the attempt died before doing any work
+      # at all: an infrastructure fault, not a hard task. Such an attempt does
+      # not consume the task's retry budget, it consumes the fault budget.
       if [ -f "$LOG" ] && [ "$(wc -c < "$LOG")" -lt 400 ]; then
-        BACKOFF=$((BACKOFF * 2))
-        reason="$reason; no work done, treating as provider fault"
+        FAULTS=$(( FAULTS + 1 ))
+        attempt=$(( attempt - 1 ))
+        case "$FAULTS" in
+          1|2) BACKOFF=120 ;;
+          3|4) BACKOFF=300 ;;
+          *)   BACKOFF=600 ;;
+        esac
+        reason="$reason; no work done, provider fault $FAULTS/$MAX_FAULTS"
+        if [ "$FAULTS" -lt "$MAX_FAULTS" ] && [ "$(date +%s)" -lt "$DEADLINE" ]; then
+          echo "gewu-run: $NAME attempt $attempt failed ($reason); retrying in ${BACKOFF}s" >&2
+          sleep "$BACKOFF"
+          continue
+        fi
+        echo "gewu-run: $NAME giving up after $FAULTS provider faults ($reason)" >&2
+      else
+        case "$attempt" in
+          1) BACKOFF=60 ;;
+          2) BACKOFF=180 ;;
+          *) BACKOFF=420 ;;
+        esac
+        echo "gewu-run: $NAME attempt $attempt failed ($reason); retrying in ${BACKOFF}s" >&2
+        sleep "$BACKOFF"
+        continue
       fi
-      echo "gewu-run: $NAME attempt $attempt failed ($reason); retrying in ${BACKOFF}s" >&2
-      sleep "$BACKOFF"
-      continue
     fi
   fi
   break
