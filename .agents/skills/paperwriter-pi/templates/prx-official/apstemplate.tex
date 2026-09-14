@@ -22,14 +22,12 @@
 %  Add 'showkeys' option to make keywords appear
 \documentclass[aps,prx,reprint,groupedaddress]{revtex4-2}
 \usepackage{amsmath,amssymb,graphicx}
-\usepackage{microtype}
-\usepackage{needspace}
-\usepackage{placeins}
 \usepackage[hidelinks]{hyperref}
-\emergencystretch=2em
-% The PRX class above is the fixed house template for this project.
-%\documentclass[aps,prl,preprint,superscriptaddress]{revtex4-2}
-%\documentclass[aps,prl,reprint,groupedaddress]{revtex4-2}
+% Local derivative: use only for selected journal PRX (including an explicitly
+% resolved no-venue project default). This is not an APS production template.
+% An exact user-supplied PRX template or class option overrides this default.
+%\documentclass[aps,prx,preprint,superscriptaddress]{revtex4-2}
+%\documentclass[aps,prx,reprint,groupedaddress]{revtex4-2}
 
 % You should use BibTeX and apsrev.bst for references
 % Choosing a journal automatically selects the correct APS
@@ -60,15 +58,14 @@
 % \affiliation command. The \affiliation command should follow the
 % other information
 % \affiliation can be followed by \email, \homepage, \thanks as well.
-% Use source-authorized names only. Use Anonymous for blinded output when
-% legitimate authorship is not established; never expose repository metadata.
-\author{Anonymous}
+% Copy authorized display forms verbatim as constitution section 4 requires.
+% Use this fallback only when the authorship record has no display form.
+\author{Authors to be supplied by the submitting authors}
 \noaffiliation
 %\email[]{Your e-mail address}
 %\homepage[]{Your web page}
 %\thanks{}
 %\altaffiliation{}
-\affiliation{}
 
 %Collaboration name if desired (requires use of superscriptaddress
 %option in \documentclass). \noaffiliation is required (may also be
@@ -92,11 +89,11 @@
 
 % body of paper here - Use proper section commands
 % References should be done using the \cite, \ref, and \label commands
-\section{}
+%\section{Scientific section title}
 % Put \label in argument of \section for cross-referencing
 %\section{\label{}}
-\subsection{}
-\subsubsection{}
+%\subsection{Scientific subsection title}
+%\subsubsection{Scientific subsubsection title}
 
 % If in two-column mode, this environment will change to single-column
 % format so that long equations can be displayed. Use
@@ -166,9 +163,8 @@
 % \end{table}
 % \end{turnpage}
 
-% Put routine derivations, long case analyses, implementation details,
-% auxiliary tables, and detailed validation material in titled appendices.
-% Every appendix must be referenced from the main text.
+% Specify following sections are appendices. Use \appendix* if there
+% only one appendix.
 %\appendix
 %\section{}
 
@@ -177,11 +173,10 @@
 % put your acknowledgments here.
 %\end{acknowledgments}
 
-% Flush scientific floats before the bibliography. The bibliography must be
-% the final scholarly component; do not place figures/tables after it.
-\FloatBarrier
 % Create the reference section using BibTeX:
-\bibliography{basename of .bib file}
+% Keep the native APS bibliography separator and page/column handling.
+% No manual REFERENCES heading or forced bibliography-only page is required.
+\bibliography{references}
 
 \end{document}
 %

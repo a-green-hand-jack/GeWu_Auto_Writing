@@ -1,5 +1,14 @@
 # Checks
 
+<!-- prx-profile:start -->
+For selected PRX / Physical Review X, apply
+[the PRX profile](venues/prx.md) to presentation and section checks. Its
+review criteria replace conflicting heading/quota/reference-page checks below,
+including treating an abstract input as a body section. Keep citation/input
+closure, scientific scope, authorship, real compilation and visual evidence
+checks. Other venues, including PRX Quantum, retain the existing checks.
+<!-- prx-profile:end -->
+
 Mechanical checks for the completed `WORKSPACE`, run before calling the result a
 manuscript. Each one below caught a real defect in a delivered paper; the
 commands are the ones that worked. These establish presentation and internal

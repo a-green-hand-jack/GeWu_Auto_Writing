@@ -1,0 +1,3 @@
+Prepare the same analytic/theoretical physics paper about a finite physical system coupled to two thermal reservoirs, with theorem/proof notation permitted and all claims limited to supplied evidence. The selected journal is exactly Physical Review Letters (PRL). Use the author-supplied template named authorPRLtemplate. This is a synthetic routing brief only: no manuscript, source repository, or template files are actually supplied.
+
+Apply the supplied writing skill and give a bounded editorial plan (<=180words), stating actual resources loaded, selected venue and template, and unavailable checks. Plan only.

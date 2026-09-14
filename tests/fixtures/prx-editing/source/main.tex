@@ -1,0 +1,88 @@
+\documentclass[aps,prx,reprint,groupedaddress]{revtex4-2}
+\usepackage{amsmath,amssymb,graphicx}
+\usepackage[hidelinks]{hyperref}
+\begin{document}
+\title{Relaxation and entropy production in two finite thermal reservoirs}
+\author{Synthetic Test Author}
+\noaffiliation
+\date{Synthetic validation fixture; not a research submission}
+\begin{abstract}
+Two bodies at different temperatures exchange heat until their temperature difference disappears. For finite bodies, however, the final temperature and the relaxation rate depend on both heat capacities, so neither body can generally be treated as an unchanged thermal bath. We examine an isolated pair of internally equilibrated reservoirs connected by a constant thermal conductance. Conservation fixes their common final temperature, while the temperature difference obeys a closed exponential relaxation law. The same solution keeps both temperatures positive and gives a nonnegative rate of total entropy production at every finite time. An explicit integrated entropy change provides a second consistency check without assuming that the initial temperature difference is small. Equal heat capacities and the infinite-capacity bath limit expose the distinct roles of energy conservation and heat exchange. These statements are exact for the stipulated lumped model, with positive constant heat capacities and conductance. They do not establish the validity of that model for spatially nonuniform bodies, temperature-dependent material parameters, or a microscopic transport mechanism. The example connects a directly solvable relaxation law to the thermodynamic direction of an isolated exchange process.
+\end{abstract}
+\maketitle
+
+\section{Introduction}
+A hot body placed in thermal contact with a colder body cools, and the other body warms. This familiar observation has two logically different parts. Energy conservation constrains the common final state, whereas the contact law determines how quickly the state is approached. Keeping the distinction visible is useful even when both statements can be derived in a few lines.
+
+Here we work with a specified elementary model rather than claim a new transport law. Two internally equilibrated reservoirs have fixed heat capacities and exchange energy through a linear contact. The aim is to connect their transient temperatures, their equilibrium state, and their entropy balance within the same set of assumptions. The model definitions and independent algebra checks are recorded in two accompanying synthetic notes~\cite{fixturemodel,fixturealgebra}. These notes are local test materials, not external prior-work evidence.
+
+There is no experimental measurement in this example. In particular, the absence of measured fit parameters does not prevent an exact solution of the stipulated equations. What must be kept separate is solving those equations and establishing that they describe a particular physical apparatus. The first task is completed below; the second task is outside the stated model.
+
+\section{Conserved temperature and relaxation}
+Let $C_1,C_2>0$ be constant heat capacities, let $G>0$ be a constant thermal conductance, and let $T_1(0),T_2(0)>0$. Each body has a single well-defined temperature. The contact has negligible heat capacity, and the pair exchanges no energy with its surroundings. The energy balances are
+\begin{align}
+ C_1\dot T_1&=-G(T_1-T_2),\label{eq:balance1}\\
+ C_2\dot T_2&= G(T_1-T_2).\label{eq:balance2}
+\end{align}
+Adding these equations shows that $C_1T_1+C_2T_2$ is conserved. Consequently the common final temperature is
+\begin{equation}
+ T_* = \frac{C_1T_1(0)+C_2T_2(0)}{C_1+C_2}.\label{eq:tstar}
+\end{equation}
+This weighted mean is the point to which the two temperatures relax, rather than an independently prescribed bath temperature.
+
+Define $\Delta=T_1-T_2$ and $\lambda=G(C_1^{-1}+C_2^{-1})$. Subtracting the balance equations after division by the respective heat capacities gives
+\begin{equation}
+ \dot\Delta=-\lambda\Delta,\qquad
+ \Delta(t)=\Delta(0)e^{-\lambda t}.\label{eq:delta}
+\end{equation}
+The conserved mean and decaying difference reconstruct the individual temperatures:
+\begin{align}
+ T_1(t)&=T_*+\frac{C_2}{C_1+C_2}\Delta(t),\label{eq:t1}\\
+ T_2(t)&=T_*-\frac{C_1}{C_1+C_2}\Delta(t).\label{eq:t2}
+\end{align}
+Each temperature is also $T_*+[T_i(0)-T_*]e^{-\lambda t}$. For $t\geq0$ it is therefore a convex combination of positive temperatures. This gives positivity without a small-temperature-difference approximation. Appendix~\ref{app:checks} records the initial-condition and unit checks.
+
+\section{Entropy production}
+For constant heat capacity, the entropy difference between two equilibrium temperatures is $C_i\ln[T_i(t)/T_i(0)]$. Entropy itself is defined only up to an additive constant here. Its total change is thus
+\begin{equation}
+ S(t)-S(0)=\sum_{i=1}^{2} C_i\ln\frac{T_i(t)}{T_i(0)}.\label{eq:entropy}
+\end{equation}
+Differentiating and using Eqs.~\eqref{eq:balance1} and \eqref{eq:balance2} yields
+\begin{equation}
+ \dot S=\frac{G[T_1(t)-T_2(t)]^2}{T_1(t)T_2(t)}\geq0.\label{eq:srate}
+\end{equation}
+The positivity argument above makes the sign well defined throughout the trajectory. Equality holds for equal temperatures; for unequal initial temperatures it is approached asymptotically. The heat flux can change sign when the reservoir labels are exchanged, but the entropy production cannot change sign under that relabeling. That distinction is a helpful way to check the calculation.
+
+Taking $t\to\infty$ in Eq.~\eqref{eq:entropy} gives $\Delta S_\infty=\sum_i C_i\ln[T_*/T_i(0)]$. This expression is nonnegative as a consequence of the nonnegative rate along the solution. It does not require treating either reservoir as an infinite bath.
+
+\section{Limiting regimes}
+Table~\ref{tab:limits} collects useful limits. When both heat capacities equal $C$, the mean is the arithmetic mean and the rate is $2G/C$. Both bodies move, which accounts for the factor of two relative to a body exchanging heat with a fixed-temperature bath of the same conductance.
+
+\begin{table}[b]
+\caption{Limits of the stipulated two-reservoir model. The bath limit holds at fixed finite time, fixed $C_1$, fixed $G$, and fixed initial temperatures.}\label{tab:limits}
+\begin{ruledtabular}
+\begin{tabular}{lll}
+Regime & $T_*$ & $\lambda$ \\
+\hline
+$C_1=C_2=C$ & $[T_1(0)+T_2(0)]/2$ & $2G/C$ \\
+$C_2\to\infty$ & $T_2(0)$ & $G/C_1$ \\
+$G\to0^+$ & unchanged & $0^+$
+\end{tabular}
+\end{ruledtabular}
+\end{table}
+
+At fixed finite time the limit $C_2\to\infty$ leaves the second temperature unchanged and recovers a single exponential for the first. Taking $G\to0^+$ instead makes the relaxation time diverge. At exactly $G=0$ every initial pair is stationary, so the common-temperature conclusion applies to positive conductance and long-time relaxation, not to zero conductance itself. This order-of-limits qualification matters despite the elementary form of the solution.
+
+\section{Discussion and conclusion}
+Conservation and dissipation play complementary roles in this calculation. Conservation fixes the accessible equilibrium temperature; the assumed contact law sets the rate at which the temperature difference decays. The exact trajectory also makes the sign of entropy production transparent. The result is therefore more informative than a decay law viewed in isolation.
+
+The statements depend on constant heat capacities, constant positive conductance, and internal equilibrium within each body. Temperature-dependent parameters can change the time dependence, and spatial gradients can invalidate the description by two temperatures. No inference about a microscopic mechanism or experimental accuracy follows from the exact solvability of the lumped equations. Within the stated assumptions, however, the same trajectory respects energy conservation, positivity of temperatures, and nonnegative entropy production.
+
+\appendix
+\section{Initial conditions and dimensions}\label{app:checks}
+At $t=0$, inserting Eq.~\eqref{eq:tstar} and $\Delta(0)=T_1(0)-T_2(0)$ into Eqs.~\eqref{eq:t1} and \eqref{eq:t2} recovers both initial temperatures. Multiplying these equations by their heat capacities and adding cancels the difference term. Since $[C_i]$ is energy per temperature and $[G]$ is energy per time per temperature, $[\lambda]$ is inverse time and $[\dot S]$ is entropy per time. These are algebraic consistency checks, not evidence for a new physical law.
+
+\section*{Production note}
+This document is a synthetic validation fixture created for an editorial workflow test. The author label is a fictional test identity. No external research, experiment, or manuscript submission is represented.
+\bibliography{references}
+\end{document}

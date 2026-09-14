@@ -1,18 +1,23 @@
 {
   "venue_id": "prx",
-  "version": "REVTeX 4.2f distribution, official APS apstemplate sample (header 4.2a), with prx option",
+  "version": "Local derivative of the official APS REVTeX apstemplate sample (header 4.2a), configured for PRX reprint and intended for REVTeX 4.2f",
   "article_type": "article",
   "default_for_project": true,
+  "status": "APS-sample-derived local drafting template; not an APS production template or proof of submission compliance",
   "source_url": "https://journals.aps.org/revtex",
   "license": "Official APS REVTeX sample template; retain APS copyright and REVTeX README restrictions. REVTeX class/styles are not bundled and must come from the user's TeX installation under LPPL 1.3c.",
   "engine": "pdflatex",
   "entrypoint": "apstemplate.tex",
-  "required_documentclass": "\\documentclass[aps,prx,reprint,groupedaddress]{revtex4-2}",
+  "default_documentclass": "\\documentclass[aps,prx,reprint,groupedaddress]{revtex4-2}",
+  "override_rule": "An exact user-supplied venue, article type, template, or class option overrides this project default; a non-PRX selection leaves this profile inactive.",
   "style": {
     "audience": "A broad audience of physicists across pure, applied and interdisciplinary physics",
     "narrative": "Concise, self-contained account of an innovative result with clear long-term significance and context for non-specialists",
-    "structure": "Abstract; accessible introduction; model or methods; central results; discussion; conclusion; appendices or supplemental material",
+    "structure": "Content-driven sections that make the context, approach, central results, interpretation, and limits easy to find; no fixed section-name or section-count requirement",
     "citation_rules": "Use APS REVTeX bibliography style and provide complete article titles where possible",
     "length_rules": "PRX has no fixed four-page limit; keep the manuscript concise while providing enough context and technical support for broad readership"
-  }
+  },
+  "activation_rule": "Use only when selected journal is PRX / Physical Review X, including the existing physics default resolved only when no venue is specified. Explicit PRE, PRB, PRL, PRX Quantum, other journal, or neutral format excludes this profile.",
+  "profile": "references/venues/prx.md",
+  "source_checked": "2026-09-14"
 }

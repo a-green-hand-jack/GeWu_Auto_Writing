@@ -1,0 +1,17 @@
+\section{Limiting regimes}
+Table~\ref{tab:limits} collects useful limits. When both heat capacities equal $C$, the mean is the arithmetic mean and the rate is $2G/C$. Both bodies move, which accounts for the factor of two relative to a body exchanging heat with a fixed-temperature bath of the same conductance.
+
+\begin{table}[tb]
+\caption{Limits of the stipulated two-reservoir model. The bath limit holds at fixed finite time, fixed $C_1$, fixed $G$, and fixed initial temperatures.}\label{tab:limits}
+\begin{tabular}{lll}
+\toprule
+Regime & $T_*$ & $\lambda$ \\
+\midrule
+$C_1=C_2=C$ & $[T_1(0)+T_2(0)]/2$ & $2G/C$ \\
+$C_2\to\infty$ & $T_2(0)$ & $G/C_1$ \\
+$G\to0^+$ & unchanged & $0^+$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+At fixed finite time the limit $C_2\to\infty$ leaves the second temperature unchanged and recovers a single exponential for the first. Taking $G\to0^+$ instead makes the relaxation time diverge. At exactly $G=0$ every initial pair is stationary, so the common-temperature conclusion applies to positive conductance and long-time relaxation, not to zero conductance itself. This order-of-limits qualification matters despite the elementary form of the solution.
