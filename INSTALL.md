@@ -22,6 +22,18 @@ you are done. Pin a tag if you want a fixed version:
 pi install git:github.com/a-green-hand-jack/GeWu_Auto_Writing@v1.0.0
 ```
 
+The manifest declares one skill, `paperwriter-pi`. A clone of this repository
+also contains three unrelated skills (`gewu-authentication`,
+`gewu-problem-authoring`, `gewu-solution-authoring`); they are **not** declared
+and are **not** installed. Verified by counting the skills a fresh session sees:
+54 before the install, 55 after, the difference being `paperwriter-pi` alone.
+
+If you install into a **project** rather than your user settings (`pi install -l`),
+be aware that Pi skips project-scoped packages until that project is trusted. A
+session in an untrusted project loads none of them, so the skill looks missing
+even though the install succeeded; accept the trust prompt or run with
+`--approve`. The default user-scoped install has no such gate.
+
 This gives you the skill. It does **not** put the CLI on your PATH — for that,
 run the installer below (or call the scripts by path, e.g.
 `<checkout>/tools/gewu-verify`).
