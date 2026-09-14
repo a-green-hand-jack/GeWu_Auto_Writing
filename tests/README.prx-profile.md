@@ -19,7 +19,7 @@ uses the current six-file bundle; no deleted architecture is restored.
 
 ## Scope audit
 
-For this change, base `93b207139ca6abed69f720f368e544061ed966c0` was compared
+For this change, base `b61f40d7ed1e4b4fffeed1b4d63511a4b3532927` was compared
 with the candidate. Removing the five `prx-profile` hook blocks restored those
 five files byte-for-byte to the base. All other existing skill resources except
 the selected PRX template files stayed unchanged. This checks source scope;
@@ -32,7 +32,7 @@ from pathlib import Path
 import re
 import subprocess
 
-base = '93b207139ca6abed69f720f368e544061ed966c0'
+base = 'b61f40d7ed1e4b4fffeed1b4d63511a4b3532927'
 root = Path('.agents/skills/paperwriter-pi')
 for name in ['SKILL.md', 'references/production.md', 'references/writing.md',
              'references/templates.md', 'references/checks.md']:
@@ -46,8 +46,8 @@ for name in ['SKILL.md', 'references/production.md', 'references/writing.md',
 
 ## Same-model application checks
 
-The prompts under `fixtures/prx-scope/` were run in fresh contexts against the
-base and candidate using **gpt-6-astra/high**, one application per prompt per
+The prompts under `fixtures/prx-scope/` were run in fresh contexts against
+baseline `93b2071` and candidate `acdc3d1` using **gpt-6-astra/high**, one application per prompt per
 variant. Each agent read the real skill and applicable references. It could
 read local files but could not edit, browse or run manuscript/cloud jobs.
 The author supplied the requirements inside each scenario; they are not
@@ -72,6 +72,13 @@ These are 12 short application runs, not replicated performance estimates,
 full-paper quality evidence or validation of the deployed Pi/provider model.
 Only the observed case-level decisions are reported; wording differs across
 runs. Real-manuscript before/after review remains the next acceptance step.
+
+After these applications, upstream added author-display whitelist and
+body/appendix guidance in `9a43163` and `b61f40d`. This branch was rebased onto
+`b61f40d`; only template comments needed to follow the new authorship wording.
+Source-scope and resource/integration checks were repeated. The 12 editorial
+applications were not repeated on that newer shared guidance, so they are
+not behavioral validation of the final rebased tree.
 
 ## Template mechanics
 
