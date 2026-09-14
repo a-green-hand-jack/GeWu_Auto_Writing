@@ -21,14 +21,25 @@ BASE="${GEWU_BATCH_BASE:-$HOME/GeWu_Auto_Writing/paperwriter-pi-runs}"
 
 die() { echo "gewu-batch: $*" >&2; exit 1; }
 
+# A run directory must contain at least one task directory with a workspace/.
+# Without this guard a fragment like "round2" also matches a handover OUTPUT
+# directory whose name contains the fragment, which silently yielded a one-row
+# bundle instead of the run's 30 manuscripts.
+is_run_dir() {
+  local d="${1%/}"
+  [ -d "$d" ] || return 1
+  for t in "$d"/*/; do [ -d "$t/workspace" ] && return 0; done
+  return 1
+}
+
 resolve_run() {
-  local q="${1:-}"
+  local q="${1:-}" cand
   if [ -z "$q" ]; then
-    ls -td "$BASE"/*/ 2>/dev/null | head -1
+    for cand in $(ls -td "$BASE"/*/ 2>/dev/null); do is_run_dir "$cand" && { printf '%s\n' "$cand"; return; }; done
   elif [ -d "$q" ]; then
     printf '%s\n' "$q"
   else
-    ls -td "$BASE"/*"$q"*/ 2>/dev/null | head -1
+    for cand in $(ls -td "$BASE"/*"$q"*/ 2>/dev/null); do is_run_dir "$cand" && { printf '%s\n' "$cand"; return; }; done
   fi
 }
 
