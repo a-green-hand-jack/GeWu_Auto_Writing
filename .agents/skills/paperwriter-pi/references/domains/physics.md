@@ -176,6 +176,14 @@ finds it glossed stops trusting the rest.
 
 ## Structure follows the physics
 
+The manuscript's sections are its own, but a physics article normally has, in
+order and each as its own separate section: **Introduction**, **Model** (or
+Setting / Formulation), **Method or derivation**, **Results**, **Discussion**,
+**Limitations** (a separate prose section, or a prose subsection of the
+Discussion in a short paper), **Conclusion**, then appendices. The Introduction
+comes first and is never merged with the model; a paper that begins with the
+model has no introduction and is a defect.
+
 - **Introduction**: the phenomenon, why it is interesting, what is established,
   what this paper contributes, informally stated.
 - **Model**: complete and self-contained, with conventions fixed here.

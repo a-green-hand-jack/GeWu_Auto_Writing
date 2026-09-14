@@ -275,7 +275,50 @@ done
   conclusion are prose. Flag every `LIST-DOMINATED` hit and rewrite it as
   sentences before delivery.
 
-## 14. Proofread pass
+## 14. Section-skeleton gate
+
+The Introduction is a separate, first section in every manuscript, and section
+titles name scientific roles rather than process steps.
+
+```bash
+# ordered section titles as the entrypoint inputs them
+python3 - <<'PYEOF'
+import os, re, glob
+ent = sorted(glob.glob("paper/*.tex"))[0]
+base = os.path.dirname(ent)
+titles = []
+for m in re.finditer(r"\\input\{([^}]*)\}|\\section\*?\{([^}]*)\}", open(ent, errors="ignore").read()):
+    if m.group(1):
+        f = m.group(1)
+        fp = os.path.join(base, f if f.endswith(".tex") else f + ".tex")
+        if os.path.exists(fp):
+            mm = re.search(r"\\section\*?\{([^}]*)\}", open(fp, errors="ignore").read())
+            titles.append(mm.group(1) if mm else "(no section: %s)" % f)
+    else:
+        titles.append(m.group(2))
+for i, t in enumerate(titles[:4]):
+    print(i, t)
+bad = [t for t in titles if re.search(r"(?i)^introduction\s+and\b|\band\s+introduction\b", t)]
+print("merged introduction:", bad)
+print("first section:", titles[0] if titles else "(none)")
+PYEOF
+```
+
+Flag these as defects and repair before delivery:
+
+- the first section title does not begin with `Introduction` (a paper starting
+  with Model, Setting, Notation, or a computation has no introduction);
+- any title joining two roles with "and" (`Introduction and model`,
+  `Introduction and main results`, `Discussion, limitations and conclusion`
+  where limitations must be prose);
+- a section file with no `\section` at all when the plan lists it as a section;
+- section titles that name a process (`Build report`, `Independent checks`)
+  instead of a scientific role.
+
+The order of sections must match the plan; if the plan itself is wrong, fix the
+plan first, then the manuscript.
+
+## 15. Proofread pass
 
 Load `references/skills-imported/proofreading/SKILL.md` and run its six checks
 against the LaTeX sources (abbreviations, math notation, introduction structure,
@@ -283,7 +326,7 @@ grammar/style, figures and tables, statistics). Report line-level findings. A
 proofread that changes wording must not also certify the same text; re-run the
 affected consistency checks afterwards.
 
-## 15. Final report
+## 16. Final report
 
 Record in `research/validation.md`: the commands actually run and their
 results, the files and pages inspected, the bibliography size and coverage

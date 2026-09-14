@@ -80,3 +80,16 @@
 | 数学论文文献区出现**表格的 booktabs 线** | 表格浮动体与文献表**共页**——只加 `\FloatBarrier` 不阻止浮动体落在文献起始页（13 篇） | `\FloatBarrier` 后加 `\clearpage`；`preflight.md` §8/§9 |
 
 两个通用教训：**只读源码抓不到这类问题**——必须渲染第 1 页与文献页并按版面判据检查（`domains/layout.md` 已加入"标题必须是页面最上元素""文献页只能有文献表""不得有只由破折号构成的行"三条）。
+
+## 章节骨架：顺序 ≠ 骨架（2026-09-14 第四轮检查）
+
+**现象**：round3 的 `28-hard-square-zm1-transfer-factorization` 第一章写成 `\section{Introduction and model}`（且根本没有 intro 文件）；round4 的 `05`、`10` 第一章分别是「Model, conventions, and scope」「Setting and notation」——**Introduction 整个缺失**。已核实**不是模板问题**（文档类是 `revtex4-2` PRX，正确）。
+
+**根因**：`production.md` §5 的"起草顺序"把内容分组写成 `introduction and related work`、`discussion, limitations, conclusion`，模型把它当成了章节骨架，于是合并或省略 Introduction。
+
+**修法**：
+- `production.md` §4 计划阶段必须给出**显式有序的章节骨架**；§5 明确"写作顺序不是章节清单"，Introduction **永远是独立的第一节**，标题不得用 "and" 连接两个角色、不得是流程词；
+- `physics.md`/`mathematics.md` 写明各自的常规骨架（物理：Introduction / Model / Method / Results / Discussion / Limitations / Conclusion / 附录；数学：Introduction / Preliminaries / Main result and proof / Related work / Conclusion / 附录）；
+- `preflight.md` §14 新增机械门禁：解析 entrypoint 的章节顺序，要求第一节以 `Introduction` 开头、标记 `Introduction and …` 之类合并标题、标记按计划应是 section 却没有 `\section` 的文件。
+
+**教训**：给模型的"写作顺序"若用并列词组表达，会被当成结构规范。流程与骨架必须分开写。

@@ -57,7 +57,13 @@ from restating the result in more words or adding unsupported generalization.
 
 ## Structure follows the argument
 
-Do not fill a fixed template. Let the sections carry argumentative roles:
+Do not fill a fixed template, but do keep a stable skeleton: an article normally
+has, in order and each as its own separate section, **Introduction**,
+**Preliminaries** (notation and imported results), **Main result and proof**
+(then sharpness or limits), **Related work**, **Conclusion**, then appendices.
+The Introduction comes first and is never merged with the preliminaries or the
+main statement; a paper whose first section is a setting or a notation section
+has no introduction and is a defect. Let the sections carry argumentative roles:
 
 - **Introduction**: the problem, why it is natural, what was known, what this
   paper adds, and an informal statement of the main result. A reader who stops

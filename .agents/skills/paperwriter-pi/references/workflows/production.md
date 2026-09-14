@@ -79,7 +79,12 @@ Write `research/assessment.md` as a short prose judgement, not a schema:
 
 Write `research/plan.md` before any prose:
 
-- sections with purpose and realistic length budgets, in writing order
+- **the section skeleton**: an explicit, ordered list of the section titles the
+  manuscript will contain, chosen from the domain convention below and matching
+  the science. This list is the plan's backbone: the entrypoint inputs exactly
+  these sections, in this order. A paper that opens with a model, a setting, or
+  a computation has no introduction and is a defect;
+- each section's purpose and a realistic length budget, in writing order
   (technical core first, abstract last);
 - the notation/terminology ledger: every symbol, acronym, and named construct
   with its plain definition, units or domain/codomain, first planned use, and
@@ -94,16 +99,30 @@ Write `research/plan.md` before any prose:
 ## 5. Draft
 
 Load the domain guide and `references/skills-imported/scientific-writing.md`
-(argument-first section structure), then write complete sections in this order:
+(argument-first section structure).
+
+**Writing order is not the section list.** The order below says which *content*
+to develop first so that the framing follows the evidence; it does not name
+sections and must not be read as a skeleton. Sections are the ones recorded in
+the plan, and every one of them is a separate `\section` with a reader-facing
+scientific title. In particular the Introduction is **always its own section and
+always the first one**: a merged `Introduction and model`, or a manuscript whose
+first section is a model, a setting or a computation, is a structural defect.
+Titles name scientific roles, never process steps, and never join two roles with
+"and".
+
+Write the content in this order:
 
 1. technical core — model/problem, assumptions, definitions, derivation or
    method, with the boundary of what it establishes;
 2. results and their interpretation — only actual evidence, with protocol,
    uncertainty or exactness, and scope;
-3. introduction and related work — motivate without unsupported novelty;
-   related work is organised by theme and positions this paper, not a list;
-4. discussion, limitations, conclusion — at least two real, specific
-   limitations and what they prevent;
+3. the introduction and the related work, as separate sections — motivate
+   without unsupported novelty; related work is organised by theme and positions
+   this paper, not a list;
+4. discussion, then limitations, then conclusion as separate prose sections (a
+   short paper may fold limitations into the discussion as a prose subsection) —
+   at least two real, specific limitations and what they prevent;
 5. abstract — last, from the finished paper (constitution §7, domain guide).
 
 Write limitations and discussion as prose, not as a bullet list: each limitation
