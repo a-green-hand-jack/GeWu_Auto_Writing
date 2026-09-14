@@ -11,14 +11,16 @@
   ],
   "pi": {
     "skills": [
-      ".agents/skills/paperwriter-pi"
+      "./.agents/skills/paperwriter-pi"
     ]
   },
   "files": [
     ".agents/skills/paperwriter-pi",
     "tools",
     "install.sh",
-    "INSTALL.md"
+    "INSTALL.md",
+    "LICENSE",
+    "package.json"
   ],
   "bin": {
     "gewu-run": "tools/gewu-run",
@@ -34,5 +36,6 @@
     "install-skill": "./install.sh"
   },
   "private": true,
-  "_note": "Skills and CLI for source-bound academic writing. The vendored journal templates carry their own terms; see INSTALL.md."
+  "_note": "Skills and CLI for source-bound academic writing. The vendored journal templates carry their own terms; see INSTALL.md.",
+  "license": "MIT"
 }
