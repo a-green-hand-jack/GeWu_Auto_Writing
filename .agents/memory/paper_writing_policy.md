@@ -93,3 +93,28 @@
 - `preflight.md` §14 新增机械门禁：解析 entrypoint 的章节顺序，要求第一节以 `Introduction` 开头、标记 `Introduction and …` 之类合并标题、标记按计划应是 section 却没有 `\section` 的文件。
 
 **教训**：给模型的"写作顺序"若用并列词组表达，会被当成结构规范。流程与骨架必须分开写。
+
+## 技能瘦身：Four requirements（2026-09-14）
+
+**用户定的验收标准只有四条**：① 跟随模板要求；② 写作高屋建瓴、深入浅出；③ 不出现 GeWu 系统黑话；④ 不出现排版问题。诚实性不属于"要求"而是不可谈判的底线。
+
+**问题**：skill 膨胀到 22 个 md / 4305 行 / 235KB——每发现一个缺陷就追加一条规则，规则之间大量重复（physics.md 与 mathematics.md 的 review checklist、where-numbers-live、figures、appendices 近乎同文；imported skills 占近一半体量，其中 `scientific-writing.md` 是**全部指向不存在文件的死链存根**，proofreading 的 PDF-标注流程、评分表、RL 统计检查与我们无关）。
+
+**新结构：6 个 md / 1005 行 / 49KB**，一个关注点一个文件：
+
+| 文件 | 关注点 |
+|---|---|
+| `SKILL.md` | 角色、四条要求、输入输出契约、领域与模板路由、文件表与加载纪律、改本 bundle 的规矩 |
+| `references/constitution.md` | 诚实、证据语言、provenance/引用、**防火墙 + GeWu 黑话对照表**、scope、来源安全、生产说明 |
+| `references/templates.md` | 三种格式与**逐字验证过的 LaTeX**（PRX/amsart/neutral）、bib 卫生、编译循环 |
+| `references/writing.md` | 骨架、深度标定、记号、摘要、相关工作、语言与 AI 腔 |
+| `references/production.md` | 线性流程：inventory→evidence→assessment→plan→draft→literature→figures→checks→assemble→compile→review→report |
+| `references/checks.md` | 机械检查与可直接运行的命令 |
+
+删除：`domains/{physics,mathematics,layout,life_sciences,ai_ml}.md`、`knowledge/{authoring,authorship}.md`、整个 `skills-imported/`（其内容压缩进 writing.md §8 与 checks.md §9，proofread 类别保留一行 MIT 致谢）。`templates/` 下的真实 LaTeX 资产与 `SOURCE-LICENSE.txt` 全部保留。
+
+**教训**：规则要写"为什么"（哪个已交付的稿件栽在这上面），否则后人删掉它、缺陷复发；但只写最短的句子。
+
+## 作者行缺陷（同一轮抽查发现，属第③条）
+
+第五轮 30 篇的作者行不统一且含内部标识：`\author{Scientific Author 82}`（GeWu 匿名标签，约 10 篇）、`\author{kunchen}`（git 句柄）、`\author{Agent Scientific Author}`（凭空占位）、`\author{玮琦 蒋}`（中文名序倒置，与英文正文混排）。新规则（constitution §4）：作者行必须是**人名**，英文场刊用拉丁字母与场刊姓名序；不得出现平台标签、登录句柄、角色名或占位符；真名不可得时用 `Authors to be supplied by the submitting authors` 并在 `research/` 记录未决的作者身份。真名需从 GeWu 系统取（受 API scope 阻塞）。
