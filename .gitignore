@@ -5,6 +5,7 @@
 # Keep its outer manifest, but do not turn children into unusable gitlinks.
 /gewu-top30/*
 !/gewu-top30/MANIFEST.json
+!/gewu-top30/AUTHORSHIP.json
 
 # LaTeX build products
 *.aux

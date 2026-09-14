@@ -251,7 +251,31 @@ states no coverage and no cap. `research/validation.md` must record, per check,
 the coverage reached and whether it completed or hit its cap; a claim that rests
 on a capped or absent check is marked conditional in the manuscript.
 
-## 13. Proofread pass
+## 13. Attribution and prose-shape gate
+
+```bash
+# production note present, and the author line is not a placeholder when the
+# platform record names authors
+grep -rnE 'acknowledgments|Production and authorship' paper/*.tex paper/sections/*.tex | head
+grep -rnE '\\author\{' paper/*.tex | head
+# list-dominated sections: an itemize-heavy section file is an outline
+for f in paper/sections/*.tex; do
+  items=$(grep -c '\\item' "$f"); lines=$(grep -cvE '^\s*$' "$f")
+  [ "$lines" -gt 0 ] && [ $((items * 100 / lines)) -gt 45 ] && echo "LIST-DOMINATED: $f ($items items / $lines lines)"
+done
+```
+
+- The manuscript has a production note naming the source Solution, its authors,
+  the collaborating agents, the harness and the model, and the checks performed;
+  the note sits before the appendices and is the only place those names appear.
+- The author line uses the Solution's own authorship from
+  `gewu-top30/AUTHORSHIP.json`; a placeholder is a defect when the record names
+  real authors, and an invented name is a fabrication.
+- No section is list-dominated: limitations, discussion, related work and
+  conclusion are prose. Flag every `LIST-DOMINATED` hit and rewrite it as
+  sentences before delivery.
+
+## 14. Proofread pass
 
 Load `references/skills-imported/proofreading/SKILL.md` and run its six checks
 against the LaTeX sources (abbreviations, math notation, introduction structure,
@@ -259,7 +283,7 @@ grammar/style, figures and tables, statistics). Report line-level findings. A
 proofread that changes wording must not also certify the same text; re-run the
 affected consistency checks afterwards.
 
-## 14. Final report
+## 15. Final report
 
 Record in `research/validation.md`: the commands actually run and their
 results, the files and pages inspected, the bibliography size and coverage

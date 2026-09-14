@@ -106,6 +106,18 @@ Load the domain guide and `references/skills-imported/scientific-writing.md`
    limitations and what they prevent;
 5. abstract — last, from the finished paper (constitution §7, domain guide).
 
+Write limitations and discussion as prose, not as a bullet list: each limitation
+is a sentence stating what the evidence does not establish and what that
+prevents. A short parallel list may accompany the prose; a list-only section is
+an outline and is rejected at preflight.
+
+Before assembly, write the attribution: read
+`references/knowledge/authorship.md` and the Solution's record in
+`gewu-top30/AUTHORSHIP.json`, set the author line from the repository's own
+authorship, list the collaborating Scientific Authors, and add the short
+production note (harness, model, checks performed, blocked gates). That note is
+the only place in the manuscript where a harness or model name may appear.
+
 Completeness bar: a section is done when it carries substantive paragraphs,
 equations, or tables with evidence links. Restating a README, narrating file
 inspection, or giving model instructions is not content. When the source is

@@ -64,6 +64,14 @@ suggestion.
   and the final two pages. A page beginning with a lowercase continuation, a
   one-word fragment, or a detached caption is a defect.
 
+## List-dominated sections
+
+Check every section for list dominance, especially limitations, discussion,
+related work and conclusion: a section whose body is almost entirely
+`itemize`/`enumerate` items is an outline, not a written section. Report it as a
+finding with the section name. A short parallel list inside a prose section is
+fine; a list-only section is not.
+
 ## Page 1 and the reference page
 
 Two pages deserve an explicit check; both defects below were invisible in the

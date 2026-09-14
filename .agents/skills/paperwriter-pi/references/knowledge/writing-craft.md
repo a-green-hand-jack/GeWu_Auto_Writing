@@ -50,6 +50,23 @@ title and abstract must match what was really covered.
   specific and substantive: name at least two real ones, and say what they
   prevent. "Future work will address this" is not a limitation.
 
+## Sections are prose, not bullet lists
+
+A section written entirely as a bullet list is an outline that was never written
+up. This applies most often to limitations, discussion, related work, and
+conclusions.
+
+- State each limitation as a sentence: what the evidence does not establish, and
+  what that prevents a reader from concluding. Two or three real sentences beat
+  eight fragments.
+- A short list is acceptable only where the items are genuinely parallel and
+  genuinely short — three named open cases, four checked regimes. It must not be
+  the whole section, and it must be introduced and followed by prose.
+- The same rule covers "contributions" lists, method steps, and results: a list
+  may summarise, it may not carry the argument.
+- A reader must be able to read the section top to bottom as sentences. If the
+  section cannot be read that way, rewrite it as prose.
+
 ## Claim strength
 
 Match the verb to the evidence:

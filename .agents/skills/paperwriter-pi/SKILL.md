@@ -50,6 +50,13 @@ one workflow, one domain file, then the gates.
    domain's framework "for the derivations"**: each domain file already carries
    the derivation hygiene it needs.
 
+**`references/knowledge/authorship.md`** — required attribution: the author line
+comes from the Solution's own authorship (owner and commit authors, from
+`gewu-top30/AUTHORSHIP.json`), the collaborating Scientific Authors are listed,
+and one short production note states the source, the agents, the harness and the
+model, and the checks performed. That note is the only place in the manuscript
+where a harness or model name may appear.
+
 **`references/skills-imported/`** — adapted skills from the ResearchWorld_paper
 project that this bundle uses at specific stages: `scientific-writing.md` while
 drafting, `anti-ai-tone.md` before assembly, `proofreading/SKILL.md` and

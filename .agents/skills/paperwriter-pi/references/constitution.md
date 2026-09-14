@@ -128,6 +128,16 @@ number only when it supports a stated claim and the reader can interpret its
 units, scale, uncertainty, and origin; use justified precision and keep full
 values in `research/provenance.md`.
 
+### 9.1 Required production disclosure
+
+A short production note — placed before the appendices, in the acknowledgments
+or a final unnumbered subsection — is **required** and is the only permitted
+place for a harness, model, provider, platform, or run name. It states the
+source repository and its authors, the collaborating agents, the harness and
+model used to produce the manuscript, which checks were performed, and which
+gates are blocked. See `references/knowledge/authorship.md`. This exception does
+not weaken the rule anywhere else in the manuscript.
+
 ## 10. Scope and gates
 
 - A partial result with an explicit scope is a legitimate paper; never
