@@ -121,3 +121,19 @@
 
 **作者行是白名单（用户 2026-09-14 明确）**：`\author{}` / `\collaboration{}` **逐字取自** `gewu-top30/AUTHORSHIP.json` 的 display 形式，GeWu 的标签（`Scientific Author 82`、`kunchen`、`玮琦 蒋`）**按原样写入即为正确**——不要翻译、不要调序、不要罗马化、不要"改进"。我此前把它当缺陷要求改真名是**误判**，已改正（constitution §4、checks §2 的 grep 排除该两字段、production §5、launcher）。唯一保留的底线：不得凭空编造作者，不得把记录中已有的 display 形式换成占位符。
 
+## 严重缺陷：工作目录错位与 agent 自毁（2026-09-14 第六轮 B）
+
+**现象**：30 个任务里 **7 个稿件归零**（`.tex` 全无），其中 `23-solution-p3234` 在 workspace 完全空的情况下以 **exit 0 报告成功**；另有 `paper/figures,`、`workspace/{paper`、`research/checks,` 这类**畸形目录**；4 个任务把文件写到 workspace 之外；复活 7 篇时发现它们的 **`task.md` 已被删除**，连重跑都起不来。
+
+**根因一（运行器，决定性）**：`gewu-run` 在启动 pi 前执行 `cd "$TASK_DIR"`——pi 的工作目录是**任务目录**而非 workspace。技能与任务书都要求所有产物落在 `WORKSPACE` 内，于是相对路径全部逃逸，且任何 run 级检查都看不到。已修：`cd "$TASK_DIR/workspace"`，并用 `/proc/<pid>/cwd` 验证。
+
+**根因二（agent 行为）**：有 agent 把技能里的 workspace 目录树当成 `mkdir` 命令清单去"创建目录"，用了花括号/逗号形式，产生畸形目录；并有 agent 执行了破坏性命令删掉自己的 `task.md`。已修：SKILL.md 明写"这些目录已存在，不要创建；禁止 mkdir 该树、禁止 rm/mv/rmdir、禁止花括号/逗号路径"，并要求**收尾前确认 `paper/main.tex` 与 PDF 存在**。
+
+**根因三（判定漏洞）**：pi 退出码 0 即视为成功，即使 workspace 全空。已修：退出码 0 但缺 `workspace/paper/main.tex` → 记为失败（RC=9），走正常重试。
+
+**教训**：
+1. **工作目录是契约的一部分**——规定"产物必须落在 WORKSPACE"却不把进程 cwd 设进去，等于没有这条规定。
+2. **"成功"必须由产物定义，而不是由退出码定义**。
+3. 目录树写在文档里会被模型当成命令执行；必须显式说明"已存在、不要创建"。
+4. 删除类操作要显式禁止——agent 会"顺手清理"，代价不可逆。
+
