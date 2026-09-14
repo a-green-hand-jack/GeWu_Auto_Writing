@@ -20,6 +20,8 @@ SKILL_SRC="$SRC/.agents/skills/$SKILL_NAME"
 CLI="gewu-run gewu-batch gewu-revive gewu-verify gewu-lit pdf-pages gewu-doctor"
 
 TARGET="auto"; BIN="$HOME/.local/bin"; WITH_CLI=1; DRY=0; UNINSTALL=0; DOCTOR=1; LINK=0
+REPO_SLUG="${GEWU_REPO:-a-green-hand-jack/GeWu_Auto_Writing}"
+REF="${GEWU_REF:-main}"; SOURCE_URL="${GEWU_SOURCE:-}"
 
 usage() { sed -n '3,18p' "$0" | sed 's/^# \{0,1\}//'; cat <<'EOF'
 
@@ -32,6 +34,8 @@ Options:
   --dry-run          print the plan, change nothing
   --uninstall        remove a previous install of this skill and CLI
   --no-doctor        skip the dependency check at the end
+  --ref REF          which git ref to fetch when run without a checkout (default main)
+  --source URL       fetch the payload from this tarball instead of GitHub
   -h, --help         this text
 EOF
 }
@@ -46,6 +50,8 @@ while [ $# -gt 0 ]; do
     --dry-run) DRY=1; shift ;;
     --uninstall) UNINSTALL=1; shift ;;
     --no-doctor) DOCTOR=0; shift ;;
+    --ref) REF="${2:?}"; shift 2 ;;
+    --source) SOURCE_URL="${2:?}"; shift 2 ;;
     -h|--help) usage; exit 0 ;;
     *) echo "install.sh: unknown option '$1'" >&2; usage >&2; exit 2 ;;
   esac
@@ -54,7 +60,49 @@ done
 say() { printf '%s\n' "$*"; }
 run() { if [ "$DRY" = 1 ]; then say "  would: $*"; else "$@"; fi; }
 
-[ -d "$SKILL_SRC" ] || { echo "install.sh: no skill at $SKILL_SRC — run this from the repository root" >&2; exit 2; }
+# --- acquire the payload if this script is running on its own ------------------
+# Two ways to run this: from a checkout (the usual case for a developer) or piped
+# straight from the network, e.g.
+#   curl -fsSL https://raw.githubusercontent.com/<slug>/<ref>/install.sh | bash
+# In the second case there is no checkout beside the script, so fetch one.
+FETCHED=""
+fetch_payload() {
+  local tmp url try
+  tmp="$(mktemp -d)"
+  if [ -n "$SOURCE_URL" ]; then
+    url="$SOURCE_URL"
+  else
+    url=""
+    for try in "refs/tags/$REF" "refs/heads/$REF"; do
+      if curl -fsSL -o "$tmp/p.tar.gz" "https://codeload.github.com/$REPO_SLUG/tar.gz/$try" 2>/dev/null; then
+        url="$try"; break
+      fi
+    done
+    [ -z "$url" ] && { echo "install.sh: cannot fetch $REPO_SLUG@$REF (tried tag and branch)" >&2; return 1; }
+  fi
+  if [ ! -s "$tmp/p.tar.gz" ]; then
+    curl -fsSL -o "$tmp/p.tar.gz" "$url" || { echo "install.sh: download failed: $url" >&2; return 1; }
+  fi
+  tar xzf "$tmp/p.tar.gz" -C "$tmp" || { echo "install.sh: not a usable tarball: $url" >&2; return 1; }
+  local root
+  root="$(find "$tmp" -maxdepth 2 -type d -name 'GeWu_Auto_Writing-*' | head -1)"
+  [ -n "$root" ] || { echo "install.sh: the tarball has no repository root" >&2; return 1; }
+  FETCHED="$root"
+  say "fetched:  $REPO_SLUG@$REF"
+  return 0
+}
+
+if [ ! -d "$SKILL_SRC" ]; then
+  if [ "$DRY" = 1 ] && [ -z "$SOURCE_URL" ]; then
+    say "no checkout beside this script; would fetch $REPO_SLUG@$REF"
+    FETCHED="/tmp/gewu-dry-run-payload"
+  else
+    fetch_payload || exit 2
+  fi
+  SRC="$FETCHED"
+  SKILL_SRC="$SRC/.agents/skills/$SKILL_NAME"
+fi
+[ -d "$SKILL_SRC" ] || { echo "install.sh: no skill at $SKILL_SRC" >&2; exit 2; }
 
 # --- where does the skill go -------------------------------------------------
 resolve_target() {

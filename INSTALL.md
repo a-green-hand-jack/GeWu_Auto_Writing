@@ -64,6 +64,34 @@ that harness's settings).
 The installer ends by running the dependency check, so a missing class file is
 reported now rather than forty minutes into a run.
 
+## 3. No checkout at all
+
+The installer also runs on its own. It notices there is no checkout beside it,
+downloads the repository tarball, and installs the skill and the CLI from that:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/a-green-hand-jack/GeWu_Auto_Writing/main/install.sh | bash
+```
+
+Options pass through `bash -s --`, so this pins a version and targets Claude Code:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/a-green-hand-jack/GeWu_Auto_Writing/main/install.sh \
+  | bash -s -- --ref v1.0.0 --target claude
+```
+
+`--ref` takes a tag or a branch; `--source URL` fetches a tarball from somewhere
+else; `GEWU_REPO`, `GEWU_REF` and `GEWU_SOURCE` do the same from the environment.
+
+Piping a script from the network into a shell is convenient and is also the form
+that trusts the network. If you would rather read it first, do the two steps
+yourself:
+
+```bash
+curl -fsSL https://codeload.github.com/a-green-hand-jack/GeWu_Auto_Writing/tar.gz/refs/heads/main | tar xz
+cd GeWu_Auto_Writing-main && ./install.sh
+```
+
 ## Requirements
 
 `gewu-doctor` checks all of this and prints the exact remedy for whatever is
