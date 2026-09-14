@@ -67,10 +67,8 @@ Write `research/plan.md` before any prose:
 
 ## 5. Literature — through LKM
 
-Retrieval is not optional and not a formality. Bidirectional engagement with the
-field is what separates a paper from a write-up, and the previous rounds fell
-short here for a mechanical reason: publisher and arXiv pages answer 429/403
-from the compute host, so most references stalled at metadata.
+Engaging the field is the point: a paper that does not position itself among
+the prior results is a write-up, not a paper.
 
 **LKM is the primary route.** Bohrium's Large Knowledge Model is reachable from
 the host through the governed helper `tools/gewu-lit`, which wraps the `bohr`
@@ -192,10 +190,10 @@ round got wrong:
 Run one language pass over the finished prose (`writing.md` §9) before final
 assembly: fix the machine-drafting tells, change no claim, number or citation.
 
-Attribution: copy the author and collaboration display forms verbatim from
-`gewu-top30/AUTHORSHIP.json` (`constitution.md` §4), and cite the source
+Attribution: copy the author and collaboration display forms verbatim from the
+authorship record supplied with the run, whatever it names, and cite the source
 repository or repositories as ordinary references in the bibliography
-(`constitution.md` §7). No harness, model, provider, host or process words
+(`constitution.md` §4 and §7). No harness, model, provider, host or process words
 anywhere in the manuscript.
 
 ## 9. Compile and inspect

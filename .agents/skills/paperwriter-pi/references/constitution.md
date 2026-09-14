@@ -81,11 +81,13 @@ copied from source artifacts. Report a number only when it supports a stated
 claim and the reader can interpret its units, scale, uncertainty, and origin.
 
 **The author line is a whitelist.** The `\author{}` and `\collaboration{}`
-fields are filled **verbatim from the Solution's authorship record**
-(`gewu-top30/AUTHORSHIP.json`), whose display forms are authoritative and
-approved as they stand — including GeWu's own labels. Whatever the record gives
-(`Scientific Author 82`, `kunchen`, `玮琦 蒋`, `Qihang Wang; jiangwei001`)
+fields are filled **verbatim from the authorship record supplied with the run**,
+whose display forms are authoritative and approved as they stand — including
+labels a platform generated. Whatever the record gives
+(`Scientific Author 82`, `kunchen`, `玮琦 蒋`, `Qihang Wang; jiangweiqi001`)
 goes in as given: do not translate it, reorder it, romanize it, or "improve" it.
+The task names the record and where it sits; when a source has no record, say so
+in `research/` rather than inventing a line.
 
 Never invent an author, and never replace a display form the record actually has
 with a placeholder.

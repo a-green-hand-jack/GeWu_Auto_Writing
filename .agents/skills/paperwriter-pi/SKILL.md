@@ -114,9 +114,9 @@ from the inside.
 
 ## Attribution
 
-- The author and collaboration lines are copied **verbatim** from the Solution's
-  record in `gewu-top30/AUTHORSHIP.json`; that record is a whitelist
-  (`constitution.md` §4).
+- The author and collaboration lines are copied **verbatim** from the
+  authorship record the run was given, whichever record that is; it is a
+  whitelist, so its labels go in as they stand (`constitution.md` §4).
 - The source repository or repositories are cited as ordinary references in the
   bibliography, one entry each (`constitution.md` §7).
 - Nothing about the process: no harness, model, provider, host, agent, prompt,

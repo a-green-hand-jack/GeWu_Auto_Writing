@@ -65,9 +65,9 @@ ordinary bibliography entry and that the text cites it:
 grep -rn 'bethesda\|repository\|github\|gitlab\|GeWu\|Solution' paper/references.bib paper/*.bbl 2>/dev/null | head
 ```
 
-The `\author{}` and `\collaboration{}` values must match
-`gewu-top30/AUTHORSHIP.json` display forms **verbatim** — that record is a
-whitelist, so a GeWu label there is expected, not a violation. Report only a
+The `\author{}` and `\collaboration{}` values must match the display forms of
+the authorship record the run was given, **verbatim** — that record is a
+whitelist, so a generated label there is expected, not a violation. Report only a
 value absent from the record, an invented name, or a placeholder substituted for
 a display form the record has.
 
