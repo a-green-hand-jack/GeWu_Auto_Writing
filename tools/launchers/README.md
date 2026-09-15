@@ -37,7 +37,7 @@ was for and how a delivered defect was addressed.
 | `launch_round8.sh` | `round8-fix` | re-run of the 6 papers round 7 delivered with appendix or limitations defects |
 | `launch_round9.sh` | `round9-lkm` | LKM literature integration; stopped and superseded |
 | `launch_round10.sh` | `round10-final` | all 30, prompt re-audited against the rewritten skill; 30/30, all 14 gates passing |
-| `launch_round11.sh` | `round11-prose` | all 30, after the prose-shape rule was relocated to `writing.md` §9 and the gate taught to count labelled paragraphs |
+| `launch_round11.sh` | `round11-prose` | all 30, after the prose-shape rule was relocated to `writing.md` §9 and the gate taught to count labelled paragraphs. 30/30, 0 gate failures; labelled paragraphs 8.4% -> 2.2% |
 
 Round 6 (`round6-slim`) and round 6b are superseded; their run directories carry
 `SUPERSEDED.md` / `STOPPED.md`.
