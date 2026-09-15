@@ -236,12 +236,30 @@ def literature(ws):
 
 
 def prose_shape(ws):
+    """Paragraphs that open with a label, as a share of the file's paragraphs.
+
+    This used to count item density, which caught nothing: the drafts average one
+    list environment per paper, while the real habit -- a run of paragraphs each
+    opening with \\paragraph{...}, \\textbf{...} or a letter -- went unseen. One
+    delivered round had 275 labelled paragraphs out of 3280, with the worst body
+    file at five of six. Appendix files are exempt: they carry what a reader needs
+    to check, not the argument.
+    """
+    appendix = set()
+    main = os.path.join(ws, "paper", "main.tex")
+    if os.path.exists(main):
+        text = read(main)
+        if "\\appendix" in text:
+            for m in re.finditer(r"\\input\{([^}]+)\}", text[text.index("\\appendix"):]):
+                appendix.add(os.path.basename(m.group(1)).removesuffix(".tex"))
     worst = []
     for f in glob.glob(os.path.join(ws, "paper", "sections", "*.tex")):
-        lines = [l for l in read(f).splitlines() if l.strip()]
-        items = read(f).count("\\item")
-        if lines and items * 100 / len(lines) > 45:
-            worst.append((os.path.basename(f), items, len(lines)))
+        if os.path.basename(f).removesuffix(".tex") in appendix:
+            continue
+        ps = [b for b in re.split(r"\n\s*\n", read(f)) if b.strip()]
+        lab = [x for x in ps if re.match(r"^\s*(?:\\paragraph\{|\\textbf\{|\\emph\{)", x)]
+        if len(lab) >= 4 and len(lab) * 2 >= len(ps):
+            worst.append((os.path.basename(f), len(lab), len(ps)))
     return worst
 
 
@@ -370,7 +388,8 @@ def main():
             vals, note = authors(ws, record)
             row["checks"].append(("author line", "NOT in record" not in note, note))
             worst = prose_shape(ws)
-            row["checks"].append(("prose shape", not worst, str(worst) if worst else "no list-dominated section"))
+            row["checks"].append(("prose shape", not worst,
+                                  str(worst) if worst else "no list-shaped body section"))
             row["literature"] = literature(ws)
         pdfs = glob.glob(os.path.join(ws, "paper", "main.pdf")) + glob.glob(os.path.join(ws, "*.pdf"))
         if pdfs:

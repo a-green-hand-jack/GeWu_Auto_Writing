@@ -174,15 +174,28 @@ mismatch to a prose heading such as `Main result`, `Derivation`, or
 
 ## 8. Prose shape
 
+The old test here counted `\item` density, which measured a pattern our drafts
+almost never use — one list environment per paper on average — while the pattern
+that does appear went unseen: paragraphs that open with a label. In the delivered
+round, 275 of 3280 paragraphs did, and the worst body file had five of its six
+paragraphs labelled. Count that instead, per section file:
+
 ```bash
-for f in paper/sections/*.tex; do
-  items=$(grep -c '\\item' "$f"); lines=$(grep -cvE '^\s*$' "$f")
-  [ "$lines" -gt 0 ] && [ $((items * 100 / lines)) -gt 45 ] && echo "LIST-DOMINATED: $f ($items items / $lines lines)"
-done
+python3 - <<'SNIP'
+import glob, re
+for f in sorted(glob.glob("paper/sections/*.tex")):
+    t = open(f, errors="ignore").read()
+    ps = [b for b in re.split(r"\n\s*\n", t) if b.strip()]
+    lab = [p for p in ps if re.match(r"^\s*(?:\\paragraph\{|\\textbf\{|\\emph\{)", p)]
+    if len(lab) >= 4 and len(lab) * 2 >= len(ps):
+        print("LIST-IN-PROSE: %s (%d of %d paragraphs open with a label)" % (f, len(lab), len(ps)))
+SNIP
 ```
 
-Discussion, related work, conclusion and any limitations prose are sentences. A
-section that is a bullet list is an outline: rewrite it before delivery.
+Body files that hit this are rewritten as prose (`writing.md` §9), not reported.
+A file that lives under `\appendix` may legitimately enumerate: it carries what a
+reader needs to check, not the argument. Discussion, outlook, related work and
+conclusion are prose end to end whatever their length.
 
 ## 9. Compile and rendered pages
 

@@ -197,9 +197,22 @@ sentence's subject cannot perform its verb, rewrite it.
 - Match the noun: *validate* needs data, *prove* needs a proof, *suggest*
   matches a trend.
 
+**Prose is the default unit.** A paragraph makes one move and the next paragraph
+continues it; that is how an argument reads. Reach for a list, or for a run of
+labelled paragraphs, only when the content genuinely is a set of independent
+items — assumptions, parameter ranges, data sets, the parts of a source's own
+numbered problem — and never to mark the steps of an argument.
+
 Machine-drafting tells, which a careful reader notices immediately — remove
 them:
 
+- a run of paragraphs that each open with a label — `\paragraph{...}`,
+  `\textbf{...}`, or `a.` / `b.` / `c.` — where the content is one continuous
+  argument. This is an outline that was never turned into prose, and it is what a
+  list looks like once `itemize` has been avoided. A single headed paragraph can
+  be right; five of six paragraphs is not. Discussion, outlook, related work and
+  conclusion are where it is least defensible: those sections exist to be read as
+  an argument, so they are prose end to end, not a set of labelled blocks;
 - triadic lists ("fast, accurate, and robust") used as rhythm rather than
   content;
 - the "not only… but also" and "not X, but Y" reversal cadences;
