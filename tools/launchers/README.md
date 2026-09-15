@@ -35,6 +35,9 @@ was for and how a delivered defect was addressed.
 | `launch_round6.sh` | `round6b-slim` | slimmed 6-file skill with GLM; stopped over workspace damage |
 | `launch_round7.sh` | `round7-fixed` | full re-run after the runner was fixed to start pi inside the workspace |
 | `launch_round8.sh` | `round8-fix` | re-run of the 6 papers round 7 delivered with appendix or limitations defects |
+| `launch_round9.sh` | `round9-lkm` | LKM literature integration; stopped and superseded |
+| `launch_round10.sh` | `round10-final` | all 30, prompt re-audited against the rewritten skill; 30/30, all 14 gates passing |
+| `launch_round11.sh` | `round11-prose` | all 30, after the prose-shape rule was relocated to `writing.md` §9 and the gate taught to count labelled paragraphs |
 
 Round 6 (`round6-slim`) and round 6b are superseded; their run directories carry
 `SUPERSEDED.md` / `STOPPED.md`.

@@ -85,24 +85,41 @@ def entries(ws):
     # expected to have one, and the first version flagged thirteen back-matter
     # files in a round that had no real defect of this kind.
     backmatter = re.compile(r"(?i)abstract|ack|prodnote|production|repro|supplement|data|"
-                            r"appendix|check|validation")
-    for m in re.finditer(r"\\input\{([^}]*)\}|\\section\*?\{([^}]*)\}", read(ent)):
-        if m.group(1):
+                            r"appendi(x|ces|ces)|check|validation")
+
+    def collect(text, depth, ordered, missing, nosection):
+        """Sections reachable from text, following container files.
+
+        A file that only inputs others carries no section heading of its own. One
+        delivered paper named that container appendices.tex -- and the exemption
+        list above said "appendix", which is not a substring of "appendices", so
+        the file was reported as a section that lost its heading. Rather than
+        patch the spelling, follow the container: its inputs are the sections,
+        and they are collected recursively.
+        """
+        for m in re.finditer(r"\\input\{([^}]*)\}|\\section\*?\{([^}]*)\}", text):
+            if not m.group(1):
+                ordered.append((m.group(2), base))
+                continue
             f = m.group(1)
             fp = os.path.join(base, f if f.endswith(".tex") else f + ".tex")
             if not os.path.exists(fp):
                 missing.append(f); continue
-            s = read(fp)
-            mm = re.search(r"\\section\*?\{([^}]*)\}", s)
-            if mm:
+            body = read(fp)
+            if re.search(r"\\section\*?\{", body):
+                mm = re.search(r"\\section\*?\{([^}]*)\}", body)
                 ordered.append((re.sub(r"\\label\{[^}]*\}", "", mm.group(1)).strip(), fp))
+            elif re.search(r"\\input\{", body) and depth < 3:
+                # Same base: LaTeX resolves \input against the compile directory
+                # (the entrypoint's), not against the including file.
+                collect(body, depth + 1, ordered, missing, nosection)
             elif not backmatter.search(os.path.basename(fp)) and not backmatter.search(f):
                 # A file that opens with \subsection is a container of subsections
                 # (the Nature "Methods", for one), not a section that lost its heading.
-                if not re.search(r"\\subsection\*?\{", read(fp)):
+                if not re.search(r"\\subsection\*?\{", body):
                     nosection.append(f)
-        else:
-            ordered.append((m.group(2), ent))
+
+    collect(read(ent), 0, ordered, missing, nosection)
     if missing: issue.append("missing input: " + ", ".join(missing))
     if nosection: issue.append("no \\section in: " + ", ".join(nosection))
     return ent, ordered, issue
@@ -333,7 +350,11 @@ def pdf_facts(pdf):
     pages = len(doc)
     app_start = None
     for i in range(pages):
-        t = doc[i].get_textpage().get_text_range()
+        # Only the top of the page: a heading is set there, while a body sentence
+        # that says "re-derived independently in Appendix E" can wrap so that
+        # "Appendix E." starts a line in the middle of a page. One finished paper
+        # was read as appendix-first (body 3 pages, appendix 14) for exactly that.
+        t = doc[i].get_textpage().get_text_range()[:200]
         if re.search(r"(?m)^\s*(APPENDIX|Appendix)\s+[A-Z]", t):
             app_start = i + 1; break
     # Only PRX and amsart print an "Appendix A" heading this way. In the Nature and
